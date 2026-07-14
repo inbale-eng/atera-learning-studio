@@ -1,0 +1,11 @@
+/* ============================================================
+   Atera Product (Light) Design System — root stylesheet
+   ------------------------------------------------------------
+   Single entry point for consumers. Link this one file:
+       <link rel="stylesheet" href="styles.css">
+   It pulls in the canonical token + type layer, then the
+   coach-mark annotation font used by the brand-book site.
+   ============================================================ */
+
+@import url("colors_and_type.css");
+@import url("coach-mark.css");

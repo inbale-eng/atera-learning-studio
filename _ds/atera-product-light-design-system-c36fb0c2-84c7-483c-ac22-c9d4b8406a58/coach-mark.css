@@ -1,0 +1,47 @@
+/* =====================================================================
+   Coach-mark font — "Might Makes Right Pro BB"
+   ---------------------------------------------------------------------
+   This font is NOT part of the Atera design system. It's used only for
+   handwritten-style annotations and coach-marks in this brand-book site
+   (e.g. the "Customized" stamp on the Display Icons hero, or hand-drawn
+   call-outs that point to examples).
+
+   Use the .coach-mark class on any element that should render in this
+   sketchy/marker style. Do NOT use it for product UI copy.
+   ===================================================================== */
+
+@font-face{
+  font-family:"Coach Mark";
+  src:url("assets/fonts-coach-mark/MightMakesRightProBB_Reg.otf") format("opentype");
+  font-weight:400;font-style:normal;font-display:swap;
+}
+@font-face{
+  font-family:"Coach Mark";
+  src:url("assets/fonts-coach-mark/MightMakesRightProBB_Ital.otf") format("opentype");
+  font-weight:400;font-style:italic;font-display:swap;
+}
+@font-face{
+  font-family:"Coach Mark";
+  src:url("assets/fonts-coach-mark/MightMakesRightProBB_Bold.otf") format("opentype");
+  font-weight:700;font-style:normal;font-display:swap;
+}
+@font-face{
+  font-family:"Coach Mark";
+  src:url("assets/fonts-coach-mark/MightMakesRightProBB_BoldItal.otf") format("opentype");
+  font-weight:700;font-style:italic;font-display:swap;
+}
+
+:root{
+  --font-coach-mark:"Coach Mark","Caveat","Comic Sans MS",cursive;
+}
+
+/* Utility: drop this class on any annotation element. */
+.coach-mark{
+  font-family:var(--font-coach-mark);
+  font-weight:700;
+  letter-spacing:.01em;
+  /* Pink to match the brand's accent and signal "this is a note". */
+  color:var(--pink-600,#FF176B);
+}
+.coach-mark--italic{font-style:italic}
+.coach-mark--regular{font-weight:400}
