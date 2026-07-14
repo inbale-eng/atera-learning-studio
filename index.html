@@ -144,7 +144,7 @@ class Component extends DCLogic {
   copyChanges(){
     const cs = this.state.changes||[];
     const lines = cs.length ? cs.map(c=>'- '+c.desc) : ['- (edits made before change tracking — see JSON)'];
-    const payload = 'Learning Studio — please bake my unsaved changes into the shared content file learning-studio.state.json by replacing its contents with the JSON below.\n\nChange log:\n'+lines.join('\n')+'\n\nNew state JSON:\n```json\n'+JSON.stringify({ version:1, savedAt: Date.now(), library: this.state.library, folders: this.state.folders })+'\n```';
+    const payload = 'Learning Studio — please bake my unsaved changes into the shared content file learning-studio-v3.state.json by replacing its contents with the JSON below.\n\nChange log:\n'+lines.join('\n')+'\n\nNew state JSON:\n```json\n'+JSON.stringify({ version:1, savedAt: Date.now(), library: this.state.library, folders: this.state.folders })+'\n```';
     const done = ()=>{ this.setState(s=>({ changes:(s.changes||[]).map(c=>Object.assign({},c,{copied:true})) })); this.scheduleLocalSave(); this.toast('Copied — paste it to Claude in the project chat'); };
     try{ navigator.clipboard.writeText(payload).then(done, ()=>this.fallbackCopy(payload, done)); }catch(e){ this.fallbackCopy(payload, done); }
   }
@@ -220,7 +220,7 @@ class Component extends DCLogic {
   async sbSave(payload){ const c=this.sb(); if(!c) throw new Error('not configured');
     const body = [{ id:this.sbRowId(), data:{ version:1, library:payload.library, folders:payload.folders }, updated_at:new Date().toISOString() }];
     const r = await fetch(`${c.url}/rest/v1/app_state?on_conflict=id`, { method:'POST', headers:this.sbHeaders({ Prefer:'resolution=merge-duplicates,return=minimal' }), body:JSON.stringify(body) });
-    if(!r.ok){ let t=''; try{ t = await r.text(); }catch(e2){} throw new Error(r.status+': '+(t||'no details')); }
+    if(!r.ok) throw new Error('save '+r.status);
   }
   editable(){ return !!(window.omelette && window.omelette.writeFile); }
   draftKey(){ return 'learning-studio.draft.v3'; }
@@ -267,7 +267,7 @@ class Component extends DCLogic {
     const done = (msg)=>{ this._base = { library: structuredClone(lib), folders: structuredClone(this.state.folders) }; this.setState({ dirty:false, saving:false, changes:[], redo:[] }); this.scheduleLocalSave(); this.toast(msg); };
     const payload = { version:1, savedAt:ts, library:lib, folders:this.state.folders };
     const cfg = this.sb();
-    if(cfg){ this.setState({ saving:true }); this.sbSave(payload).then(()=>done('Saved to the shared database — everyone sees the latest')).catch((e)=>{ this.setState({ saving:false }); this.toast('DB error: '+(e&&e.message?e.message:e)); }); return; }
+    if(cfg){ this.setState({ saving:true }); this.sbSave(payload).then(()=>done('Saved to the shared database — everyone sees the latest')).catch(()=>{ this.setState({ saving:false }); this.toast('Saved on this device — database save failed, try again'); }); return; }
     const w = window.omelette && window.omelette.writeFile;
     if(!w){ done('Saved on this device'); return; }
     this.setState({ saving:true }); const fp = JSON.stringify(payload);
@@ -278,7 +278,7 @@ class Component extends DCLogic {
   patchBlock(bid, patch){ this.withLesson(l => { const b = l.blocks.find(x => x.id === bid); if (b) Object.assign(b, patch); }); }
   editBlock(bid, fn){ this.withLesson(l => { const b = l.blocks.find(x => x.id === bid); if (b) fn(b); }); }
 
-  toast(msg){ this.setState({ toast: msg }); clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toast: null }), 8000); }
+  toast(msg){ this.setState({ toast: msg }); clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toast: null }), 2600); }
 
   lget(bid){ return this.state.learn[bid] || {}; }
   lset(bid, patch){ this.setState(s => ({ learn: { ...s.learn, [bid]: { ...s.learn[bid], ...patch } } })); }
@@ -808,12 +808,12 @@ class Component extends DCLogic {
     const mi = (icon, label, onClick, danger)=>this.h('button', { key:label, onClick:(e)=>{ e.stopPropagation(); onClick(); }, style:{ display:'flex', alignItems:'center', gap:'9px', width:'100%', padding:'8px 10px', border:'none', background:'transparent', borderRadius:'7px', cursor:'pointer', font:'400 13px/1 var(--font-roboto)', color: danger?'var(--content-danger-text-bold)':'var(--content-neutral-primary)', textAlign:'left' },
       onMouseEnter:e=>e.currentTarget.style.background = danger?'var(--red-100)':'var(--gray-100)', onMouseLeave:e=>e.currentTarget.style.background='transparent' }, this.ic(icon,15, danger?'var(--content-danger-icon)':'var(--content-neutral-secondary)'), label);
     return this.h('div', { style:{ position:'relative', ...(opts.wrap||{}) } },
-      this.h('button', { title:'More', onClick:(e)=>{ e.stopPropagation(); this.setState(s=>({ itemMenu: s.itemMenu===it.id?null:it.id })); },
+      this.h('button', { title:'More', onClick:(e)=>{ e.stopPropagation(); const r=e.currentTarget.getBoundingClientRect(); this.setState(s=>({ itemMenu: s.itemMenu===it.id?null:it.id, itemMenuRect: s.itemMenu===it.id?null:{ top:r.bottom+4, right:window.innerWidth-r.right } })); },
         style:{ width:'30px', height:'30px', display:'flex', alignItems:'center', justifyContent:'center', border:'none', borderRadius:'7px', cursor:'pointer', background: opts.onCover?'rgba(255,255,255,.92)':(open?'var(--gray-100)':'transparent'), boxShadow: opts.onCover?'var(--shadow-sm)':'none' },
         onMouseEnter:e=>{ if(!opts.onCover) e.currentTarget.style.background='var(--gray-100)'; }, onMouseLeave:e=>{ if(!opts.onCover && !open) e.currentTarget.style.background='transparent'; } }, this.ic('dots',18,'var(--content-neutral-secondary)')),
       open ? this.h(React.Fragment, null,
         this.h('div', { onClick:(e)=>{ e.stopPropagation(); this.setState({ itemMenu:null }); }, style:{ position:'fixed', inset:0, zIndex:80 } }),
-        this.h('div', { onClick:e=>e.stopPropagation(), className:'lc-scroll', style:{ position:'absolute', top:'calc(100% + 4px)', right:0, zIndex:90, width:'216px', background:'#fff', border:'1px solid var(--border-neutral-secondary)', borderRadius:'11px', boxShadow:'var(--shadow-lg)', padding:'5px', maxHeight:'320px', overflow:'auto', animation:'lc-pop .14s ease' } },
+        this.h('div', { onClick:e=>e.stopPropagation(), className:'lc-scroll', style:{ position:'fixed', top:(this.state.itemMenuRect?this.state.itemMenuRect.top:0)+'px', right:(this.state.itemMenuRect?this.state.itemMenuRect.right:0)+'px', zIndex:90, width:'216px', background:'#fff', border:'1px solid var(--border-neutral-secondary)', borderRadius:'11px', boxShadow:'var(--shadow-lg)', padding:'5px', maxHeight:'320px', overflow:'auto', animation:'lc-pop .14s ease' } },
           mi('pencil','Open', ()=>this.openEditor(it.id)),
           mi('copy','Duplicate', ()=>this.duplicateItem(it.id)),
           this.h('div', { style:{ height:'1px', background:'var(--border-neutral-secondary)', margin:'5px 2px' } }),
@@ -848,7 +848,13 @@ class Component extends DCLogic {
           choice('lesson','OpenBook','Single lesson','One focused, standalone micro-lesson.'),
           choice('path','Process','Learning path','Several courses with rules — required steps, electives, and branches.')),
         this.h('div', { style:{ padding:'0 24px 8px' } }, this.field(this.state.newTitle, v=>this.setState({newTitle:v}), { label:'Title *', placeholder: this.state.newKind==='path'?'e.g. MSP Onboarding':this.state.newKind==='course'?'e.g. Autopilot Fundamentals':'e.g. Reading the AI Center' })),
-        this.h('div', { style:{ padding:'12px 24px 0' } }, this.field(this.state.newAuthor, v=>this.setState({newAuthor:v}), { label:'Created by *', placeholder:'e.g. Dana K. — Atera Training' })),
+        this.h('div', { style:{ padding:'12px 24px 0' } },
+          this.h('label', { style:{ display:'block' } },
+            this.h('div', { style:{ font:'500 12px/16px var(--font-roboto)', color:'var(--content-neutral-secondary)', marginBottom:'5px' } }, 'Created by *'),
+            this.h('select', { value:this.state.newAuthor||'', onChange:e=>this.setState({ newAuthor:e.target.value }),
+              style:{ width:'100%', height:'38px', padding:'0 10px', border:'1px solid var(--border-neutral-secondary)', borderRadius:'8px', background:'#fff', font:'400 14px/20px var(--font-roboto)', color: this.state.newAuthor?'var(--content-neutral-primary)':'var(--content-neutral-tertiary)', cursor:'pointer' } },
+              this.h('option', { value:'', disabled:true }, 'Select a creator'),
+              ['Inbal Eldad','Moran Perrodin','Ariel Petsonk','Rebecca Shiff','Levi Frolich'].map(n=>this.h('option', { key:n, value:n }, n))))),
         this.h('div', { style:{ padding:'12px 24px 8px' } }, this.folderSelect()),
         this.h('div', { style:{ display:'flex', justifyContent:'flex-end', gap:'10px', padding:'16px 24px', borderTop:'1px solid var(--border-neutral-secondary)', marginTop:'12px' } },
           this.btn('Cancel', ()=>this.setState({modal:null}), 'ghost'),
@@ -1428,6 +1434,13 @@ class Component extends DCLogic {
       case 'multimedia': return this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'10px' } },
         F(bk.url, v=>this.patchBlock(bk.id,{url:v}), { label:'Video URL (YouTube, Vimeo, or .mp4)', placeholder:'https://www.youtube.com/watch?v=...' }),
         F(bk.caption, v=>this.patchBlock(bk.id,{caption:v}), { label:'Caption', placeholder:'Optional caption' }),
+        this.toggle('Require learners to watch the full video before continuing', !!bk.requireWatch, ()=>this.patchBlock(bk.id,{ requireWatch:!bk.requireWatch })),
+        bk.requireWatch ? this.h('div', { style:{ display:'flex', alignItems:'center', gap:'12px', padding:'10px 14px', background:'var(--gray-50)', border:'1px solid var(--border-neutral-secondary)', borderRadius:'10px' } },
+          this.h('span', { style:{ font:'500 13px/18px var(--font-roboto)', color:'var(--content-neutral-secondary)', flex:'none' } }, 'Required watch'),
+          this.h('input', { type:'range', min:50, max:100, step:5, value: bk.watchPct==null?90:bk.watchPct,
+            onChange:(e)=>this.patchBlock(bk.id,{ watchPct:Number(e.target.value) }),
+            style:{ flex:1, accentColor:'var(--fill-brand-bold)', cursor:'pointer' } }),
+          this.h('span', { style:{ font:'600 13px/18px var(--font-roboto)', color:'var(--content-neutral-primary)', minWidth:'40px', textAlign:'right' } }, (bk.watchPct==null?90:bk.watchPct)+'%')) : null,
         this.h('div', { style:{ borderRadius:'10px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)' } }, this.renderVideo(bk, 220)));
       case 'labeledgraphic': return this.h('div', null,
         this.h('div', { style:{ fontSize:'12px', color:'var(--content-neutral-tertiary)', marginBottom:'8px' } }, 'Drag the numbered markers onto the image to position them.'),
@@ -1537,14 +1550,133 @@ class Component extends DCLogic {
     this.editBlock(bk.id, b => { const m=b.markers.find(mm=>mm.id===this.state.drag.mid); if(m){ m.x=Math.round(x); m.y=Math.round(y); } });
   }
 
-  renderVideo(bk, height){
+  _ensureScript(src){ this._scripts = this._scripts || {}; if(this._scripts[src]) return this._scripts[src];
+    return this._scripts[src] = new Promise((res)=>{ const s=document.createElement('script'); s.src=src; s.async=true; s.onload=()=>res(); s.onerror=()=>res(); document.head.appendChild(s); }); }
+  // Locked-mode overlay: custom play/pause + read-only progress. No native timeline to drag.
+  _fmtT(s){ s=Math.max(0,Math.floor(s||0)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+  _lockedChrome(ui){
+    return this.h('div', { style:{ position:'absolute', inset:0, display:'flex', flexDirection:'column', justifyContent:'flex-end' } },
+      // click layer swallows all clicks on the player (blocks the embedded UI entirely)
+      this.h('div', { onClick:ui.toggle, style:{ position:'absolute', inset:0, cursor:'pointer' } }),
+      this.h('div', { ref:el=>{ ui.bigEl=el; }, style:{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', pointerEvents:'none' } },
+        this.h('div', { style:{ width:'64px', height:'64px', borderRadius:'50%', background:'rgba(26,26,26,0.65)', display:'flex', alignItems:'center', justifyContent:'center' } },
+          this.h('svg',{ width:26, height:26, viewBox:'0 0 24 24', fill:'#fff' }, this.h('path',{ d:'M8 5.5v13l11-6.5z' })))),
+      this.h('div', { style:{ position:'relative', display:'flex', alignItems:'center', gap:'12px', padding:'10px 14px', background:'linear-gradient(transparent, rgba(0,0,0,0.72))' } },
+        this.h('button', { onClick:ui.toggle, style:{ width:'34px', height:'34px', borderRadius:'50%', border:'none', background:'rgba(255,255,255,0.18)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flex:'none' } },
+          this.h('span',{ ref:el=>{ ui.btnEl=el; }, style:{ display:'flex' } },
+            this.h('svg',{ width:16, height:16, viewBox:'0 0 24 24', fill:'#fff' }, this.h('path',{ d:'M8 5.5v13l11-6.5z' })))),
+        this.h('div', { style:{ flex:1, height:'5px', borderRadius:'99px', background:'rgba(255,255,255,0.25)', overflow:'hidden' } },
+          this.h('div', { ref:el=>{ ui.barEl=el; }, style:{ width:'0%', height:'100%', background:'var(--fill-brand-bold)', transition:'width .3s linear' } })),
+        this.h('span', { ref:el=>{ ui.timeEl=el; }, style:{ font:'500 12px/1 var(--font-roboto)', color:'#fff', minWidth:'72px', textAlign:'right' } }, '0:00'),
+        // volume
+        this.h('button', { title:'Mute / unmute', onClick:()=>ui.toggleMute && ui.toggleMute(), style:{ width:'28px', height:'28px', border:'none', background:'transparent', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flex:'none' } },
+          this.h('span',{ ref:el=>{ ui.volBtnEl=el; }, style:{ display:'flex' } },
+            this.h('svg',{ width:16, height:16, viewBox:'0 0 24 24', fill:'#fff' }, this.h('path',{ d:'M3 9v6h4l5 4V5L7 9H3z' }), this.h('path',{ d:'M16 8.5a4.5 4.5 0 0 1 0 7', fill:'none', stroke:'#fff', strokeWidth:1.8, strokeLinecap:'round' })))),
+        this.h('input', { type:'range', min:0, max:100, defaultValue:100, title:'Volume',
+          onInput:(e)=>ui.setVolume && ui.setVolume(Number(e.target.value)),
+          style:{ width:'64px', accentColor:'#fff', cursor:'pointer', flex:'none' } }),
+        // captions
+        this.h('button', { title:'Captions', onClick:()=>ui.toggleCC && ui.toggleCC(),
+          ref:el=>{ ui.ccBtnEl=el; },
+          style:{ height:'24px', padding:'0 7px', border:'1.5px solid rgba(255,255,255,0.6)', borderRadius:'5px', background:'transparent', color:'#fff', font:'700 10px/1 var(--font-roboto)', letterSpacing:'.04em', cursor:'pointer', flex:'none' } }, 'CC'),
+        // speed
+        this.h('button', { title:'Playback speed', onClick:()=>ui.cycleRate && ui.cycleRate(),
+          style:{ height:'24px', minWidth:'40px', padding:'0 7px', border:'none', borderRadius:'5px', background:'rgba(255,255,255,0.18)', color:'#fff', font:'600 11px/1 var(--font-roboto)', cursor:'pointer', flex:'none' } },
+          this.h('span',{ ref:el=>{ ui.rateEl=el; } }, '1×')),
+        this.h('span', { style:{ display:'flex', alignItems:'center', gap:'5px', font:'500 11px/1 var(--font-roboto)', color:'rgba(255,255,255,0.75)', flex:'none' } }, this.ic('lock',12,'rgba(255,255,255,0.75)'), 'No skipping')));
+  }
+  _wireCommonCtl(ui){
+    const RATES=[1,1.25,1.5,2,0.75]; if(ui._rateIdx==null) ui._rateIdx=0;
+    ui.cycleRate = ()=>{ ui._rateIdx=(ui._rateIdx+1)%RATES.length; const r=RATES[ui._rateIdx]; ui.applyRate && ui.applyRate(r); if(ui.rateEl) ui.rateEl.textContent=(r+'×').replace('.25','.25').replace('.75','.75'); };
+    if(ui._muted==null) ui._muted=false;
+    ui.toggleMute = ()=>{ ui._muted=!ui._muted; ui.applyMute && ui.applyMute(ui._muted); if(ui.volBtnEl) ui.volBtnEl.style.opacity = ui._muted?0.45:1; };
+    ui.setVolume = (v)=>{ if(ui._muted && v>0){ ui._muted=false; ui.applyMute && ui.applyMute(false); if(ui.volBtnEl) ui.volBtnEl.style.opacity=1; } ui.applyVolume && ui.applyVolume(v); };
+    if(ui._cc==null) ui._cc=false;
+    ui.toggleCC = ()=>{ ui._cc=!ui._cc; ui.applyCC && ui.applyCC(ui._cc); if(ui.ccBtnEl){ ui.ccBtnEl.style.background = ui._cc?'#fff':'transparent'; ui.ccBtnEl.style.color = ui._cc?'#1a1a1a':'#fff'; } };
+  }
+  _uiTick(ui, t, dur, playing){
+    if(ui.barEl && dur) ui.barEl.style.width = Math.min(100, t/dur*100)+'%';
+    if(ui.timeEl) ui.timeEl.textContent = this._fmtT(t)+' / '+this._fmtT(dur);
+    if(ui.bigEl) ui.bigEl.style.display = playing ? 'none' : 'flex';
+    if(ui.btnEl){ ui.btnEl.innerHTML = playing
+      ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>'
+      : '<svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5v13l11-6.5z"/></svg>'; }
+  }
+  renderVideo(bk, height, gateOn){
     const url = (bk.url||'').trim();
+    const gate = gateOn && !this.lget(bk.id).watched; // once watched → normal player
     const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{11})/);
     const vm = url.match(/vimeo\.com\/(\d+)/);
-    const box = c => this.h('div', { style:{ position:'relative', paddingTop:'56.25%', background:'var(--gray-100)' } }, c);
-    if(yt) return box(this.h('iframe', { src:`https://www.youtube.com/embed/${yt[1]}`, allowFullScreen:true, style:{ position:'absolute', inset:0, width:'100%', height:'100%', border:'none' } }));
-    if(vm) return box(this.h('iframe', { src:`https://player.vimeo.com/video/${vm[1]}`, allowFullScreen:true, style:{ position:'absolute', inset:0, width:'100%', height:'100%', border:'none' } }));
-    if(/\.(mp4|webm|ogg)(\?|$)/i.test(url)) return box(this.h('video', { src:url, controls:true, style:{ position:'absolute', inset:0, width:'100%', height:'100%', background:'#000' } }));
+    const box = (c, chrome) => this.h('div', { style:{ position:'relative', paddingTop:'56.25%', background:'#000' } }, c, chrome||null);
+    const pct = Math.min(0.98, Math.max(0.5, (bk.watchPct==null?90:bk.watchPct)/100));
+    const mark = (dur)=>{ if(!gateOn || this.lget(bk.id).watched) return; if(dur && guard.max < dur*(pct-0.02)) return; this.lset(bk.id,{ watched:true }); };
+    const guard = { max: (this.lget(bk.id).maxT || 0) };
+    const saveMax = ()=>{ if((this.lget(bk.id).maxT||0) < guard.max - 4) this.lset(bk.id,{ maxT: Math.floor(guard.max) }); };
+    // persistent per-block control object — survives re-renders so the player handle isn't lost
+    this._vui = this._vui || {};
+    const ui = this._vui[bk.id] = this._vui[bk.id] || {};
+    if(yt){
+      if(!gate) return box(this.h('iframe', { src:`https://www.youtube.com/embed/${yt[1]}`, allowFullScreen:true, style:{ position:'absolute', inset:0, width:'100%', height:'100%', border:'none' } }));
+      // controls=0 + disablekb + full-surface click shield: no YouTube timeline at all
+      ui.toggle = ()=>{ const p=ui.p; if(!p || !p.getPlayerState) return; try{ p.getPlayerState()===1 ? p.pauseVideo() : p.playVideo(); }catch(err){} };
+      this._wireCommonCtl(ui);
+      ui.applyRate = r=>{ try{ ui.p && ui.p.setPlaybackRate(r); }catch(e){} };
+      ui.applyMute = m=>{ try{ ui.p && (m ? ui.p.mute() : ui.p.unMute()); }catch(e){} };
+      ui.applyVolume = v=>{ try{ ui.p && ui.p.setVolume(v); }catch(e){} };
+      ui.applyCC = on=>{ try{ if(!ui.p) return; if(on){ ui.p.loadModule('captions'); ui.p.setOption('captions','reload',true); } else { ui.p.unloadModule('captions'); } }catch(e){} };
+      return box(this.h('iframe', { src:`https://www.youtube.com/embed/${yt[1]}?enablejsapi=1&controls=0&disablekb=1&rel=0&modestbranding=1&fs=0`, style:{ position:'absolute', inset:0, width:'100%', height:'100%', border:'none', pointerEvents:'none' },
+        ref:(el)=>{ if(!el || el.__wired) return; el.__wired=true; this._ensureScript('https://www.youtube.com/iframe_api').then(()=>{ const start=()=>{ if(!(window.YT && window.YT.Player)){ setTimeout(start,150); return; }
+          const p = ui.p = new window.YT.Player(el,{ events:{
+            onStateChange:(e)=>{ if(e.data===0){ let d=0; try{ d=p.getDuration()||0; }catch(err){} mark(d); } },
+            onReady:()=>{ clearInterval(el.__poll); el.__poll = setInterval(()=>{ try{
+              if(this.lget(bk.id).watched){ clearInterval(el.__poll); return; }
+              const t=p.getCurrentTime?p.getCurrentTime():0, d=p.getDuration?p.getDuration():0, st=p.getPlayerState?p.getPlayerState():-1;
+              if(t > guard.max + 2){ p.seekTo(guard.max, true); } else if(t > guard.max){ guard.max=t; saveMax(); }
+              this._uiTick(ui, t, d, st===1);
+              if(d && guard.max/d >= pct) mark(d);
+            }catch(err){} }, 500); } } }); }; start(); }); } }),
+        this._lockedChrome(ui)); }
+    if(vm){
+      if(!gate) return box(this.h('iframe', { src:`https://player.vimeo.com/video/${vm[1]}`, allowFullScreen:true, style:{ position:'absolute', inset:0, width:'100%', height:'100%', border:'none' } }));
+      ui.toggle = ()=>{ const p=ui.p; if(!p) return; p.getPaused().then(paused=>{ paused?p.play():p.pause(); ui.playing=!paused; }).catch(()=>{}); };
+      this._wireCommonCtl(ui);
+      ui.applyRate = r=>{ try{ ui.p && ui.p.setPlaybackRate(r).catch(()=>{}); }catch(e){} };
+      ui.applyMute = m=>{ try{ ui.p && ui.p.setMuted(m).catch(()=>{}); }catch(e){} };
+      ui.applyVolume = v=>{ try{ ui.p && ui.p.setVolume(v/100).catch(()=>{}); }catch(e){} };
+      ui.applyCC = on=>{ try{ if(!ui.p) return; if(on){ ui.p.getTextTracks().then(tr=>{ if(tr && tr.length) ui.p.enableTextTrack(tr[0].language).catch(()=>{}); }).catch(()=>{}); } else { ui.p.disableTextTrack().catch(()=>{}); } }catch(e){} };
+      return box(this.h('iframe', { src:`https://player.vimeo.com/video/${vm[1]}?controls=0`, style:{ position:'absolute', inset:0, width:'100%', height:'100%', border:'none', pointerEvents:'none' },
+        ref:(el)=>{ if(!el || el.__wired) return; el.__wired=true; this._ensureScript('https://player.vimeo.com/api/player.js').then(()=>{ const start=()=>{ if(!(window.Vimeo && window.Vimeo.Player)){ setTimeout(start,150); return; }
+          try{ const p = ui.p = new window.Vimeo.Player(el); let dur=0; p.getDuration().then(d=>{ dur=d; }).catch(()=>{});
+            p.on('play', ()=>{ ui.playing=true; });
+            p.on('pause', ()=>{ ui.playing=false; this._uiTick(ui, guard.max, dur, false); });
+            p.on('timeupdate', (d)=>{ if(this.lget(bk.id).watched) return;
+              if(d.seconds > guard.max + 2){ p.setCurrentTime(guard.max); } else if(d.seconds > guard.max){ guard.max=d.seconds; saveMax(); }
+              this._uiTick(ui, d.seconds, d.duration||dur, ui.playing!==false);
+              if((d.duration||dur) && guard.max/(d.duration||dur) >= pct) mark(d.duration||dur); });
+            p.on('ended', ()=>{ mark(dur); });
+          }catch(err){} }; start(); }); } }),
+        this._lockedChrome(ui)); }
+    if(/\.(mp4|webm|ogg)(\?|$)/i.test(url)){
+      if(!gate) return box(this.h('video', { src:url, controls:true, style:{ position:'absolute', inset:0, width:'100%', height:'100%', background:'#000' } }));
+      ui.toggle = ()=>{ const v=ui.v; if(!v) return; v.paused ? v.play() : v.pause(); };
+      this._wireCommonCtl(ui);
+      ui.applyRate = r=>{ if(ui.v) ui.v.playbackRate = r; };
+      ui.applyMute = m=>{ if(ui.v) ui.v.muted = m; };
+      ui.applyVolume = v=>{ if(ui.v) ui.v.volume = v/100; };
+      ui.applyCC = on=>{ if(!ui.v) return; for(const t of ui.v.textTracks) t.mode = on?'showing':'hidden'; };
+      return box(this.h('video', { src:url, playsInline:true,
+        ref:(el)=>{ ui.v=el; },
+        onPlay:(e)=>this._uiTick(ui, e.currentTarget.currentTime, e.currentTarget.duration, true),
+        onPause:(e)=>this._uiTick(ui, e.currentTarget.currentTime, e.currentTarget.duration, false),
+        onSeeking:(e)=>{ const v=e.currentTarget; if(v.currentTime > guard.max + 2) v.currentTime = guard.max; },
+        onRateChange:(e)=>{ const v=e.currentTarget; if(v.playbackRate > 2) v.playbackRate = 2; },
+        onTimeUpdate:(e)=>{ const v=e.currentTarget;
+          if(v.currentTime > guard.max && v.currentTime <= guard.max + 2){ guard.max=v.currentTime; saveMax(); }
+          this._uiTick(ui, v.currentTime, v.duration, !v.paused);
+          if(v.duration && guard.max/v.duration >= pct) mark(v.duration); },
+        onEnded:(e)=>mark(e.currentTarget.duration),
+        style:{ position:'absolute', inset:0, width:'100%', height:'100%', background:'#000' } }),
+        this._lockedChrome(ui)); }
     return this.h('div', { style:{ height:(height||200)+'px', background:'var(--gray-100)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'8px', color:'var(--content-neutral-tertiary)' } }, this.ic('video',34,'var(--content-neutral-tertiary)'), this.h('span',{style:{font:'400 13px/1 var(--font-roboto)'}}, url?'Unsupported URL':'Paste a video URL to preview'));
   }
 
@@ -2009,7 +2141,7 @@ class Component extends DCLogic {
     const body = this.h('div', { className:'lc-scroll', style:{ flex:1, overflowY:'auto', overflowX:'hidden', height:'calc(100vh - 56px)' } },
       this.h('div', { style:{ maxWidth:'960px', margin:'0 auto', padding:'34px 24px 80px' } },
         hero,
-        this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'6px' } }, lesson.blocks.map(bk=>this.h('div',{ key:bk.id, style:{ animation:'lc-fade .3s ease' } }, this.renderBlockView(bk)))),
+        this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'6px' } }, this.gatedLessonBlocks(lesson, completed)),
         this.learnerFooter(it, idx, lesson, pathCtx)));
 
     const allCl = it.lessons.flatMap(l=>(l.blocks||[]).filter(b=>b.type==='checklist'));
@@ -2017,6 +2149,22 @@ class Component extends DCLogic {
     return this.h('div', null, header, this.h('div', { style:{ display:'flex' } }, sidebar, body), overlayCl.length ? this.learnerChecklistOverlay(overlayCl) : null);
   }
 
+  gatedLessonBlocks(lesson, completed){
+    const blocks = lesson.blocks || [];
+    const unlockAll = completed && completed[lesson.id];
+    const out = []; let locked = false;
+    for(const bk of blocks){
+      out.push(this.h('div',{ key:bk.id, style:{ animation:'lc-fade .3s ease' } }, this.renderBlockView(bk)));
+      if(!unlockAll && bk.type==='multimedia' && bk.requireWatch && (bk.url||'').trim() && !this.lget(bk.id).watched){ locked=true; break; }
+    }
+    if(locked){
+      out.push(this.h('div',{ key:'gate-lock', style:{ marginTop:'18px', display:'flex', flexDirection:'column', alignItems:'center', gap:'10px', textAlign:'center', padding:'40px 24px', border:'1px dashed var(--border-neutral-primary)', borderRadius:'16px', background:'var(--gray-50)' } },
+        this.h('div',{ style:{ width:'48px', height:'48px', borderRadius:'50%', background:'#fff', border:'1px solid var(--border-neutral-secondary)', display:'flex', alignItems:'center', justifyContent:'center' } }, this.ic('lock',22,'var(--content-neutral-tertiary)')),
+        this.h('div',{ style:{ font:'600 17px/24px var(--font-inter)', color:'var(--content-neutral-primary)' } }, 'The rest is locked'),
+        this.h('div',{ style:{ font:'400 14px/20px var(--font-roboto)', color:'var(--content-neutral-secondary)', maxWidth:'380px' } }, 'Watch the full video above to unlock the rest of this lesson.')));
+    }
+    return out;
+  }
   coverGrad(){ const c=this.covers(); return { brand:c.brand.bg, blue:c.blue.bg, violet:c.violet.bg, green:c.green.bg, slate:c.slate.bg, dark:c.dark.bg }; }
   lessonHeaderControls(lesson){
     const style = lesson.headerStyle || 'minimal';
@@ -2066,7 +2214,7 @@ class Component extends DCLogic {
       return this.h('button', { title:'All changes saved', style:{ display:'inline-flex', alignItems:'center', gap:'8px', padding:'8px 14px', borderRadius:'999px', cursor:'default', whiteSpace:'nowrap', flex:'none', font:'500 13px/1 var(--font-roboto)', border:'1px solid var(--border-neutral-primary)', background:'#fff', color:'var(--content-neutral-secondary)' } },
         this.ic('check',15,'var(--content-success-icon)'), 'Saved');
     }
-    const label = this.state.saving ? 'Saving…' : (n ? ('Save · '+n+' change'+(n===1?'':'s')) : 'Save · unsaved edits');
+    const label = n ? ('Save · '+n+' change'+(n===1?'':'s')) : 'Save · unsaved edits';
     return this.h('button', { onClick:()=>this.save(), title:'Save for everyone', style:{ display:'inline-flex', alignItems:'center', gap:'9px', padding:'9px 15px', borderRadius:'8px', cursor:'pointer', whiteSpace:'nowrap', flex:'none', font:'500 14px/1 var(--font-roboto)', border:'1px solid var(--border-neutral-primary)', background:'#fff', color:'var(--content-neutral-primary)' },
       onMouseEnter:e=>e.currentTarget.style.background='var(--gray-100)', onMouseLeave:e=>e.currentTarget.style.background='#fff' },
       this.h('span', { style:{ width:'8px', height:'8px', borderRadius:'50%', background:'#c25100', flex:'none' } }), label);
@@ -2121,13 +2269,16 @@ class Component extends DCLogic {
     const isCourse = it.kind === 'course';
     const completed = this.state.completed[it.id] || {};
     const last = idx === it.lessons.length-1;
-    const markDone = ()=>{ this.setState(s=>({ completed:{ ...s.completed, [it.id]:{ ...(s.completed[it.id]||{}), [lesson.id]:true } } })); if(!last){ setTimeout(()=>this.setState({ learnerLessonIdx: idx+1 }),150); this.toast('Lesson complete'); } else if(pathCtx){ this.finishPathNode(pathCtx, it); } else { if(this.gradedQuestions(it).length>0){ this.setState({ modal:'result' }); } else { this.toast('You finished this ' + (isCourse?'course':'lesson')); } } };
+    const pendingVideos = (lesson.blocks||[]).filter(b=>b.type==='multimedia' && b.requireWatch && (b.url||'').trim() && !this.lget(b.id).watched).length;
+    const locked = pendingVideos>0 && !completed[lesson.id];
+    const markDone = ()=>{ if(locked){ this.toast('Watch the required video'+(pendingVideos>1?'s':'')+' to continue'); return; } this.setState(s=>({ completed:{ ...s.completed, [it.id]:{ ...(s.completed[it.id]||{}), [lesson.id]:true } } })); if(!last){ setTimeout(()=>this.setState({ learnerLessonIdx: idx+1 }),150); this.toast('Lesson complete'); } else if(pathCtx){ this.finishPathNode(pathCtx, it); } else { if(this.gradedQuestions(it).length>0){ this.setState({ modal:'result' }); } else { this.toast('You finished this ' + (isCourse?'course':'lesson')); } } };
     return this.h('div', { style:{ marginTop:'44px', paddingTop:'24px', borderTop:'1px solid var(--border-neutral-secondary)', display:'flex', alignItems:'center', gap:'12px' } },
       isCourse && idx>0 ? this.btn('Previous', ()=>this.setState({ learnerLessonIdx:idx-1 }), 'secondary', { icon:'arrowLeft' }) : null,
       this.h('div', { style:{ flex:1 } }),
+      locked ? this.h('div', { style:{ display:'flex', alignItems:'center', gap:'8px', color:'var(--content-warning-text-bold, #c25100)', font:'500 14px/1 var(--font-roboto)' } }, this.ic('lock',16,'var(--content-warning-text-bold, #c25100)'), 'Finish the required video'+(pendingVideos>1?'s':'')+' first') : null,
       completed[lesson.id] ? this.h('div', { style:{ display:'flex', alignItems:'center', gap:'8px', color:'var(--content-success-text-bold)', font:'500 14px/1 var(--font-roboto)' } }, this.ic('check',18,'var(--content-success-icon)'), 'Completed') : null,
-      isCourse && !last ? this.btn(completed[lesson.id]?'Next lesson':'Complete & continue', markDone, 'primary', { icon:'arrowRight' })
-        : this.btn(last?(pathCtx?'Finish & back to path':'Finish'):'Mark complete', markDone, 'primary', { icon:'check' }));
+      isCourse && !last ? this.btn(completed[lesson.id]?'Next lesson':'Complete & continue', markDone, 'primary', { icon:'arrowRight', disabled:locked })
+        : this.btn(last?(pathCtx?'Finish & back to path':'Finish'):'Mark complete', markDone, 'primary', { icon:'check', disabled:locked }));
   }
 
   /* ---- learner block renderers ---- */
@@ -2193,7 +2344,13 @@ class Component extends DCLogic {
       case 'reveal': return this.viewReveal(bk);
       case 'checklist': return this.viewChecklist(bk, edit);
       case 'gallery': return this.viewGallery(bk);
-      case 'multimedia': return h('div', null, h('div',{style:{borderRadius:'14px',overflow:'hidden',border:'1px solid var(--border-neutral-secondary)'}}, this.renderVideo(bk)), bk.caption?h('div',{style:{marginTop:'8px',font:'400 13px/18px var(--font-roboto)',color:'var(--content-neutral-tertiary)',textAlign:'center'}},bk.caption):null);
+      case 'multimedia': { const gate = !!bk.requireWatch && !!(bk.url||'').trim(); const done = !!this.lget(bk.id).watched;
+        return h('div', null,
+          h('div',{style:{borderRadius:'14px',overflow:'hidden',border:'1px solid var(--border-neutral-secondary)'}}, this.renderVideo(bk, 220, gate)),
+          gate ? h('div',{ style:{ display:'flex', alignItems:'center', gap:'8px', marginTop:'10px', padding:'9px 13px', borderRadius:'10px', font:'500 13px/18px var(--font-roboto)', background: done?'var(--fill-success-subtlest, #eafaf1)':'var(--fill-warning-subtlest, #fff3eb)', color: done?'var(--content-success-text-bold)':'var(--content-warning-text-bold, #c25100)' } },
+              this.ic(done?'check':'lock', 16, done?'var(--content-success-icon)':'var(--content-warning-text-bold, #c25100)'),
+              done ? 'Video watched — you can continue' : 'Watch the full video to continue') : null,
+          bk.caption?h('div',{style:{marginTop:'8px',font:'400 13px/18px var(--font-roboto)',color:'var(--content-neutral-tertiary)',textAlign:'center'}},bk.caption):null); }
       case 'labeledgraphic': return this.viewLabeled(bk);
       case 'sorting': return this.viewSorting(bk);
       case 'knowledge': return this.viewKnowledge(bk);
