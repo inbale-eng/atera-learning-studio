@@ -2066,8 +2066,8 @@ class Component extends DCLogic {
       return this.h('button', { title:'All changes saved', style:{ display:'inline-flex', alignItems:'center', gap:'8px', padding:'8px 14px', borderRadius:'999px', cursor:'default', whiteSpace:'nowrap', flex:'none', font:'500 13px/1 var(--font-roboto)', border:'1px solid var(--border-neutral-primary)', background:'#fff', color:'var(--content-neutral-secondary)' } },
         this.ic('check',15,'var(--content-success-icon)'), 'Saved');
     }
-    const label = n ? ('Save · '+n+' change'+(n===1?'':'s')) : 'Save · unsaved edits';
-    return this.h('button', { onClick:()=>this.setState({ modal:'changes' }), title:'Review changes and save for everyone', style:{ display:'inline-flex', alignItems:'center', gap:'9px', padding:'9px 15px', borderRadius:'8px', cursor:'pointer', whiteSpace:'nowrap', flex:'none', font:'500 14px/1 var(--font-roboto)', border:'1px solid var(--border-neutral-primary)', background:'#fff', color:'var(--content-neutral-primary)' },
+    const label = this.state.saving ? 'Saving…' : (n ? ('Save · '+n+' change'+(n===1?'':'s')) : 'Save · unsaved edits');
+    return this.h('button', { onClick:()=>this.save(), title:'Save for everyone', style:{ display:'inline-flex', alignItems:'center', gap:'9px', padding:'9px 15px', borderRadius:'8px', cursor:'pointer', whiteSpace:'nowrap', flex:'none', font:'500 14px/1 var(--font-roboto)', border:'1px solid var(--border-neutral-primary)', background:'#fff', color:'var(--content-neutral-primary)' },
       onMouseEnter:e=>e.currentTarget.style.background='var(--gray-100)', onMouseLeave:e=>e.currentTarget.style.background='#fff' },
       this.h('span', { style:{ width:'8px', height:'8px', borderRadius:'50%', background:'#c25100', flex:'none' } }), label);
   }
