@@ -220,7 +220,7 @@ class Component extends DCLogic {
   async sbSave(payload){ const c=this.sb(); if(!c) throw new Error('not configured');
     const body = [{ id:this.sbRowId(), data:{ version:1, library:payload.library, folders:payload.folders }, updated_at:new Date().toISOString() }];
     const r = await fetch(`${c.url}/rest/v1/app_state?on_conflict=id`, { method:'POST', headers:this.sbHeaders({ Prefer:'resolution=merge-duplicates,return=minimal' }), body:JSON.stringify(body) });
-    if(!r.ok) throw new Error('save '+r.status);
+    if(!r.ok){ let t=''; try{ t = await r.text(); }catch(e2){} throw new Error(r.status+': '+(t||'no details')); }
   }
   editable(){ return !!(window.omelette && window.omelette.writeFile); }
   draftKey(){ return 'learning-studio.draft.v3'; }
@@ -267,7 +267,7 @@ class Component extends DCLogic {
     const done = (msg)=>{ this._base = { library: structuredClone(lib), folders: structuredClone(this.state.folders) }; this.setState({ dirty:false, saving:false, changes:[], redo:[] }); this.scheduleLocalSave(); this.toast(msg); };
     const payload = { version:1, savedAt:ts, library:lib, folders:this.state.folders };
     const cfg = this.sb();
-    if(cfg){ this.setState({ saving:true }); this.sbSave(payload).then(()=>done('Saved to the shared database — everyone sees the latest')).catch(()=>{ this.setState({ saving:false }); this.toast('Saved on this device — database save failed, try again'); }); return; }
+    if(cfg){ this.setState({ saving:true }); this.sbSave(payload).then(()=>done('Saved to the shared database — everyone sees the latest')).catch((e)=>{ this.setState({ saving:false }); this.toast('DB error: '+(e&&e.message?e.message:e)); }); return; }
     const w = window.omelette && window.omelette.writeFile;
     if(!w){ done('Saved on this device'); return; }
     this.setState({ saving:true }); const fp = JSON.stringify(payload);
@@ -278,7 +278,7 @@ class Component extends DCLogic {
   patchBlock(bid, patch){ this.withLesson(l => { const b = l.blocks.find(x => x.id === bid); if (b) Object.assign(b, patch); }); }
   editBlock(bid, fn){ this.withLesson(l => { const b = l.blocks.find(x => x.id === bid); if (b) fn(b); }); }
 
-  toast(msg){ this.setState({ toast: msg }); clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toast: null }), 2600); }
+  toast(msg){ this.setState({ toast: msg }); clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toast: null }), 8000); }
 
   lget(bid){ return this.state.learn[bid] || {}; }
   lset(bid, patch){ this.setState(s => ({ learn: { ...s.learn, [bid]: { ...s.learn[bid], ...patch } } })); }
