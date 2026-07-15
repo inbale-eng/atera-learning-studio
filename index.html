@@ -786,8 +786,8 @@ class Component extends DCLogic {
     const fc = this.flatCover(it.cover);
     const lessons = (it.lessons||[]).length;
     const typeLabel = it.kind === 'path' ? `Learning path · ${(it.nodes||[]).length} course${(it.nodes||[]).length!==1?'s':''}` : it.kind === 'course' ? `Course · ${lessons} lesson${lessons>1?'s':''}` : 'Micro-lesson';
-    return this.h('div', { key:it.id, onClick:()=>this.openEditor(it.id), style:{ background:'#fff', border:'1px solid var(--border-neutral-secondary)', borderRadius:'12px', position:'relative', cursor:'pointer', transition:'box-shadow .18s, transform .18s', boxShadow:'var(--shadow-xs)', overflow:'hidden' },
-      onMouseEnter:e=>{ e.currentTarget.style.boxShadow='var(--shadow-md)'; e.currentTarget.style.transform='translateY(-2px)'; }, onMouseLeave:e=>{ e.currentTarget.style.boxShadow='var(--shadow-xs)'; e.currentTarget.style.transform='none'; } },
+    return this.h('div', { key:it.id, onClick:()=>this.openEditor(it.id), style:{ background:'#fff', border:'1px solid var(--border-neutral-secondary)', borderRadius:'12px', position:'relative', cursor:'pointer', transition:'box-shadow .18s', boxShadow:'var(--shadow-xs)', overflow:'hidden' },
+      onMouseEnter:e=>{ e.currentTarget.style.boxShadow='var(--shadow-md)'; }, onMouseLeave:e=>{ e.currentTarget.style.boxShadow='var(--shadow-xs)'; } },
       this.itemMenuBtn(it, { onCover:true, wrap:{ position:'absolute', top:'10px', right:'10px', zIndex:5 } }),
       this.h('div', { style:{ height:'110px', background:fc.bg, position:'relative', display:'flex', alignItems:'center', justifyContent:'center' } },
         this.ic(it.kind==='path'?'route':it.kind==='course'?'book':'text', 32, fc.ic, 1.5),
@@ -807,12 +807,13 @@ class Component extends DCLogic {
     walk(null, 0);
     const mi = (icon, label, onClick, danger)=>this.h('button', { key:label, onClick:(e)=>{ e.stopPropagation(); onClick(); }, style:{ display:'flex', alignItems:'center', gap:'9px', width:'100%', padding:'8px 10px', border:'none', background:'transparent', borderRadius:'7px', cursor:'pointer', font:'400 13px/1 var(--font-roboto)', color: danger?'var(--content-danger-text-bold)':'var(--content-neutral-primary)', textAlign:'left' },
       onMouseEnter:e=>e.currentTarget.style.background = danger?'var(--red-100)':'var(--gray-100)', onMouseLeave:e=>e.currentTarget.style.background='transparent' }, this.ic(icon,15, danger?'var(--content-danger-icon)':'var(--content-neutral-secondary)'), label);
-    return this.h('div', { style:{ position:'relative', ...(opts.wrap||{}) } },
-      this.h('button', { title:'More', onClick:(e)=>{ e.stopPropagation(); const r=e.currentTarget.getBoundingClientRect(); this.setState(s=>({ itemMenu: s.itemMenu===it.id?null:it.id, itemMenuRect: s.itemMenu===it.id?null:{ top:r.bottom+4, right:window.innerWidth-r.right } })); },
+    return this.h('div', { onClick:(e)=>e.stopPropagation(), onPointerDown:(e)=>e.stopPropagation(), style:{ position:'relative', ...(opts.wrap||{}) } },
+      this.h('button', { title:'More', onClick:(e)=>e.stopPropagation(),
+        onPointerDown:(e)=>{ e.stopPropagation(); e.preventDefault(); const r=e.currentTarget.getBoundingClientRect(); this.setState(s=>({ itemMenu: s.itemMenu===it.id?null:it.id, itemMenuRect: s.itemMenu===it.id?null:{ top:r.bottom+4, right:window.innerWidth-r.right } })); },
         style:{ width:'30px', height:'30px', display:'flex', alignItems:'center', justifyContent:'center', border:'none', borderRadius:'7px', cursor:'pointer', background: opts.onCover?'rgba(255,255,255,.92)':(open?'var(--gray-100)':'transparent'), boxShadow: opts.onCover?'var(--shadow-sm)':'none' },
         onMouseEnter:e=>{ if(!opts.onCover) e.currentTarget.style.background='var(--gray-100)'; }, onMouseLeave:e=>{ if(!opts.onCover && !open) e.currentTarget.style.background='transparent'; } }, this.ic('dots',18,'var(--content-neutral-secondary)')),
       open ? this.h(React.Fragment, null,
-        this.h('div', { onClick:(e)=>{ e.stopPropagation(); this.setState({ itemMenu:null }); }, style:{ position:'fixed', inset:0, zIndex:80 } }),
+        this.h('div', { onClick:(e)=>e.stopPropagation(), onPointerDown:(e)=>{ e.stopPropagation(); this.setState({ itemMenu:null }); }, style:{ position:'fixed', inset:0, zIndex:80 } }),
         this.h('div', { onClick:e=>e.stopPropagation(), className:'lc-scroll', style:{ position:'fixed', top:(this.state.itemMenuRect?this.state.itemMenuRect.top:0)+'px', right:(this.state.itemMenuRect?this.state.itemMenuRect.right:0)+'px', zIndex:90, width:'216px', background:'#fff', border:'1px solid var(--border-neutral-secondary)', borderRadius:'11px', boxShadow:'var(--shadow-lg)', padding:'5px', maxHeight:'320px', overflow:'auto', animation:'lc-pop .14s ease' } },
           mi('pencil','Open', ()=>this.openEditor(it.id)),
           mi('copy','Duplicate', ()=>this.duplicateItem(it.id)),
