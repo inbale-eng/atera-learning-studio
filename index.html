@@ -514,7 +514,7 @@ class Component extends DCLogic {
       statrow:{ name:'Stat row', desc:'Big-number KPIs', icon:'stat' },
       imagetext:{ name:'Image + text', desc:'Image with text beside, above or below', icon:'gallery' },
       gallery:{ name:'Image gallery', desc:'One or more images', icon:'gallery' },
-      multimedia:{ name:'Multimedia', desc:'Embed video', icon:'video' },
+      multimedia:{ name:'Multimedia', desc:'Video from URL, embed code or upload', icon:'video' },
       audio:{ name:'Audio', desc:'Record or embed a voice note', icon:'mic' },
       attachment:{ name:'File download', desc:'Attach files for learners to download', icon:'file' },
       labeledgraphic:{ name:'Labeled graphic', desc:'Image with hotspots', icon:'pin' },
@@ -1966,7 +1966,8 @@ class Component extends DCLogic {
         bk.stats.map((s,i)=>this.rowWrap([ this.h('div',{key:'r',style:{display:'flex',gap:'8px'}}, this.h('div',{style:{flex:'0 0 130px'}}, F(s.value, v=>this.setIn(bk.id,'stats',i,{value:v}), { placeholder:'247' , style:{fontWeight:600}})), this.h('div',{style:{flex:1}}, F(s.label, v=>this.setIn(bk.id,'stats',i,{label:v}), { placeholder:'Label' }))) ], ()=>this.rmFrom(bk.id,'stats',i), bk.stats.length>1)),
         this.addRowBtn('Add stat', ()=>this.addTo(bk.id,'stats',{value:'0',label:'New metric'})));
       case 'accordion': return this.h('div', null,
-        bk.items.map((it,i)=>this.rowWrap([ F(it.title, v=>this.setIn(bk.id,'items',i,{title:v}), { placeholder:'Item title', style:{fontWeight:600} }), F(it.body, v=>this.setIn(bk.id,'items',i,{body:v}), { multiline:true, rows:2, placeholder:'Item content' }) ], ()=>this.rmFrom(bk.id,'items',i), bk.items.length>1)),
+        bk.items.map((it,i)=>this.rowWrap([ F(it.title, v=>this.setIn(bk.id,'items',i,{title:v}), { placeholder:'Item title', style:{fontWeight:600} }), F(it.body, v=>this.setIn(bk.id,'items',i,{body:v}), { multiline:true, rows:2, placeholder:'Item content' }),
+          this.itemMediaEditor(bk.id+'-it-'+i, 'acc-'+bk.id+'-'+i, it, p=>this.setIn(bk.id,'items',i,p)) ], ()=>this.rmFrom(bk.id,'items',i), bk.items.length>1)),
         this.addRowBtn('Add item', ()=>this.addTo(bk.id,'items',{title:'New item',body:'Content'})));
       case 'process': return this.h('div', null,
         bk.steps.map((st,i)=>this.rowWrap([ this.h('div',{key:'n',style:{font:'600 12px/1 var(--font-roboto)',color:'var(--content-neutral-secondary)'}},'Step '+(i+1)), F(st.title, v=>this.setIn(bk.id,'steps',i,{title:v}), { placeholder:'Step title', style:{fontWeight:600} }), F(st.body, v=>this.setIn(bk.id,'steps',i,{body:v}), { multiline:true, rows:2, placeholder:'Step description' }) ], ()=>this.rmFrom(bk.id,'steps',i), bk.steps.length>1)),
@@ -2029,6 +2030,7 @@ class Component extends DCLogic {
                 this.btn('Stop', ()=>this.stopRec(), 'primary', { sm:true }))
               : this.h('div', { style:{ display:'flex', alignItems:'center', gap:'10px' } },
                 this.btn(bk.src?'Record again':'Record audio', ()=>this.startRec(bk.id), 'secondary', { icon:'mic', sm:true }),
+                this.btn('Upload audio', ()=>this.pickAudioFile(du=>this.patchBlock(bk.id,{src:du})), 'secondary', { sm:true }),
                 bk.src ? this.btn('Delete recording', ()=>{ if(confirm('Delete this recording?')) this.patchBlock(bk.id,{src:''}); }, 'ghost', { sm:true }) : null),
             bk.src ? this.h('audio', { controls:true, src:bk.src, style:{ width:'100%' } }) : this.h('div', { style:{ font:'400 12.5px/18px var(--font-roboto)', color:'var(--content-neutral-tertiary)' } }, 'Record straight from your microphone, or paste an audio URL below.')),
           F(bk.url||'', v=>this.patchBlock(bk.id,{url:v}), { label:'Or paste an audio URL (.mp3 / .m4a / .wav)', placeholder:'https://…' }),
@@ -2060,17 +2062,38 @@ class Component extends DCLogic {
               this.addRowBtn('Replace image', ()=>this.replaceBlockImage(du=>this.setIn(bk.id,'images',i,{ imgSrc:du, imgFull:du })))) : null,
             this.h('div', { style:{ marginTop:'6px', display:'flex', gap:'6px', alignItems:'center' } }, this.h('div',{style:{flex:1}}, F(im.caption, v=>this.setIn(bk.id,'images',i,{caption:v}), { placeholder:'Caption' })), bk.images.length>1?this.iconBtn('trash',()=>this.rmFrom(bk.id,'images',i),{size:15,dangerHover:true}):null)))),
         this.addRowBtn('Add media', ()=>this.addTo(bk.id,'images',{id:this.uid(),caption:'Caption'})));
-      case 'multimedia': return this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'10px' } },
-        F(bk.url, v=>this.patchBlock(bk.id,{url:v}), { label:'Video URL (YouTube, Vimeo, or .mp4)', placeholder:'https://www.youtube.com/watch?v=...' }),
+      case 'multimedia': { const vmode = bk.source||'url';
+        const pickVideo = (files)=>{ const f=files&&files[0]; if(!f) return;
+          if(f.size > 12*1048576){ this.toast('Video too large — up to 12 MB. For bigger videos, host it and use a URL or embed code.'); return; }
+          const fr=new FileReader(); fr.onload=()=>this.patchBlock(bk.id,{ fileSrc:String(fr.result), fileName:f.name, fileSize:f.size }); fr.readAsDataURL(f); };
+        return this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'10px' } },
+        this.h('div', { style:{ display:'flex', alignItems:'center', gap:'10px' } },
+          this.h('span',{style:{font:'500 12px/16px var(--font-roboto)',color:'var(--content-neutral-secondary)'}},'Source'),
+          this.segmented(['url','embed','file'], vmode, v=>this.patchBlock(bk.id,{source:v}), {url:'Video URL', embed:'Embed code', file:'Upload file'})),
+        vmode==='url' ? F(bk.url, v=>this.patchBlock(bk.id,{url:v}), { label:'Video URL (YouTube, Vimeo, or .mp4)', placeholder:'https://www.youtube.com/watch?v=...' }) : null,
+        vmode==='embed' ? this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'4px' } },
+          F(bk.embed||'', v=>this.patchBlock(bk.id,{embed:v}), { label:'Embed code', multiline:true, rows:4, placeholder:'<iframe src="..." ...></iframe>' }),
+          this.h('div', { style:{ font:'400 12px/17px var(--font-roboto)', color:'var(--content-neutral-tertiary)' } }, 'Paste the embed snippet from YouTube, Vimeo, Loom, Wistia or any other player.')) : null,
+        vmode==='file' ? (bk.fileSrc
+          ? this.h('div', { style:{ display:'flex', alignItems:'center', gap:'10px', padding:'10px 14px', background:'var(--gray-50)', border:'1px solid var(--border-neutral-secondary)', borderRadius:'10px' } },
+              this.ic('video',18,'var(--content-neutral-secondary)'),
+              this.h('div', { style:{ flex:1, minWidth:0 } },
+                this.h('div', { style:{ font:'500 13px/17px var(--font-roboto)', color:'var(--content-neutral-primary)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' } }, bk.fileName||'Video file'),
+                this.h('div', { style:{ font:'400 11.5px/15px var(--font-roboto)', color:'var(--content-neutral-tertiary)' } }, this.fmtSize(bk.fileSize))),
+              this.iconBtn('trash', ()=>this.patchBlock(bk.id,{ fileSrc:'', fileName:'', fileSize:0 }), { size:15, dangerHover:true, title:'Remove video' }))
+          : this.h('label', { style:{ display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', padding:'18px', border:'1.5px dashed var(--border-neutral-primary)', borderRadius:'10px', cursor:'pointer', font:'500 13px/18px var(--font-roboto)', color:'var(--content-neutral-secondary)' } },
+              this.ic('plus',15,'var(--content-neutral-secondary)'), 'Upload a video file (MP4/WebM, up to 12 MB)',
+              this.h('input', { type:'file', accept:'video/mp4,video/webm,video/ogg,.mp4,.webm,.ogv', style:{ display:'none' }, onChange:e=>{ pickVideo(e.target.files); e.target.value=''; } }))) : null,
         F(bk.caption, v=>this.patchBlock(bk.id,{caption:v}), { label:'Caption', placeholder:'Optional caption' }),
-        this.toggle('Require learners to watch the full video before continuing', !!bk.requireWatch, ()=>this.patchBlock(bk.id,{ requireWatch:!bk.requireWatch })),
-        bk.requireWatch ? this.h('div', { style:{ display:'flex', alignItems:'center', gap:'12px', padding:'10px 14px', background:'var(--gray-50)', border:'1px solid var(--border-neutral-secondary)', borderRadius:'10px' } },
+        vmode!=='embed' ? this.toggle('Require learners to watch the full video before continuing', !!bk.requireWatch, ()=>this.patchBlock(bk.id,{ requireWatch:!bk.requireWatch }))
+          : this.h('div', { style:{ font:'400 12px/17px var(--font-roboto)', color:'var(--content-neutral-tertiary)' } }, 'Required-watch tracking isn\u2019t available for embed code.'),
+        bk.requireWatch && vmode!=='embed' ? this.h('div', { style:{ display:'flex', alignItems:'center', gap:'12px', padding:'10px 14px', background:'var(--gray-50)', border:'1px solid var(--border-neutral-secondary)', borderRadius:'10px' } },
           this.h('span', { style:{ font:'500 13px/18px var(--font-roboto)', color:'var(--content-neutral-secondary)', flex:'none' } }, 'Required watch'),
           this.h('input', { type:'range', min:50, max:100, step:5, value: bk.watchPct==null?90:bk.watchPct,
             onChange:(e)=>this.patchBlock(bk.id,{ watchPct:Number(e.target.value) }),
             style:{ flex:1, accentColor:'var(--fill-brand-bold)', cursor:'pointer' } }),
           this.h('span', { style:{ font:'600 13px/18px var(--font-roboto)', color:'var(--content-neutral-primary)', minWidth:'40px', textAlign:'right' } }, (bk.watchPct==null?90:bk.watchPct)+'%')) : null,
-        this.h('div', { style:{ borderRadius:'10px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)' } }, this.renderVideo(bk, 220)));
+        this.h('div', { style:{ borderRadius:'10px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)' } }, this.renderVideo(bk, 220))); }
       case 'labeledgraphic': return this.h('div', null,
         this.h('div', { style:{ fontSize:'12px', color:'var(--content-neutral-tertiary)', marginBottom:'8px' } }, 'Drag the numbered markers onto the image to position them.'),
         this.labeledEditor(bk),
@@ -2098,7 +2121,8 @@ class Component extends DCLogic {
         F(bk.feedbackCorrect!=null?bk.feedbackCorrect:bk.feedback, v=>this.patchBlock(bk.id,{feedbackCorrect:v}), { label:'Feedback when correct', placeholder:'Shown when the learner answers correctly' }),
         F(bk.feedbackWrong, v=>this.patchBlock(bk.id,{feedbackWrong:v}), { label:'Feedback when incorrect', placeholder:'Shown when the learner answers incorrectly' }));
       case 'tabs': return this.h('div', null,
-        bk.tabs.map((t,i)=>this.rowWrap([ this.field(t.label, v=>this.setIn(bk.id,'tabs',i,{label:v}), { placeholder:'Tab label', style:{fontWeight:600} }), this.field(t.body, v=>this.setIn(bk.id,'tabs',i,{body:v}), { multiline:true, rows:2, placeholder:'Tab content' }) ], ()=>this.rmFrom(bk.id,'tabs',i), bk.tabs.length>1)),
+        bk.tabs.map((t,i)=>this.rowWrap([ this.field(t.label, v=>this.setIn(bk.id,'tabs',i,{label:v}), { placeholder:'Tab label', style:{fontWeight:600} }), this.field(t.body, v=>this.setIn(bk.id,'tabs',i,{body:v}), { multiline:true, rows:2, placeholder:'Tab content' }),
+          this.itemMediaEditor(bk.id+'-tab-'+t.id, 'tab-'+bk.id+'-'+t.id, t, p=>this.setIn(bk.id,'tabs',i,p)) ], ()=>this.rmFrom(bk.id,'tabs',i), bk.tabs.length>1)),
         this.addRowBtn('Add tab', ()=>this.addTo(bk.id,'tabs',{id:this.uid(),label:'New tab',body:'Content'})));
       case 'timeline': return this.h('div', null,
         bk.events.map((ev,i)=>this.rowWrap([ this.h('div',{key:'r',style:{display:'flex',gap:'8px'}}, this.h('div',{style:{flex:'0 0 130px'}}, this.field(ev.date, v=>this.setIn(bk.id,'events',i,{date:v}), { label:'Date / label', placeholder:'Day 1' })), this.h('div',{style:{flex:1}}, this.field(ev.title, v=>this.setIn(bk.id,'events',i,{title:v}), { label:'Title', placeholder:'Title', style:{fontWeight:600} }))), this.field(ev.body, v=>this.setIn(bk.id,'events',i,{body:v}), { multiline:true, rows:2, placeholder:'Description' }) ], ()=>this.rmFrom(bk.id,'events',i), bk.events.length>1)),
@@ -2200,6 +2224,7 @@ class Component extends DCLogic {
   gradedPill(bk){ const on=bk.graded!==false; return this.h('button', { onClick:()=>this.patchBlock(bk.id,{graded:!on}), title:'Counts toward the final score', style:{ display:'inline-flex', alignItems:'center', gap:'6px', padding:'4px 9px', borderRadius:'999px', border:'1px solid '+(on?'var(--lime-200)':'var(--border-neutral-primary)'), background:on?'var(--fill-success-subtlest)':'#fff', cursor:'pointer', font:'500 11px/1 var(--font-roboto)', color:on?'var(--content-success-text-bold)':'var(--content-neutral-tertiary)' } },
     this.h('span', { style:{ width:'13px', height:'13px', flex:'none', borderRadius:'4px', border:'1.5px solid '+(on?'var(--green-600)':'var(--border-neutral-primary)'), background:on?'var(--green-600)':'#fff', display:'flex', alignItems:'center', justifyContent:'center' } }, on?this.ic('check',9,'#fff'):null), 'Scored'); }
   gradedControls(bk){ return this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'10px', marginTop:'2px', paddingTop:'12px', borderTop:'1px dashed var(--border-neutral-secondary)' } },
+    this.toggle('Counts toward final score', bk.graded!==false, ()=>this.patchBlock(bk.id,{ graded: bk.graded===false })),
     this.attemptsControl(bk),
     this.field(bk.feedbackCorrect, v=>this.patchBlock(bk.id,{feedbackCorrect:v}), { label:'Feedback when correct', placeholder:'Shown when the learner answers correctly' }),
     this.field(bk.feedbackWrong, v=>this.patchBlock(bk.id,{feedbackWrong:v}), { label:'Feedback when incorrect', placeholder:'Shown when the learner answers incorrectly' })); }
@@ -2301,7 +2326,16 @@ class Component extends DCLogic {
       : '<svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5v13l11-6.5z"/></svg>'; }
   }
   renderVideo(bk, height, gateOn){
-    const url = (bk.url||'').trim();
+    const mode = bk.source||'url';
+    if(mode==='embed'){
+      const emb=(bk.embed||'').trim();
+      if(!emb) return this.h('div', { style:{ height:(height||200)+'px', background:'var(--gray-100)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'8px', color:'var(--content-neutral-tertiary)' } }, this.ic('video',34,'var(--content-neutral-tertiary)'), this.h('span',{style:{font:'400 13px/1 var(--font-roboto)'}}, 'Paste embed code to preview'));
+      return this.h('div', { style:{ position:'relative', paddingTop:'56.25%', background:'#000' } },
+        this.h('div', { className:'lc-embed-fill', style:{ position:'absolute', inset:0 }, dangerouslySetInnerHTML:{ __html: emb },
+          ref:(el)=>{ if(!el) return; el.querySelectorAll('iframe,video,embed,object').forEach(f=>{ f.style.cssText+=';position:absolute;inset:0;width:100%;height:100%;border:none;'; }); } }));
+    }
+    const url = mode==='file' ? '' : (bk.url||'').trim();
+    const fileSrc = mode==='file' ? (bk.fileSrc||'').trim() : '';
     const gate = gateOn && !this.lget(bk.id).watched; // once watched → normal player
     const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{11})/);
     const vm = url.match(/vimeo\.com\/(\d+)/);
@@ -2354,15 +2388,16 @@ class Component extends DCLogic {
             p.on('ended', ()=>{ mark(dur); });
           }catch(err){} }; start(); }); } }),
         this._lockedChrome(ui)); }
-    if(/\.(mp4|webm|ogg)(\?|$)/i.test(url)){
-      if(!gate) return box(this.h('video', { src:url, controls:true, style:{ position:'absolute', inset:0, width:'100%', height:'100%', background:'#000' } }));
+    if(fileSrc || /\.(mp4|webm|ogg)(\?|$)/i.test(url)){
+      const vsrc = fileSrc || url;
+      if(!gate) return box(this.h('video', { src:vsrc, controls:true, style:{ position:'absolute', inset:0, width:'100%', height:'100%', background:'#000' } }));
       ui.toggle = ()=>{ const v=ui.v; if(!v) return; v.paused ? v.play() : v.pause(); };
       this._wireCommonCtl(ui);
       ui.applyRate = r=>{ if(ui.v) ui.v.playbackRate = r; };
       ui.applyMute = m=>{ if(ui.v) ui.v.muted = m; };
       ui.applyVolume = v=>{ if(ui.v) ui.v.volume = v/100; };
       ui.applyCC = on=>{ if(!ui.v) return; for(const t of ui.v.textTracks) t.mode = on?'showing':'hidden'; };
-      return box(this.h('video', { src:url, playsInline:true,
+      return box(this.h('video', { src:vsrc, playsInline:true,
         ref:(el)=>{ ui.v=el; },
         onPlay:(e)=>this._uiTick(ui, e.currentTarget.currentTime, e.currentTarget.duration, true),
         onPause:(e)=>this._uiTick(ui, e.currentTarget.currentTime, e.currentTarget.duration, false),
@@ -2375,7 +2410,7 @@ class Component extends DCLogic {
         onEnded:(e)=>mark(e.currentTarget.duration),
         style:{ position:'absolute', inset:0, width:'100%', height:'100%', background:'#000' } }),
         this._lockedChrome(ui)); }
-    return this.h('div', { style:{ height:(height||200)+'px', background:'var(--gray-100)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'8px', color:'var(--content-neutral-tertiary)' } }, this.ic('video',34,'var(--content-neutral-tertiary)'), this.h('span',{style:{font:'400 13px/1 var(--font-roboto)'}}, url?'Unsupported URL':'Paste a video URL to preview'));
+    return this.h('div', { style:{ height:(height||200)+'px', background:'var(--gray-100)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'8px', color:'var(--content-neutral-tertiary)' } }, this.ic('video',34,'var(--content-neutral-tertiary)'), this.h('span',{style:{font:'400 13px/1 var(--font-roboto)'}}, mode==='file' ? 'Upload a video file to preview' : (url?'Unsupported URL':'Paste a video URL to preview')));
   }
 
   /* ============================== LEARNING PATHS ============================== */
@@ -2877,7 +2912,7 @@ class Component extends DCLogic {
     const out = []; let locked = false;
     for(const bk of blocks){
       out.push(this.h('div',{ key:bk.id }, this.h(this.Reveal, { mode:'rise' }, this.renderBlockView(bk))));
-      if(!unlockAll && bk.type==='multimedia' && bk.requireWatch && (bk.url||'').trim() && !this.lget(bk.id).watched){ locked=true; break; }
+      if(!unlockAll && bk.type==='multimedia' && bk.requireWatch && ((bk.source||'url')==='file' ? (bk.fileSrc||'').trim() : (bk.source||'url')==='url' ? (bk.url||'').trim() : false) && !this.lget(bk.id).watched){ locked=true; break; }
       if(!unlockAll && bk.type==='divider' && bk.variant==='continue' && !this.lget(bk.id).done){ locked='silent'; break; }
     }
     if(locked===true){
@@ -2992,7 +3027,7 @@ class Component extends DCLogic {
     const isCourse = it.kind === 'course';
     const completed = this.state.completed[it.id] || {};
     const last = idx === it.lessons.length-1;
-    const pendingVideos = (lesson.blocks||[]).filter(b=>b.type==='multimedia' && b.requireWatch && (b.url||'').trim() && !this.lget(b.id).watched).length;
+    const pendingVideos = (lesson.blocks||[]).filter(b=>b.type==='multimedia' && b.requireWatch && ((b.source||'url')==='file' ? (b.fileSrc||'').trim() : (b.source||'url')==='url' ? (b.url||'').trim() : false) && !this.lget(b.id).watched).length;
     const locked = pendingVideos>0 && !completed[lesson.id];
     const markDone = ()=>{ if(locked){ this.toast('Watch the required video'+(pendingVideos>1?'s':'')+' to continue'); return; } this.setState(s=>({ completed:{ ...s.completed, [it.id]:{ ...(s.completed[it.id]||{}), [lesson.id]:true } } })); if(!last){ setTimeout(()=>this.setState({ learnerLessonIdx: idx+1 }),150); this.toast('Lesson complete'); } else if(pathCtx){ this.finishPathNode(pathCtx, it); } else { if(this.gradedQuestions(it).length>0){ this.setState({ modal:'result' }); } else { this.toast('You finished this ' + (isCourse?'course':'lesson')); } } };
     return this.h('div', { style:{ marginTop:'44px', paddingTop:'24px', borderTop:'1px solid var(--border-neutral-secondary)', display:'flex', alignItems:'center', gap:'12px' } },
@@ -3082,7 +3117,8 @@ class Component extends DCLogic {
       case 'gallery': return this.viewGallery(bk);
       case 'audio': return this.viewAudio(bk, edit);
       case 'attachment': return this.viewAttachment(bk, edit);
-      case 'multimedia': { const gate = !!bk.requireWatch && !!(bk.url||'').trim(); const done = !!this.lget(bk.id).watched;
+      case 'multimedia': { const hasVid = (bk.source||'url')==='file' ? !!(bk.fileSrc||'').trim() : (bk.source||'url')==='url' ? !!(bk.url||'').trim() : false;
+        const gate = !!bk.requireWatch && hasVid; const done = !!this.lget(bk.id).watched;
         return h('div', null,
           h('div',{style:{borderRadius:'14px',overflow:'hidden',border:'1px solid var(--border-neutral-secondary)'}}, this.renderVideo(bk, 220, gate)),
           gate ? h('div',{ style:{ display:'flex', alignItems:'center', gap:'8px', marginTop:'10px', padding:'9px 13px', borderRadius:'10px', font:'500 13px/18px var(--font-roboto)', background: done?'var(--fill-success-subtlest, #eafaf1)':'var(--fill-warning-subtlest, #fff3eb)', color: done?'var(--content-success-text-bold)':'var(--content-warning-text-bold, #c25100)' } },
@@ -3110,7 +3146,9 @@ class Component extends DCLogic {
         bk.tabs.map((t,i)=>{ const on=i===act; return this.h('button', { key:t.id, onClick:()=>this.lset(bk.id,{tab:i}),
           style:{ flex:'1 0 auto', minHeight:'64px', padding:'18px 24px', border:'none', borderRight: i<bk.tabs.length-1?'1px solid var(--border-neutral-secondary)':'none', borderBottom: on?'none':'1px solid var(--border-neutral-secondary)', background: on?'#fff':'var(--gray-50)', cursor:'pointer', font:'600 13px/18px var(--font-roboto)', letterSpacing:'.12em', textTransform:'uppercase', color: on?'var(--pink-600, #ff176b)':'var(--content-neutral-primary)', whiteSpace:'nowrap', transition:'background .15s, color .15s' },
           onMouseEnter:e=>{ if(!on) e.currentTarget.style.background='var(--gray-100)'; }, onMouseLeave:e=>{ if(!on) e.currentTarget.style.background='var(--gray-50)'; } }, t.label); })),
-      this.h('div', { style:{ padding:'26px 26px 28px', font:'400 15.5px/25px var(--font-roboto)', color:'var(--content-neutral-primary)', animation:'lc-fade .2s' } }, (bk.tabs[act]||{}).body));
+      this.h('div', { style:{ padding:'26px 26px 28px', animation:'lc-fade .2s' } },
+        this.itemMediaView('tab-'+bk.id+'-'+(bk.tabs[act]||{}).id, bk.tabs[act]||{}),
+        this.h('div', { style:{ font:'400 15.5px/25px var(--font-roboto)', color:'var(--content-neutral-primary)' } }, (bk.tabs[act]||{}).body)));
   }
   viewTimeline(bk){
     return this.h('div', { style:{ paddingLeft:'4px' } },
@@ -3271,7 +3309,9 @@ class Component extends DCLogic {
           this.h('span', { style:{ flex:1, font:'600 18px/24px var(--font-inter)', letterSpacing:'-.2px', color:'var(--content-neutral-primary)' } }, it.title),
           open ? this.h('span', { style:{ width:'26px', height:'26px', flex:'none', display:'flex', alignItems:'center', justifyContent:'center', border:'1.5px solid var(--blue-500, #1d7afc)', borderRadius:'6px', color:'var(--blue-500, #1d7afc)' } }, this.h('span', { style:{ width:'12px', height:'2px', background:'currentColor', display:'block' } }))
                : this.h('span', { style:{ color:'var(--content-neutral-tertiary)' } }, this.ic('plus',20,'var(--content-neutral-tertiary)',1.6))),
-        open?this.h('div', { style:{ padding:'8px 22px 24px', font:'400 15.5px/25px var(--font-roboto)', color:'var(--content-neutral-primary)', animation:'lc-fade .2s' } }, it.body):null); }));
+        open?this.h('div', { style:{ padding:'8px 22px 24px', animation:'lc-fade .2s' } },
+          this.itemMediaView('acc-'+bk.id+'-'+i, it),
+          this.h('div', { style:{ font:'400 15.5px/25px var(--font-roboto)', color:'var(--content-neutral-primary)' } }, it.body)):null); }));
   }
   viewProcess(bk){
     return this.h('div', { style:{ display:'flex', flexDirection:'column' } },
@@ -3574,7 +3614,7 @@ class Component extends DCLogic {
     if(stacked) return this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'16px' } }, pos==='top' ? [txt, img] : [img, txt]);
     return this.h('div', { style:{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'28px', alignItems:'center' } }, pos==='left' ? [txt, img] : [img, txt]);
   }
-  async startRec(bkId){
+  async startRec(bkId, onDone){
     try{
       const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
       const mr = new MediaRecorder(stream); const chunks = [];
@@ -3584,7 +3624,7 @@ class Component extends DCLogic {
         clearInterval(this._recTick);
         const blob = new Blob(chunks, { type: mr.mimeType || 'audio/webm' });
         const fr = new FileReader();
-        fr.onload = ()=>this.patchBlock(bkId, { src: fr.result });
+        fr.onload = ()=>{ if(onDone) onDone(fr.result); else this.patchBlock(bkId, { src: fr.result }); };
         fr.readAsDataURL(blob);
         this.setState({ rec:null });
       };
@@ -3595,6 +3635,37 @@ class Component extends DCLogic {
     }catch(e){ this.toast('Microphone access was denied or unavailable'); }
   }
   stopRec(){ if(this._mr && this._mr.state !== 'inactive') this._mr.stop(); }
+  pickAudioFile(onDone){ const inp=document.createElement('input'); inp.type='file'; inp.accept='audio/*,.mp3,.m4a,.wav,.ogg,.webm';
+    inp.onchange=()=>{ const f=inp.files&&inp.files[0]; if(!f) return; if(f.size>8*1048576){ this.toast('Audio too large \u2014 up to 8 MB'); return; }
+      const fr=new FileReader(); fr.onload=()=>onDone(String(fr.result)); fr.readAsDataURL(f); };
+    inp.click(); }
+  itemMediaEditor(recKey, slotId, obj, set){
+    const media = obj.media || (obj.img ? 'image' : 'none');
+    const recing = this.state.rec === recKey;
+    return this.h('div', { key:'mx', style:{ display:'flex', flexDirection:'column', gap:'8px' } },
+      this.h('div', { style:{ display:'flex', alignItems:'center', gap:'10px' } },
+        this.h('span',{style:{font:'500 12px/16px var(--font-roboto)',color:'var(--content-neutral-secondary)'}},'Media'),
+        this.segmented(['none','image','video','audio'], media, v=>set({ media:v, img:false }), {none:'None',image:'Image',video:'Video',audio:'Audio'})),
+      media==='image' ? this.h('div', { style:{ height:'120px', borderRadius:'10px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)' } }, this.imageSlot(slotId, 'Drop an image')) : null,
+      media==='video' ? this.field(obj.videoUrl||'', v=>set({videoUrl:v}), { placeholder:'YouTube, Vimeo or .mp4 URL' }) : null,
+      media==='audio' ? this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'8px' } },
+        recing
+          ? this.h('div', { style:{ display:'flex', alignItems:'center', gap:'10px' } },
+              this.h('span', { style:{ font:'500 13px/18px var(--font-roboto)', color:'var(--red-600, #c9372c)' } }, 'Recording\u2026 '+Math.floor((Date.now()-this._recStart)/1000)+'s'),
+              this.btn('Stop', ()=>this.stopRec(), 'primary', { sm:true }))
+          : this.h('div', { style:{ display:'flex', alignItems:'center', gap:'10px' } },
+              this.btn(obj.audioSrc?'Record again':'Record audio', ()=>this.startRec(recKey, du=>set({audioSrc:du})), 'secondary', { icon:'mic', sm:true }),
+              this.btn('Upload audio', ()=>this.pickAudioFile(du=>set({audioSrc:du})), 'secondary', { sm:true }),
+              obj.audioSrc ? this.btn('Delete recording', ()=>set({audioSrc:''}), 'ghost', { sm:true }) : null),
+        obj.audioSrc ? this.h('audio', { controls:true, src:obj.audioSrc, style:{ width:'100%' } }) : null) : null);
+  }
+  itemMediaView(slotId, obj){
+    const media = obj.media || (obj.img ? 'image' : 'none');
+    if(media==='image') return this.h('div', { style:{ height:'260px', borderRadius:'12px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)', marginBottom:'14px' } }, this.imageSlot(slotId, 'Image'));
+    if(media==='video' && (obj.videoUrl||'').trim()) return this.h('div', { style:{ borderRadius:'12px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)', marginBottom:'14px' } }, this.renderVideo({ url:obj.videoUrl }, 280));
+    if(media==='audio' && obj.audioSrc) return this.h('audio', { controls:true, src:obj.audioSrc, style:{ width:'100%', marginBottom:'14px', display:'block' } });
+    return null;
+  }
   fmtSize(n){ if(!n) return ''; if(n<1024) return n+' B'; if(n<1048576) return (n/1024).toFixed(0)+' KB'; return (n/1048576).toFixed(1)+' MB'; }
   addAttachmentFiles(bkId, list){
     const files = Array.from(list||[]);
@@ -3765,7 +3836,10 @@ class Component extends DCLogic {
       case 'attachment': return `<section class="bk"><b>${e(bk.title||'Resources')}</b><ul>${(bk.files||[]).map(f=>`<li><a href="${e(f.src)}" download="${e(f.name)}">${e(f.name)}</a></li>`).join('')}</ul></section>`;
       case 'list': { const tag = (bk.variant||'numbered')==='numbered'?'ol':'ul'; return `<section class="bk"><${tag}>${(bk.items||[]).map(it=>`<li>${e(it.text)}</li>`).join('')}</${tag}></section>`; }
       case 'gallery': return `<section class="bk"><p class="muted">[Gallery: ${bk.images.map(im=>e(im.caption)).join(', ')}]</p></section>`;
-      case 'multimedia': { const url=(bk.url||'').trim(); const yt=url.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/); return `<section class="bk">${yt?`<div class="video"><iframe src="https://www.youtube.com/embed/${yt[1]}" allowfullscreen></iframe></div>`:`<p class="muted">[Video: ${e(url)||'no URL'}]</p>`}${bk.caption?`<p class="muted">${e(bk.caption)}</p>`:''}</section>`; }
+      case 'multimedia': { const mode=bk.source||'url'; const url=(bk.url||'').trim();
+        if(mode==='embed' && (bk.embed||'').trim()) return `<section class="bk"><div class="video">${bk.embed}</div>${bk.caption?`<p class="muted">${e(bk.caption)}</p>`:''}</section>`;
+        if(mode==='file' && (bk.fileSrc||'').trim()) return `<section class="bk"><div class="video"><video src="${bk.fileSrc}" controls style="width:100%;height:100%"></video></div>${bk.caption?`<p class="muted">${e(bk.caption)}</p>`:''}</section>`;
+        const yt=url.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/); return `<section class="bk">${yt?`<div class="video"><iframe src="https://www.youtube.com/embed/${yt[1]}" allowfullscreen></iframe></div>`:`<p class="muted">[Video: ${e(url)||'no URL'}]</p>`}${bk.caption?`<p class="muted">${e(bk.caption)}</p>`:''}</section>`; }
       case 'labeledgraphic': return `<section class="bk"><ol>${bk.markers.map(m=>`<li><b>${e(m.title)}</b> — ${e(m.body)}</li>`).join('')}</ol></section>`;
       case 'sorting': return `<section class="bk"><p>${e(bk.prompt)}</p><ul>${bk.items.map(it=>`<li>${e(it.text)} → <b>${e(bk.categories[it.cat]||'')}</b></li>`).join('')}</ul></section>`;
       case 'knowledge': { const g=bk.graded!==false?' data-graded="1"':''; const fc=e(bk.feedbackCorrect!=null?bk.feedbackCorrect:(bk.feedback||'Correct!')); const fw=e(bk.feedbackWrong||'Not quite - review and try again.'); const tip=bk.multi?'<span class="qhint">Select all that apply</span>':''; const opts=bk.options.map(o=>`<label class="opt"><input type="${bk.multi?'checkbox':'radio'}" name="q_${bk.id}" data-c="${o.correct?1:0}"> ${e(o.text)}</label>`).join(''); return `<section class="bk"><div class="quiz" id="q_${bk.id}"${g} data-max="${+bk.maxAttempts||0}" data-fc="${fc}" data-fw="${fw}"><b>${e(bk.question)}</b>${tip}${opts}<button type="button" class="qcheck" onclick="grade('${bk.id}')">Check answer</button><p class="fb"></p></div></section>`; }
