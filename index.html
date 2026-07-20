@@ -47,6 +47,7 @@
   @keyframes lc-fade{from{opacity:0}to{opacity:1}}
   @keyframes lc-slide{from{transform:translateX(100%)}to{transform:none}}
   @keyframes lc-spin{to{transform:rotate(360deg)}}
+  @media (max-width:900px){ .blk-grip{display:none !important} }
 </style>
 </helmet>
 <div style="min-height:100vh;background:var(--bg-lvl-0)">{{ app }}</div>
@@ -229,11 +230,16 @@ class Component extends DCLogic {
   editable(){ return !!(window.omelette && window.omelette.writeFile); }
   draftKey(){ return 'learning-studio.draft.v3'; }
   scheduleLocalSave(){ clearTimeout(this._ls); this._ls = setTimeout(()=>this.saveLocal(), 350); }
-  saveLocal(lib){ try{ localStorage.setItem(this.draftKey(), JSON.stringify({ savedAt: Date.now(), library: lib || this.state.library, folders: this.state.folders, team: this.state.team, changes: this.state.changes || [], base: this._base || null })); }catch(e){} }
+  saveLocal(lib){ try{ localStorage.setItem(this.draftKey(), JSON.stringify({ savedAt: Date.now(), library: lib || this.state.library, folders: this.state.folders, team: this.state.team, changes: this.state.changes || [], base: this._base || null })); }catch(e){ if(!this._lsWarned || Date.now()-this._lsWarned>60000){ this._lsWarned=Date.now(); this.toast('Draft too large to auto-save locally — click Save to keep your changes'); } } }
   componentDidMount(){
     try{ let l=document.querySelector('link[rel="icon"]'); if(!l){ l=document.createElement('link'); l.rel='icon'; document.head.appendChild(l); } l.type='image/png'; l.href='assets/learning-studio-favicon.png'; }catch(e){}
+    this._rs = ()=>{ clearTimeout(this._rst); this._rst = setTimeout(()=>this.setState({ winW:window.innerWidth }), 120); };
+    window.addEventListener('resize', this._rs);
     this.loadState(); this._poll = setInterval(()=>this.pollState(), 10000); this._slash = (e)=>{ if(e.key!=='/' || this.state.view!=='editor' || this.state.insertMenu) return; const a=document.activeElement; if(a && (a.tagName==='INPUT' || a.tagName==='TEXTAREA' || a.isContentEditable)) return; e.preventDefault(); const it=this.curItem(); const l=it && it.lessons[this.state.currentLessonIdx]; if(l) this.openInsertMenu(l.blocks.length); }; document.addEventListener('keydown', this._slash); }
-  componentWillUnmount(){ if(this._poll) clearInterval(this._poll); if(this._slash) document.removeEventListener('keydown', this._slash); }
+  componentWillUnmount(){ if(this._poll) clearInterval(this._poll); if(this._slash) document.removeEventListener('keydown', this._slash); if(this._rs) window.removeEventListener('resize', this._rs); }
+  winW(){ return this.state.winW || window.innerWidth; }
+  mob(){ return this.winW() < 820; }
+  narrow(){ return this.winW() < 1080; }
 
   async loadState(){
     let remote = null;
@@ -466,6 +472,8 @@ class Component extends DCLogic {
       file:'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z M14 2v6h6',
       flip:'M21 12a9 9 0 1 1-2.64-6.36 M21 3v6h-6',
       chat:'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z',
+      app:'M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z|M3 9h18|M6.5 6h.01',
+      pkg:'M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z|M3.3 7 12 12l8.7-5|M12 22V12',
       play:'M7 4.5 19 12 7 19.5Z',
       route:'M6 7a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z|M18 22a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z|M8.5 4.5H15a4 4 0 0 1 0 8H9a4 4 0 0 0 0 8h6.5',
       lock:'M5 11h14v10H5z|M8 11V7a4 4 0 0 1 8 0v4',
@@ -527,13 +535,15 @@ class Component extends DCLogic {
       matching:{ name:'Matching', desc:'Match two columns', icon:'matching' },
       ordering:{ name:'Ordering', desc:'Arrange in the right order', icon:'ordering' },
       code:{ name:'Custom code', desc:'Embed your own HTML, CSS & JS', icon:'code' },
+      interactiveapp:{ name:'Interactive app', desc:'Embed a self-contained app — assistant, simulator or tool', icon:'app' },
+      scormpkg:{ name:'SCORM package', desc:'Embed an existing SCORM course (.zip)', icon:'pkg' },
     };
   }
   blockGroups(){
     return [
       { name:'Text & data', items:['text','paragraph','heading','statement','callout','list','statrow','columns','table','divider'] },
       { name:'Media', items:['imagetext','gallery','multimedia','audio','attachment','code'] },
-      { name:'Interactive', items:['labeledgraphic','tabs','accordion','process','stepbystep','timeline','itimeline','chatsim','flashcards','reveal','sorting','checklist'] },
+      { name:'Interactive', items:['labeledgraphic','tabs','accordion','process','stepbystep','timeline','itimeline','chatsim','flashcards','reveal','sorting','checklist','interactiveapp','scormpkg'] },
       { name:'Assessment', items:['knowledge','truefalse','fillblank','matching','ordering'] },
     ];
   }
@@ -574,6 +584,8 @@ class Component extends DCLogic {
       case 'matching': return B({ graded:true, pairs:[ { id:this.uid(), left:'Autopilot', right:'Resolves tickets end-to-end' }, { id:this.uid(), left:'Copilot', right:'Assists technicians in-ticket' }, { id:this.uid(), left:'AI Center', right:'Shows AI performance metrics' } ], feedbackCorrect:'All matched correctly.', feedbackWrong:'Some matches are off — try again.' });
       case 'ordering': return B({ graded:true, prompt:'Put the ticket lifecycle in the correct order.', items:[ { id:this.uid(), text:'Trigger' }, { id:this.uid(), text:'Understand' }, { id:this.uid(), text:'Act' }, { id:this.uid(), text:'Resolve' } ], feedbackCorrect:'Perfect — that’s the right sequence.', feedbackWrong:'Not the right order — try again.' });
       case 'code': return B({ height:320, code:'<div style="font-family:sans-serif;padding:28px;text-align:center">\n  <h2 style="color:#1a1a1a;margin:0 0 8px">Hello 👋</h2>\n  <p style="color:#444">Edit this block to add your own HTML, CSS, and JavaScript.</p>\n</div>' });
+      case 'interactiveapp': return B({ height:560, name:'', html:'' });
+      case 'scormpkg': return B({ height:600, name:'', data:'', launch:'', size:0 });
       default: return B({});
     }
   }
@@ -700,7 +712,7 @@ class Component extends DCLogic {
       const active = this.state.activeFolder === f.id;
       const depth = this.folderDepth(f.id);
       const count = this.folderItemCount(f.id);
-      const row = this.h('div', { key:'row', onClick:()=>this.setState({ activeFolder:f.id, dashPage:'content' }), ...dropProps(f.id, f.name),
+      const row = this.h('div', { key:'row', onClick:()=>this.setState({ activeFolder:f.id, dashPage:'content', navOpen:false }), ...dropProps(f.id, f.name),
         style:{ display:'flex', alignItems:'center', gap:'6px', padding:'6px 8px', paddingLeft:(8+depth*15)+'px', borderRadius:'7px', cursor:'pointer', color: active?'var(--content-neutral-primary)':'var(--content-neutral-secondary)', background: active?'var(--gray-100)':'transparent', font:`${active?'500':'400'} 13px/18px var(--font-roboto)`, position:'relative', ...dropStyle(f.id) },
         onMouseEnter:e=>{ if(!active) e.currentTarget.style.background='var(--gray-50)'; const a=e.currentTarget.querySelector('.fld-act'); if(a) a.style.opacity=1; },
         onMouseLeave:e=>{ if(!active) e.currentTarget.style.background='transparent'; const a=e.currentTarget.querySelector('.fld-act'); if(a) a.style.opacity=0; } },
@@ -716,13 +728,16 @@ class Component extends DCLogic {
     };
 
     const tops = this.childFolders(null);
-    const sidebar = this.h('aside', { style:{ width:'252px', flex:'none', borderRight:'1px solid var(--border-neutral-secondary)', background:'var(--gray-50)', display:'flex', flexDirection:'column', height:'100vh', position:'sticky', top:0 } },
+    const mob = this.mob();
+    const sidebar = this.h('aside', { style: mob
+        ? { width:'272px', maxWidth:'86vw', position:'fixed', left:0, top:0, bottom:0, zIndex:130, background:'var(--gray-50)', display:'flex', flexDirection:'column', boxShadow:'var(--shadow-lg)', transform:this.state.navOpen?'none':'translateX(-105%)', transition:'transform .22s ease' }
+        : { width:'252px', flex:'none', borderRight:'1px solid var(--border-neutral-secondary)', background:'var(--gray-50)', display:'flex', flexDirection:'column', height:'100vh', position:'sticky', top:0 } },
       this.h('div', { style:{ padding:'18px 18px 10px' } },
         this.h('div', { style:{ display:'flex', justifyContent:'center', padding:'14px 12px', background:'#fff', border:'1px solid var(--border-neutral-secondary)', borderRadius:'12px', boxShadow:'var(--shadow-xs)' } },
           this.h('img', { src:'assets/learning-studio-logo-full.png', alt:'Atera Learning Studio', style:{ width:'118px', height:'auto', display:'block' } }))),
       this.h('div', { style:{ padding:'6px 12px' } },
-        nav('grid','All content', this.state.dashPage!=='team' && this.state.activeFolder===null, ()=>this.setState({ activeFolder:null, dashPage:'content' }), { ...dropProps(null,'All content'), style:dropStyle(null) }),
-        nav('user','Team', this.state.dashPage==='team', ()=>this.setState({ dashPage:'team' }))),
+        nav('grid','All content', this.state.dashPage!=='team' && this.state.activeFolder===null, ()=>this.setState({ activeFolder:null, dashPage:'content', navOpen:false }), { ...dropProps(null,'All content'), style:dropStyle(null) }),
+        nav('user','Team', this.state.dashPage==='team', ()=>this.setState({ dashPage:'team', navOpen:false }))),
       this.h('div', { style:{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 14px 6px', marginTop:'4px', borderTop:'1px solid var(--border-neutral-secondary)' } },
         this.h('span', { style:{ font:'600 11px/16px var(--font-roboto)', letterSpacing:'.05em', textTransform:'uppercase', color:'var(--content-neutral-tertiary)' } }, 'Folders'),
         this.h('button', { title:'New folder', onClick:()=>this.setState({ folderModal:{ parentId:null, name:'' } }), style:{ width:'24px', height:'24px', border:'none', background:'transparent', borderRadius:'6px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }, onMouseEnter:e=>e.currentTarget.style.background='var(--gray-100)', onMouseLeave:e=>e.currentTarget.style.background='transparent' }, this.ic('plus',15,'var(--content-neutral-secondary)'))),
@@ -756,16 +771,17 @@ class Component extends DCLogic {
       af ? this.h('div', { style:{ display:'flex', alignItems:'center', gap:'6px', marginBottom:'10px', font:'400 13px/1 var(--font-roboto)', color:'var(--content-neutral-tertiary)', flexWrap:'wrap' } },
         this.h('span', { onClick:()=>this.setState({ activeFolder:null }), style:{ cursor:'pointer', color:'var(--content-info-text-bold)' } }, 'All content'),
         ...path.flatMap((f,i)=>[ this.h('span',{key:'s'+f.id, style:{color:'var(--content-neutral-tertiary)'}}, '/'), this.h('span', { key:f.id, onClick:()=>this.setState({ activeFolder:f.id }), style:{ cursor:'pointer', color: i===path.length-1?'var(--content-neutral-secondary)':'var(--content-info-text-bold)' } }, f.name) ])) : null,
-      this.h('div', { style:{ display:'flex', alignItems:'flex-start', gap:'10px' } },
+      this.h('div', { style:{ display:'flex', alignItems:'flex-start', gap:'10px', flexWrap:'wrap' } },
+        mob ? this.h('button', { title:'Menu', onClick:()=>this.setState({ navOpen:true }), style:{ width:'38px', height:'38px', flex:'none', border:'1px solid var(--border-neutral-primary)', borderRadius:'9px', background:'#fff', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', marginTop:'2px' } }, this.ic('list',18,'var(--content-neutral-secondary)')) : null,
         this.h('div', null,
-          this.h('h2', { style:{ font:'600 26px/34px var(--font-inter)', letterSpacing:'-.7px' } }, af ? this.folderById(af).name : 'All content'),
+          this.h('h2', { style:{ font:(mob?'600 21px/28px':'600 26px/34px')+' var(--font-inter)', letterSpacing:'-.7px' } }, af ? this.folderById(af).name : 'All content'),
           this.h('div', { style:{ font:'400 13px/18px var(--font-roboto)', color:'var(--content-neutral-secondary)', marginTop:'3px' } }, sorted.length+' item'+(sorted.length===1?'':'s'))),
         this.h('div', { style:{ flex:1 } }),
         this.saveButton(),
         this.btn('Create with AI', () => this.setState({ modal:'ai', aiText:'', aiAuthor:(this.state.team[0]||{}).name||'', aiLessons:'auto', aiQuiz:true, aiBusy:false, aiErr:null }), 'secondary', { icon:'sparks', style:{ color:'var(--content-ai-text-bold)', borderColor:'var(--violet-200)' } }),
         this.btn('New content', () => this.setState({ modal:'create', newKind:'course', newTitle:'', newAuthor:'', newFolderId:this.state.activeFolder||null, folderMenuOpen:false }), 'primary', { icon:'plus' })),
-      this.h('div', { style:{ display:'flex', alignItems:'center', gap:'10px', marginTop:'20px' } },
-        this.h('div', { style:{ display:'flex', alignItems:'center', gap:'8px', padding:'0 12px', height:'34px', width:'300px', border:'1px solid '+(q?'var(--gray-400)':'var(--border-neutral-secondary)'), borderRadius:'8px', background:q?'#fff':'var(--gray-50)', color:'var(--content-neutral-tertiary)' } },
+      this.h('div', { style:{ display:'flex', alignItems:'center', gap:'10px', marginTop:'20px', flexWrap:'wrap' } },
+        this.h('div', { style:{ display:'flex', alignItems:'center', gap:'8px', padding:'0 12px', height:'34px', width:mob?'100%':'300px', border:'1px solid '+(q?'var(--gray-400)':'var(--border-neutral-secondary)'), borderRadius:'8px', background:q?'#fff':'var(--gray-50)', color:'var(--content-neutral-tertiary)' } },
           this.ic('search', 15),
           this.h('input', { value:this.state.dashSearch||'', onChange:e=>this.setState({ dashSearch:e.target.value }), placeholder:'Search title, lesson or creator', style:{ flex:1, border:'none', outline:'none', background:'transparent', font:'400 13px/18px var(--font-roboto)', color:'var(--content-neutral-primary)' } }),
           q ? this.h('button', { title:'Clear', onClick:()=>this.setState({ dashSearch:'' }), style:{ width:'20px', height:'20px', flex:'none', border:'none', background:'transparent', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', padding:0 } }, this.ic('x',13,'var(--content-neutral-secondary)')) : null),
@@ -794,9 +810,11 @@ class Component extends DCLogic {
       ? this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'8px' } }, sorted.map(it=>this.dashRow(it)))
       : this.h('div', { style:{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(268px,1fr))', gap:'22px' } }, sorted.map(it=>this.dashCard(it))));
 
-    return this.h('div', { style:{ display:'flex', minHeight:'100vh' } }, sidebar,
+    return this.h('div', { style:{ display:'flex', minHeight:'100vh' } },
+      (mob && this.state.navOpen) ? this.h('div', { onClick:()=>this.setState({ navOpen:false }), style:{ position:'fixed', inset:0, zIndex:125, background:'rgba(26,26,26,.4)', animation:'lc-fade .15s' } }) : null,
+      sidebar,
       this.h('main', { style:{ flex:1, minWidth:0 } }, topbar,
-        this.state.dashPage==='team' ? this.renderTeamPage() : this.h('div', { style:{ padding:'26px 32px 60px' } },
+        this.state.dashPage==='team' ? this.renderTeamPage() : this.h('div', { style:{ padding: mob?'16px 14px 60px':'26px 32px 60px' } },
           heading,
           subfolderCards,
           list)),
@@ -1374,7 +1392,7 @@ class Component extends DCLogic {
 
     const idx = this.state.currentLessonIdx;
     const canvas = this.h('div', { className:'lc-scroll', 'data-canvas':'1', style:{ flex:1, overflowY:'auto', overflowX:'hidden', height:'calc(100vh - 58px)', background:'var(--bg-lvl-1, #f4f4f4)' } },
-      this.h('div', { onClick:(e)=>{ if(e.target===e.currentTarget) this.setState({ selectedBlockId:null, popover:null }); }, style:{ maxWidth:'1040px', margin:'0 auto', padding:'26px 64px 140px', minHeight:'100%' } },
+      this.h('div', { onClick:(e)=>{ if(e.target===e.currentTarget) this.setState({ selectedBlockId:null, popover:null }); }, style:{ maxWidth:'1040px', margin:'0 auto', padding:(this.mob()?'18px 14px 140px':'26px 64px 140px'), minHeight:'100%' } },
         this.editorHero(it, lesson, idx, isCourse),
         this.h('div', { onClick:(e)=>{ if(e.target===e.currentTarget) this.setState({ selectedBlockId:null, popover:null }); }, style:{ marginTop:'6px' } },
           lesson.blocks.length === 0 ? this.editorEmpty() : this.h(React.Fragment, null, this.insertBar(0), lesson.blocks.map((bk, i) => this.h(React.Fragment, { key:bk.id }, this.blockShell(bk, i, lesson.blocks.length), this.insertBar(i+1)))),
@@ -1402,7 +1420,7 @@ class Component extends DCLogic {
     const cp = this.cp(it);
     const on = cp.enabled !== false;
     return this.h('div', { className:'lc-scroll', style:{ flex:1, overflowY:'auto', overflowX:'hidden', height:'calc(100vh - 58px)' } },
-      this.h('div', { style:{ maxWidth:'1040px', margin:'0 auto', padding:'26px 64px 120px' } },
+      this.h('div', { style:{ maxWidth:'1040px', margin:'0 auto', padding:(this.mob()?'18px 14px 120px':'26px 64px 120px') } },
         this.h('div', { style:{ background:'#fff', border:'1px solid var(--border-neutral-secondary)', borderRadius:'16px', boxShadow:'var(--shadow-xs)', padding:'40px 44px', opacity:on?1:.45, transition:'opacity .15s', overflow:'hidden' } },
           this.h('div', { style:{ margin:'-40px -44px 28px', height:'190px' } }, this.imageSlot('cover-'+it.id, 'Drop a cover image (optional)')),
           this.h('div', { style:{ font:'500 12px/16px var(--font-roboto)', letterSpacing:'.05em', textTransform:'uppercase', color:'var(--content-neutral-tertiary)', marginBottom:'10px' } }, 'Course'),
@@ -1645,7 +1663,18 @@ class Component extends DCLogic {
     if(fam){ style['--font-inter']=fam; style['--font-roboto']=fam; }
     const zoom = { S:0.88, M:1, L:1.18, XL:1.36 }[bk.fsize || 'M'];
     if(zoom !== 1) style.zoom = zoom;
-    if(bk.width === 'full'){ style.width='100vw'; style.marginLeft='calc(50% - 50vw)'; style.marginRight='calc(50% - 50vw)'; style.paddingLeft='0'; style.paddingRight='0'; style.borderRadius='0'; }
+    if(bk.width === 'full'){
+      style.paddingLeft='0'; style.paddingRight='0'; style.borderRadius='0';
+      return this.h('div', { style, ref:el=>{ if(!el || el.__fw) return; el.__fw = true;
+        const fit = ()=>{ try{ const sc = el.closest('.lc-scroll'); const p = el.parentElement; if(!sc || !p) { el.style.width='100vw'; el.style.marginLeft='calc(50% - 50vw)'; el.style.marginRight='calc(50% - 50vw)'; return; }
+          const scl = sc.getBoundingClientRect().left + sc.clientLeft;
+          const pl = p.getBoundingClientRect().left;
+          el.style.width = sc.clientWidth+'px';
+          el.style.marginLeft = (scl - pl)+'px';
+          el.style.marginRight = '0px';
+        }catch(e){} };
+        fit(); el.__fwTimer = setInterval(fit, 700); } }, inner);
+    }
     else if(bk.width === 'wide'){ style.width='calc(100% + 220px)'; style.marginLeft='-110px'; style.marginRight='-110px'; }
     return this.h('div', { style }, inner);
   }
@@ -1845,6 +1874,67 @@ class Component extends DCLogic {
             this.addRowBtn('Add row', ()=>this.editBlock(bk.id,b=>b.rows.push(Array.from({length:nc}).map(()=>'')))),
             nc<5 ? this.addRowBtn('Add column', ()=>this.editBlock(bk.id,b=>b.rows.forEach(r=>r.push('')))) : null,
             nc>1 ? this.addRowBtn('Remove column', ()=>this.editBlock(bk.id,b=>b.rows.forEach(r=>r.pop()))) : null)); }
+      case 'interactiveapp': {
+        const pickApp = (files)=>{ const f=files&&files[0]; if(!f) return;
+          if(f.size > 8*1048576){ this.toast('File too large — up to 8 MB'); return; }
+          const fr=new FileReader(); fr.onload=()=>this.patchBlock(bk.id,{ html:String(fr.result), name:f.name, size:f.size }); fr.readAsText(f); };
+        const appInput = ()=>this.h('input', { type:'file', accept:'.html,.htm', style:{ display:'none' }, onChange:e=>{ pickApp(e.target.files); e.target.value=''; } });
+        return this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'14px' } },
+          this.h('div', { style:{ font:'400 12px/17px var(--font-roboto)', color:'var(--content-neutral-tertiary)' } }, 'Upload a self-contained HTML app — an assistant, simulator or tool. It runs in a sandboxed frame. AI-powered apps connect to Claude automatically when the course runs here, and fall back to their built-in behavior elsewhere (e.g. in a SCORM export).'),
+          bk.html
+            ? this.h('div', { style:{ display:'flex', alignItems:'center', gap:'10px', padding:'12px 14px', border:'1px solid var(--border-neutral-secondary)', borderRadius:'10px', background:'#f9f9f9' } },
+                this.ic('app',18,'var(--content-neutral-secondary)'),
+                this.h('div', { style:{ flex:1, minWidth:0 } },
+                  this.h('div', { style:{ font:'500 13px/18px var(--font-roboto)', color:'var(--content-neutral-primary)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' } }, bk.name||'app.html'),
+                  this.h('div', { style:{ font:'400 12px/16px var(--font-roboto)', color:'var(--content-neutral-tertiary)' } }, Math.max(1, Math.round((bk.size||bk.html.length)/1024))+' KB')),
+                this.h('label', { style:{ font:'500 12px/16px var(--font-roboto)', color:'var(--content-neutral-secondary)', border:'1px solid var(--border-neutral-primary)', borderRadius:'8px', padding:'7px 12px', cursor:'pointer', background:'#fff' } }, 'Replace', appInput()))
+            : this.h('label', { style:{ display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', padding:'14px', border:'1.5px dashed var(--border-neutral-primary)', borderRadius:'10px', cursor:'pointer', font:'500 13px/18px var(--font-roboto)', color:'var(--content-neutral-secondary)' } },
+                this.ic('plus',15,'var(--content-neutral-secondary)'), 'Upload an HTML file', appInput()),
+          this.h('div', null, this.h('div',{style:{font:'500 12px/16px var(--font-roboto)',color:'var(--content-neutral-secondary)',marginBottom:'8px'}},'Width'), this.segmented(['content','wide','full'], bk.width||'wide', v=>this.patchBlock(bk.id,{width:v}), { content:'Column', wide:'Wide', full:'Full width' })),
+          this.h('div', null, this.h('div',{style:{font:'500 12px/16px var(--font-roboto)',color:'var(--content-neutral-secondary)',marginBottom:'8px'}},'Height'),
+            this.h('div', { style:{ display:'flex', alignItems:'center', gap:'10px' } },
+              this.h('input', { type:'range', min:240, max:1400, step:10, value:bk.height||560, onChange:e=>this.patchBlock(bk.id,{height:+e.target.value}), style:{ flex:1, accentColor:'var(--gray-1000)' } }),
+              this.h('input', { type:'number', min:240, max:4000, step:10, value:bk.height||560, onChange:e=>this.patchBlock(bk.id,{height:Math.max(240, Math.min(4000, +e.target.value||560))}), style:{ ...this.inputStyle(), width:'78px', textAlign:'center', padding:'8px 6px' } }))));
+      }
+      case 'scormpkg': {
+        const pickZip = (files)=>{ const f=files&&files[0]; if(!f) return;
+          if(f.size > 6*1048576){ this.toast('Package too large — up to 6 MB'); return; }
+          const fr=new FileReader(); fr.onload=async()=>{ const b64=String(fr.result).split(',')[1];
+            try{
+              await this._ensureScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+              const zip = await window.JSZip.loadAsync(b64, { base64:true });
+              let manFile = zip.file('imsmanifest.xml'); if(!manFile){ const m = zip.file(/imsmanifest\.xml$/i); manFile = m && m[0]; }
+              if(!manFile){ this.toast('Not a SCORM package — imsmanifest.xml not found'); return; }
+              const man = await manFile.async('string');
+              const doc = new DOMParser().parseFromString(man, 'text/xml');
+              const org = doc.querySelector('organizations organization item[identifierref]');
+              const idref = org && org.getAttribute('identifierref');
+              let res = null;
+              doc.querySelectorAll('resource[href]').forEach(r=>{ if(!res && (!idref || r.getAttribute('identifier')===idref)) res = r; });
+              const launch = ((res && res.getAttribute('href')) || 'index.html').split('?')[0].split('#')[0];
+              const prefix = manFile.name.replace(/imsmanifest\.xml$/i,'');
+              this.patchBlock(bk.id, { data:b64, name:f.name, size:f.size, launch: prefix+launch });
+              this.toast('Package loaded — launch file: '+launch);
+            }catch(err){ this.toast('Could not read the package: '+(err.message||err)); } };
+          fr.readAsDataURL(f); };
+        const zipInput = ()=>this.h('input', { type:'file', accept:'.zip', style:{ display:'none' }, onChange:e=>{ pickZip(e.target.files); e.target.value=''; } });
+        return this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'14px' } },
+          this.h('div', { style:{ font:'400 12px/17px var(--font-roboto)', color:'var(--content-neutral-tertiary)' } }, 'Upload a SCORM course as a .zip. In the exported package its files are bundled alongside the course and play inside the lesson. The in-editor preview is best-effort — complex packages (Storyline, Rise) may only render fully after export.'),
+          bk.data
+            ? this.h('div', { style:{ display:'flex', alignItems:'center', gap:'10px', padding:'12px 14px', border:'1px solid var(--border-neutral-secondary)', borderRadius:'10px', background:'#f9f9f9' } },
+                this.ic('pkg',18,'var(--content-neutral-secondary)'),
+                this.h('div', { style:{ flex:1, minWidth:0 } },
+                  this.h('div', { style:{ font:'500 13px/18px var(--font-roboto)', color:'var(--content-neutral-primary)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' } }, bk.name||'package.zip'),
+                  this.h('div', { style:{ font:'400 12px/16px var(--font-roboto)', color:'var(--content-neutral-tertiary)' } }, Math.max(1, Math.round((bk.size||0)/1024))+' KB — launches '+(bk.launch||'?'))),
+                this.h('label', { style:{ font:'500 12px/16px var(--font-roboto)', color:'var(--content-neutral-secondary)', border:'1px solid var(--border-neutral-primary)', borderRadius:'8px', padding:'7px 12px', cursor:'pointer', background:'#fff' } }, 'Replace', zipInput()))
+            : this.h('label', { style:{ display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', padding:'14px', border:'1.5px dashed var(--border-neutral-primary)', borderRadius:'10px', cursor:'pointer', font:'500 13px/18px var(--font-roboto)', color:'var(--content-neutral-secondary)' } },
+                this.ic('plus',15,'var(--content-neutral-secondary)'), 'Upload a SCORM .zip', zipInput()),
+          this.h('div', null, this.h('div',{style:{font:'500 12px/16px var(--font-roboto)',color:'var(--content-neutral-secondary)',marginBottom:'8px'}},'Width'), this.segmented(['content','wide','full'], bk.width||'content', v=>this.patchBlock(bk.id,{width:v}), { content:'Column', wide:'Wide', full:'Full width' })),
+          this.h('div', null, this.h('div',{style:{font:'500 12px/16px var(--font-roboto)',color:'var(--content-neutral-secondary)',marginBottom:'8px'}},'Height'),
+            this.h('div', { style:{ display:'flex', alignItems:'center', gap:'10px' } },
+              this.h('input', { type:'range', min:240, max:1400, step:10, value:bk.height||600, onChange:e=>this.patchBlock(bk.id,{height:+e.target.value}), style:{ flex:1, accentColor:'var(--gray-1000)' } }),
+              this.h('input', { type:'number', min:240, max:4000, step:10, value:bk.height||600, onChange:e=>this.patchBlock(bk.id,{height:Math.max(240, Math.min(4000, +e.target.value||600))}), style:{ ...this.inputStyle(), width:'78px', textAlign:'center', padding:'8px 6px' } }))));
+      }
       case 'code': return this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'14px' } },
         this.h('div', { style:{ font:'400 12px/17px var(--font-roboto)', color:'var(--content-neutral-tertiary)' } }, 'Paste HTML, CSS and JavaScript. It runs in a sandboxed frame, isolated from the rest of the page.'),
         F(bk.code, v=>this.patchBlock(bk.id,{code:v}), { multiline:true, rows:14, placeholder:'<div>…</div>', style:{ fontFamily:"'Roboto Mono',monospace", fontSize:'13px', lineHeight:'19px', whiteSpace:'pre', tabSize:2 } }),
@@ -2705,9 +2795,9 @@ class Component extends DCLogic {
     const gq = this.gradedQuestions(it);
     const sc = this.scoreNow(it);
 
-    const header = this.h('div', { style:{ height:'56px', display:'flex', alignItems:'center', gap:'14px', padding:'0 22px', borderBottom:'1px solid var(--border-neutral-secondary)', background:'#fff', position:'sticky', top:0, zIndex:20 } },
+    const header = this.h('div', { style:{ minHeight:'56px', display:'flex', alignItems:'center', gap:this.mob()?'8px':'14px', flexWrap:'wrap', padding:this.mob()?'8px 12px':'0 22px', borderBottom:'1px solid var(--border-neutral-secondary)', background:'#fff', position:'sticky', top:0, zIndex:20 } },
       this.markBrand(22),
-      this.h('div', { style:{ font:'600 15px/1 var(--font-inter)', letterSpacing:'-.2px' } }, it.title),
+      this.h('div', { style:{ font:'600 15px/1 var(--font-inter)', letterSpacing:'-.2px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:this.mob()?'40vw':'none' } }, it.title),
       this.h('span', { style:{ padding:'3px 9px', borderRadius:'999px', font:'500 11px/16px var(--font-roboto)', background:'var(--violet-100)', color:'var(--content-ai-text-bold)' } }, 'Preview'),
       this.h('div', { style:{ flex:1 } }),
       isCourse ? this.h('div', { style:{ display:'flex', alignItems:'center', gap:'10px' } },
@@ -2736,7 +2826,7 @@ class Component extends DCLogic {
             this.btn('Start course', ()=>this.setState({ learnerCover:false, learnerLessonIdx:0 }), 'primary', { icon:'arrowRight' }))));
     }
 
-    const sidebar = isCourse ? this.h('aside', { className:'lc-scroll', style:{ width:'270px', flex:'none', borderRight:'1px solid var(--border-neutral-secondary)', background:'#fff', height:'calc(100vh - 56px)', overflow:'auto', padding:'20px 14px', position:'sticky', top:'56px' } },
+    const sidebar = (isCourse && !this.mob()) ? this.h('aside', { className:'lc-scroll', style:{ width:'270px', flex:'none', borderRight:'1px solid var(--border-neutral-secondary)', background:'#fff', height:'calc(100vh - 56px)', overflow:'auto', padding:'20px 14px', position:'sticky', top:'56px' } },
       this.h('div', { style:{ font:'600 11px/16px var(--font-roboto)', letterSpacing:'.06em', textTransform:'uppercase', color:'var(--content-neutral-tertiary)', padding:'0 8px 12px' } }, `${it.lessons.length} lessons`),
       it.lessons.map((l,i)=>{ const active=i===idx; const done=completed[l.id];
         return this.h('div', { key:l.id, onClick:()=>this.setState({ learnerLessonIdx:i }), style:{ display:'flex', alignItems:'center', gap:'11px', padding:'10px', borderRadius:'10px', cursor:'pointer', marginBottom:'2px', background:active?'var(--gray-100)':'transparent' },
@@ -2747,7 +2837,7 @@ class Component extends DCLogic {
     const hero = this.heroFor(it, lesson, idx, isCourse, cv);
 
     const body = this.h('div', { className:'lc-scroll', 'data-canvas':'1', style:{ flex:1, overflowY:'auto', overflowX:'hidden', height:'calc(100vh - 56px)' } },
-      this.h('div', { style:{ maxWidth:'960px', margin:'0 auto', padding:'34px 24px 80px' } },
+      this.h('div', { style:{ maxWidth:'960px', margin:'0 auto', padding:(this.mob()?'20px 14px 80px':'34px 24px 80px') } },
         hero,
         this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'6px' } }, this.gatedLessonBlocks(lesson, completed)),
         this.learnerFooter(it, idx, lesson, pathCtx)));
@@ -2976,6 +3066,8 @@ class Component extends DCLogic {
       case 'columns': return h('div', { style:{ display:'grid', gridTemplateColumns:`repeat(${(bk.cols||[]).length||2},1fr)`, gap:'28px' } }, (bk.cols||[]).map((c,i)=>h('p', { key:c.id||i, style:{ font:'400 15px/25px var(--font-roboto)', color:'var(--content-neutral-primary)', margin:0 } }, c.body)));
       case 'table': return this.viewTable(bk);
       case 'code': return this.viewCode(bk);
+      case 'interactiveapp': return this.viewInteractiveApp(bk);
+      case 'scormpkg': return this.viewScormPkg(bk);
       case 'callout': return this.viewCallout(bk);
       case 'divider': return this.viewDivider(bk, edit);
       case 'list': return this.viewList(bk, edit);
@@ -3344,6 +3436,84 @@ class Component extends DCLogic {
     return this.h('div', { style:{ borderRadius:'14px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)', background:'#fff', boxShadow:'var(--shadow-xs)' } },
       this.h('iframe', { title:'Custom code', srcDoc: bk.code||'', sandbox:'allow-scripts allow-same-origin allow-popups allow-forms allow-modals', style:{ width:'100%', height:(bk.height||320)+'px', border:'none', display:'block' } }));
   }
+  viewInteractiveApp(bk){
+    if(!bk.html) return this.h('div', { style:{ border:'1.5px dashed var(--border-neutral-primary)', borderRadius:'14px', padding:'36px', display:'flex', flexDirection:'column', alignItems:'center', gap:'8px', background:'#fff' } },
+      this.ic('app', 26, 'var(--content-neutral-tertiary)'),
+      this.h('div', { style:{ font:'500 14px/19px var(--font-roboto)', color:'var(--content-neutral-secondary)' } }, 'Interactive app'),
+      this.h('div', { style:{ font:'400 13px/18px var(--font-roboto)', color:'var(--content-neutral-tertiary)' } }, 'Upload an HTML file in the block editor to embed it here.'));
+    const shim = '<scr'+'ipt>try{if(!window.claude&&window.parent&&window.parent.claude){window.claude=window.parent.claude;}}catch(e){}</scr'+'ipt>';
+    const html = /<head[^>]*>/i.test(bk.html) ? bk.html.replace(/<head[^>]*>/i, m=>m+shim) : shim+bk.html;
+    return this.h('div', { style:{ borderRadius:'14px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)', background:'#fff', boxShadow:'var(--shadow-xs)' } },
+      this.h('iframe', { title:bk.name||'Interactive app', srcDoc:html, sandbox:'allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-downloads',
+        ref:el=>{ if(!el || el.__fit) return; el.__fit = true;
+          const measure = ()=>{ try{ const d = el.contentDocument; if(!d || !d.body) return;
+            const r = d.getElementById('dc-root');
+            const hgt = Math.max(d.documentElement.scrollHeight, d.body.scrollHeight, r ? r.scrollHeight : 0);
+            const target = Math.max(bk.height||560, Math.min(4000, hgt));
+            const cur = parseInt(el.style.height, 10) || 0;
+            if(Math.abs(cur - target) > 4) el.style.height = target+'px';
+          }catch(e){} };
+          el.addEventListener('load', ()=>setTimeout(measure, 300));
+          el.__fitTimer = setInterval(measure, 800); },
+        style:{ width:'100%', height:(bk.height||560)+'px', border:'none', display:'block' } }));
+  }
+  viewScormPkg(bk){
+    if(!bk.data) return this.h('div', { style:{ border:'1.5px dashed var(--border-neutral-primary)', borderRadius:'14px', padding:'36px', display:'flex', flexDirection:'column', alignItems:'center', gap:'8px', background:'#fff' } },
+      this.ic('pkg', 26, 'var(--content-neutral-tertiary)'),
+      this.h('div', { style:{ font:'500 14px/19px var(--font-roboto)', color:'var(--content-neutral-secondary)' } }, 'SCORM package'),
+      this.h('div', { style:{ font:'400 13px/18px var(--font-roboto)', color:'var(--content-neutral-tertiary)' } }, 'Upload a SCORM .zip in the block editor to embed it here.'));
+    return this.h('div', { style:{ borderRadius:'14px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)', background:'#fff', boxShadow:'var(--shadow-xs)' } },
+      this.h('iframe', { key:bk.id+'_'+(bk.size||0), title:bk.name||'SCORM package', sandbox:'allow-scripts allow-same-origin allow-popups allow-forms allow-modals',
+        ref:el=>{ if(!el || el.__sc) return; el.__sc = true; this._mountScormPreview(bk, el); },
+        style:{ width:'100%', height:(bk.height||600)+'px', border:'none', display:'block' } }));
+  }
+  async _mountScormPreview(bk, el){
+    try{
+      await this._ensureScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+      const zip = await window.JSZip.loadAsync(bk.data, { base64:true });
+      const files = {}; const jobs = [];
+      zip.forEach((p,f)=>{ if(!f.dir) jobs.push(f.async('blob').then(b=>{ files[p]=b; })); });
+      await Promise.all(jobs);
+      const mimes = { html:'text/html', htm:'text/html', css:'text/css', js:'application/javascript', mjs:'application/javascript', png:'image/png', jpg:'image/jpeg', jpeg:'image/jpeg', gif:'image/gif', svg:'image/svg+xml', webp:'image/webp', mp4:'video/mp4', webm:'video/webm', mp3:'audio/mpeg', wav:'audio/wav', woff:'font/woff', woff2:'font/woff2', ttf:'font/ttf', json:'application/json', xml:'application/xml' };
+      const dir = p=>p.slice(0, p.lastIndexOf('/')+1);
+      const norm = (base, rel)=>{ if(/^(https?:|data:|blob:|#|mailto:|javascript:)/i.test(rel)) return null;
+        const parts = (base + rel.split('#')[0].split('?')[0]).split('/'); const out=[];
+        for(const seg of parts){ if(seg==='..') out.pop(); else if(seg!=='.' && seg!=='') out.push(seg); }
+        return out.join('/'); };
+      const urls = {};
+      for(const p of Object.keys(files)){ if(!/\.(html?|css)$/i.test(p)){ const ext=p.split('.').pop().toLowerCase(); urls[p]=URL.createObjectURL(new Blob([files[p]], { type:mimes[ext]||'' })); } }
+      for(const p of Object.keys(files)){ if(/\.css$/i.test(p)){ let txt = await files[p].text();
+        txt = txt.replace(/url\(\s*['"]?([^'")]+)['"]?\s*\)/g, (m,u)=>{ const t=norm(dir(p),u); return (t && urls[t]) ? 'url("'+urls[t]+'")' : m; });
+        urls[p]=URL.createObjectURL(new Blob([txt], { type:'text/css' })); } }
+      const launch = (bk.launch && files[bk.launch]!==undefined) ? bk.launch : Object.keys(files).find(p=>/\.html?$/i.test(p));
+      if(!launch){ el.srcdoc='<p style="font-family:sans-serif;padding:20px">No launch file found in the package.</p>'; return; }
+      const shim = '<scr'+'ipt>(function(){var d={};var ok=function(){return "true"};var api={LMSInitialize:ok,Initialize:ok,LMSFinish:ok,Terminate:ok,LMSCommit:ok,Commit:ok,LMSGetValue:function(k){return d[k]||""},GetValue:function(k){return d[k]||""},LMSSetValue:function(k,v){d[k]=v;return "true"},SetValue:function(k,v){d[k]=v;return "true"},LMSGetLastError:function(){return "0"},GetLastError:function(){return "0"},LMSGetErrorString:function(){return ""},GetErrorString:function(){return ""},LMSGetDiagnostic:function(){return ""},GetDiagnostic:function(){return ""}};window.API=api;window.API_1484_11=api;})();</scr'+'ipt>';
+      const attrRe = /(src|href)\s*=\s*(["'])([^"']+)\2/gi;
+      const rewriteHtml = async (p, seen)=>{
+        seen = seen || {}; if(seen[p]) return urls[p]||''; seen[p] = true;
+        let txt = await files[p].text();
+        const map = {};
+        for(const mm of [...txt.matchAll(attrRe)]){ const u = mm[3]; if(map[u]!==undefined) continue;
+          const t = norm(dir(p), u); if(!t) continue;
+          if(urls[t]) map[u] = urls[t];
+          else if(files[t]!==undefined && /\.html?$/i.test(t)) map[u] = await rewriteHtml(t, seen);
+        }
+        txt = txt.replace(attrRe, (mm,attr,q,u)=> map[u] ? attr+'='+q+map[u]+q : mm);
+        txt = /<head[^>]*>/i.test(txt) ? txt.replace(/<head[^>]*>/i, m=>m+shim) : shim+txt;
+        return urls[p] = URL.createObjectURL(new Blob([txt], { type:'text/html' }));
+      };
+      let txt = await files[launch].text();
+      const map = {};
+      for(const mm of [...txt.matchAll(attrRe)]){ const u = mm[3]; if(map[u]!==undefined) continue;
+        const t = norm(dir(launch), u); if(!t) continue;
+        if(urls[t]) map[u] = urls[t];
+        else if(files[t]!==undefined && /\.html?$/i.test(t)) map[u] = await rewriteHtml(t, { [launch]:true });
+      }
+      txt = txt.replace(attrRe, (mm,attr,q,u)=> map[u] ? attr+'='+q+map[u]+q : mm);
+      txt = /<head[^>]*>/i.test(txt) ? txt.replace(/<head[^>]*>/i, m=>m+shim) : shim+txt;
+      el.srcdoc = txt;
+    }catch(err){ el.srcdoc = '<p style="font-family:sans-serif;padding:20px;color:#c9372c">Preview failed: '+this.esc(String(err.message||err))+'</p>'; }
+  }
   replaceBlockImage(apply){
     const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/png,image/jpeg,image/webp,image/gif';
     inp.onchange = ()=>{ const f = inp.files && inp.files[0]; if(!f) return;
@@ -3578,6 +3748,8 @@ class Component extends DCLogic {
       case 'columns': return `<section class="bk"><div style="display:grid;grid-template-columns:repeat(${(bk.cols||[]).length||2},1fr);gap:28px">${(bk.cols||[]).map(c=>`<p>${e(c.body)}</p>`).join('')}</div></section>`;
       case 'table': { const rows=bk.rows||[]; return `<section class="bk"><table class="match"><tbody>${rows.map((r,ri)=>`<tr>${r.map(c=>(bk.header!==false&&ri===0)?`<th>${e(c)}</th>`:`<td>${e(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></section>`; }
       case 'code': return `<section class="bk"><iframe title="Custom code" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals" style="width:100%;height:${(bk.height||320)}px;border:1px solid #e9e9e9;border-radius:12px;display:block" srcdoc="${e(bk.code||'')}"></iframe></section>`;
+      case 'interactiveapp': return `<section class="bk"><iframe title="${e(bk.name||'Interactive app')}" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals" style="width:100%;height:${(bk.height||560)}px;border:1px solid #e9e9e9;border-radius:12px;display:block" srcdoc="${e(bk.html||'')}"></iframe></section>`;
+      case 'scormpkg': return `<section class="bk"><iframe title="${e(bk.name||'SCORM package')}" sandbox="allow-scripts allow-forms allow-popups allow-modals" src="pkg_${e(bk.id)}/${e(bk.launch||'index.html')}" style="width:100%;height:${(bk.height||600)}px;border:1px solid #e9e9e9;border-radius:12px;display:block"></iframe></section>`;
       case 'statement': return `<section class="bk"><blockquote>${e(bk.text)}</blockquote></section>`;
       case 'callout': return `<section class="bk"><div class="callout ${e(bk.variant)}"><strong>${e(bk.title)}</strong><p>${e(bk.body)}</p></div></section>`;
       case 'divider': return `<hr class="bk"/>`;
@@ -3766,7 +3938,7 @@ window.addEventListener('unload',function(){setV(S4?'cmi.session_time':'cmi.core
   zip(files){
     const enc=new TextEncoder(); const chunks=[]; const central=[]; let offset=0;
     const u16=n=>[n&255,(n>>8)&255]; const u32=n=>[n&255,(n>>8)&255,(n>>16)&255,(n>>24)&255];
-    for(const f of files){ const data=enc.encode(f.content); const crc=this.crc32(data); const name=enc.encode(f.name);
+    for(const f of files){ const data = typeof f.content==='string' ? enc.encode(f.content) : f.content; const crc=this.crc32(data); const name=enc.encode(f.name);
       const local=[].concat(u32(0x04034b50),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0));
       chunks.push(new Uint8Array(local), name, data);
       const cen=[].concat(u32(0x02014b50),u16(20),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset));
@@ -3845,10 +4017,20 @@ window.addEventListener('unload',function(){setV(S4?'cmi.session_time':'cmi.core
           this.btn('Cancel', ()=>this.setState({ modal:null, exportMenu:null }), 'ghost'),
           this.btn('Export package', ()=>this.exportScorm(), 'primary', { icon:'download' }))));
   }
-  exportScorm(opts){
+  async exportScorm(opts){
     const it=this.curItem(); if(!it) return;
     opts = opts || this.state.exportOpts;
     const files=[ { name:'imsmanifest.xml', content:this.buildManifest(it,opts) }, { name:'index.html', content: it.kind==='path' ? this.buildPathIndexHtml(it,opts) : this.buildIndexHtml(it,opts) } ];
+    const pkgs=[]; (it.lessons||[]).forEach(l=>(l.blocks||[]).forEach(b=>{ if(b.type==='scormpkg' && b.data) pkgs.push(b); }));
+    if(it.kind==='path'){ (it.nodes||[]).forEach(n=>{ const c=this.state.library.find(x=>x.id===n.courseId); if(c) (c.lessons||[]).forEach(l=>(l.blocks||[]).forEach(b=>{ if(b.type==='scormpkg' && b.data) pkgs.push(b); })); }); }
+    for(const b of pkgs){
+      try{
+        await this._ensureScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+        const zip = await window.JSZip.loadAsync(b.data, { base64:true });
+        const jobs=[]; zip.forEach((p,f)=>{ if(!f.dir) jobs.push(f.async('uint8array').then(u=>{ files.push({ name:'pkg_'+b.id+'/'+p, content:u }); })); });
+        await Promise.all(jobs);
+      }catch(err){ this.toast('Skipped package '+(b.name||'')+': '+(err.message||err)); }
+    }
     const blob=this.zip(files);
     const tag = opts.format==='scorm2004' ? 'scorm2004' : 'scorm12';
     const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
