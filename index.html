@@ -441,7 +441,7 @@ class Component extends DCLogic {
   }
 
   /* ============================== icons ============================== */
-  ic(name, size, color, sw){
+  iconPaths(){
     const P = {
       plus:'M5 12h14 M12 5v14', x:'M18 6 6 18 M6 6l12 12',
       chevLeft:'m15 18-6-6 6-6', chevRight:'m9 18 6-6-6-6', chevDown:'m6 9 6 6 6-6', chevUp:'m18 15-6-6-6 6',
@@ -494,7 +494,14 @@ class Component extends DCLogic {
       columns:'M4 6h7|M4 10h7|M4 14h7|M13 6h7|M13 10h7|M13 14h7|M4 18h5|M13 18h5',
       table:'M3 5h18v14H3z|M3 10h18|M10 5v14|M17 5v14',
       heading:'M5 5v14|M13 5v14|M5 12h8|M17 12h4|M19 10v9',
+      monitor:'M3 4h18v12H3z M8 20h8 M12 16v4',
+      mail:'M3 5h18v14H3z M3 7l9 6 9-6',
+      users:'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75',
     };
+    return P;
+  }
+  ic(name, size, color, sw){
+    const P = this.iconPaths();
     const paths = (P[name] || '').split('|');
     return this.h('svg', { width: size||20, height: size||20, viewBox:'0 0 24 24', fill:'none', stroke: color||'currentColor', strokeWidth: sw||2, strokeLinecap:'round', strokeLinejoin:'round', style:{ display:'block', flex:'none' } },
       paths.map((d, i) => this.h('path', { key:i, d })));
@@ -512,6 +519,7 @@ class Component extends DCLogic {
       list:{ name:'List', desc:'Numbered or bulleted list', icon:'list' },
       divider:{ name:'Divider', desc:'Line, number, spacer or continue gate', icon:'divider' },
       statrow:{ name:'Stat row', desc:'Big-number KPIs', icon:'stat' },
+      cardgrid:{ name:'Card grid', desc:'Cards with an icon, title and text', icon:'grid' },
       imagetext:{ name:'Image + text', desc:'Image with text beside, above or below', icon:'gallery' },
       gallery:{ name:'Image gallery', desc:'One or more images', icon:'gallery' },
       multimedia:{ name:'Multimedia', desc:'Video from URL, embed code or upload', icon:'video' },
@@ -541,7 +549,7 @@ class Component extends DCLogic {
   }
   blockGroups(){
     return [
-      { name:'Text & data', items:['text','paragraph','heading','statement','callout','list','statrow','columns','table','divider'] },
+      { name:'Text & data', items:['text','paragraph','heading','statement','callout','list','statrow','cardgrid','columns','table','divider'] },
       { name:'Media', items:['imagetext','gallery','multimedia','audio','attachment','code'] },
       { name:'Interactive', items:['labeledgraphic','tabs','accordion','process','stepbystep','timeline','itimeline','chatsim','flashcards','reveal','sorting','checklist','interactiveapp','scormpkg'] },
       { name:'Assessment', items:['knowledge','truefalse','fillblank','matching','ordering'] },
@@ -561,6 +569,7 @@ class Component extends DCLogic {
       case 'divider': return B({ variant:'line', label:'Continue' });
       case 'list': return B({ variant:'numbered', items:[ { id:this.uid(), text:'First item — write something worth remembering.' }, { id:this.uid(), text:'Second item.' }, { id:this.uid(), text:'Third item.' } ] });
       case 'statrow': return B({ stats:[ { value:'100', label:'Metric one' }, { value:'42%', label:'Metric two' }, { value:'25 hr', label:'Metric three' } ] });
+      case 'cardgrid': return B({ cols:2, cards:[ { id:this.uid(), icon:'globe', tone:'pink', title:'First card', body:'Describe this option or channel.', linkText:'', linkUrl:'' }, { id:this.uid(), icon:'chat', tone:'pink', title:'Second card', body:'Describe this option or channel.', linkText:'', linkUrl:'' } ] });
       case 'imagetext': return B({ heading:'Heading', body:'Write text that accompanies the image. Explain what the learner should notice or take away.', textPos:'right' });
       case 'gallery': return B({ images:[ { id:this.uid(), caption:'Add a caption' }, { id:this.uid(), caption:'Add a caption' } ] });
       case 'multimedia': return B({ url:'', caption:'Video caption' });
@@ -2016,9 +2025,26 @@ class Component extends DCLogic {
       case 'list': return this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'12px' } },
         this.h('div', null, this.h('div',{style:{font:'500 12px/16px var(--font-roboto)',color:'var(--content-neutral-secondary)',marginBottom:'8px'}},'Style'),
           this.segmented(['numbered','bullets'], bk.variant||'numbered', v=>this.patchBlock(bk.id,{variant:v}), { numbered:'Numbered', bullets:'Bullets' })),
+        F(bk.intro||'', v=>this.patchBlock(bk.id,{intro:v}), { label:'Intro text (optional)', multiline:true, rows:2, placeholder:'A line or paragraph introducing the list' }),
         this.h('div', null,
           bk.items.map((it,i)=>this.rowWrap([ this.h('div',{key:'r',style:{display:'flex',gap:'8px'}}, this.h('div',{style:{flex:1}}, F(it.text, v=>this.setIn(bk.id,'items',i,{text:v}), { multiline:true, rows:2, placeholder:'Item '+(i+1) }))) ], ()=>this.rmFrom(bk.id,'items',i), bk.items.length>1)),
           this.addRowBtn('Add item', ()=>this.addTo(bk.id,'items',{id:this.uid(),text:'New item'}))));
+      case 'cardgrid': { const ICONS=['globe','monitor','users','mail','chat','app','video','mic','file','folder','user','lock','cloud','sparks','pin','book','check','grid'];
+        return this.h('div',{style:{display:'flex',flexDirection:'column',gap:'14px'}},
+          this.h('div', null, this.h('div',{style:{font:'500 12px/16px var(--font-roboto)',color:'var(--content-neutral-secondary)',marginBottom:'8px'}},'Columns'),
+            this.segmented(['2','3'], String(bk.cols||2), v=>this.patchBlock(bk.id,{cols:+v}), {'2':'Two','3':'Three'})),
+          this.h('div', null,
+            bk.cards.map((c,i)=>this.rowWrap([
+              this.h('div',{key:'ic',style:{display:'flex',gap:'6px',flexWrap:'wrap',alignItems:'center'}},
+                ICONS.map(n=>this.h('button',{key:n,onClick:()=>this.setIn(bk.id,'cards',i,{icon:n}), title:n, style:{width:'30px',height:'30px',display:'flex',alignItems:'center',justifyContent:'center',borderRadius:'8px',cursor:'pointer',border:'1px solid '+(c.icon===n?'var(--pink-600, #ff176b)':'var(--border-neutral-secondary)'),background:c.icon===n?'#FFF0F5':'#fff',color:c.icon===n?'var(--pink-600, #ff176b)':'var(--content-neutral-secondary)'}},this.ic(n,16))),
+                this.segmented(['pink','gray'], c.tone||'pink', v=>this.setIn(bk.id,'cards',i,{tone:v}), {pink:'Pink',gray:'Gray'})),
+              F(c.title, v=>this.setIn(bk.id,'cards',i,{title:v}), { placeholder:'Card title', style:{fontWeight:600} }),
+              F(c.body, v=>this.setIn(bk.id,'cards',i,{body:v}), { multiline:true, rows:2, placeholder:'Card text' }),
+              this.h('div',{key:'lnk',style:{display:'flex',gap:'8px'}},
+                this.h('div',{style:{flex:1}},F(c.linkText||'', v=>this.setIn(bk.id,'cards',i,{linkText:v}), { placeholder:'Link label (optional)' })),
+                this.h('div',{style:{flex:1.4}},F(c.linkUrl||'', v=>this.setIn(bk.id,'cards',i,{linkUrl:v}), { placeholder:'https://…' })))
+            ], ()=>this.rmFrom(bk.id,'cards',i), bk.cards.length>1)),
+            this.addRowBtn('Add card', ()=>this.addTo(bk.id,'cards',{id:this.uid(),icon:'globe',tone:'pink',title:'New card',body:'Describe it.',linkText:'',linkUrl:''})))); }
       case 'audio': { const recing = this.state.rec === bk.id;
         return this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'14px' } },
           F(bk.title, v=>this.patchBlock(bk.id,{title:v}), { label:'Title', placeholder:'Voice note', style:{fontWeight:600} }),
@@ -2338,7 +2364,10 @@ class Component extends DCLogic {
     const fileSrc = mode==='file' ? (bk.fileSrc||'').trim() : '';
     const gate = gateOn && !this.lget(bk.id).watched; // once watched → normal player
     const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{11})/);
-    const vm = url.match(/vimeo\.com\/(\d+)/);
+    const vm = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    // unlisted Vimeo videos need their privacy hash: vimeo.com/ID/HASH or ?h=HASH
+    const vmHashM = url.match(/vimeo\.com\/(?:video\/)?\d+\/([a-zA-Z0-9]+)/) || url.match(/[?&]h=([a-zA-Z0-9]+)/);
+    const vmHash = vmHashM ? `h=${vmHashM[1]}&` : '';
     const box = (c, chrome) => this.h('div', { style:{ position:'relative', paddingTop:'56.25%', background:'#000' } }, c, chrome||null);
     const pct = Math.min(0.98, Math.max(0.5, (bk.watchPct==null?90:bk.watchPct)/100));
     const mark = (dur)=>{ if(!gateOn || this.lget(bk.id).watched) return; if(dur && guard.max < dur*(pct-0.02)) return; this.lset(bk.id,{ watched:true }); };
@@ -2369,14 +2398,14 @@ class Component extends DCLogic {
             }catch(err){} }, 500); } } }); }; start(); }); } }),
         this._lockedChrome(ui)); }
     if(vm){
-      if(!gate) return box(this.h('iframe', { src:`https://player.vimeo.com/video/${vm[1]}`, allowFullScreen:true, style:{ position:'absolute', inset:0, width:'100%', height:'100%', border:'none' } }));
+      if(!gate) return box(this.h('iframe', { src:`https://player.vimeo.com/video/${vm[1]}?${vmHash}`, allowFullScreen:true, style:{ position:'absolute', inset:0, width:'100%', height:'100%', border:'none' } }));
       ui.toggle = ()=>{ const p=ui.p; if(!p) return; p.getPaused().then(paused=>{ paused?p.play():p.pause(); ui.playing=!paused; }).catch(()=>{}); };
       this._wireCommonCtl(ui);
       ui.applyRate = r=>{ try{ ui.p && ui.p.setPlaybackRate(r).catch(()=>{}); }catch(e){} };
       ui.applyMute = m=>{ try{ ui.p && ui.p.setMuted(m).catch(()=>{}); }catch(e){} };
       ui.applyVolume = v=>{ try{ ui.p && ui.p.setVolume(v/100).catch(()=>{}); }catch(e){} };
       ui.applyCC = on=>{ try{ if(!ui.p) return; if(on){ ui.p.getTextTracks().then(tr=>{ if(tr && tr.length) ui.p.enableTextTrack(tr[0].language).catch(()=>{}); }).catch(()=>{}); } else { ui.p.disableTextTrack().catch(()=>{}); } }catch(e){} };
-      return box(this.h('iframe', { src:`https://player.vimeo.com/video/${vm[1]}?controls=0`, style:{ position:'absolute', inset:0, width:'100%', height:'100%', border:'none', pointerEvents:'none' },
+      return box(this.h('iframe', { src:`https://player.vimeo.com/video/${vm[1]}?${vmHash}controls=0`, style:{ position:'absolute', inset:0, width:'100%', height:'100%', border:'none', pointerEvents:'none' },
         ref:(el)=>{ if(!el || el.__wired) return; el.__wired=true; this._ensureScript('https://player.vimeo.com/api/player.js').then(()=>{ const start=()=>{ if(!(window.Vimeo && window.Vimeo.Player)){ setTimeout(start,150); return; }
           try{ const p = ui.p = new window.Vimeo.Player(el); let dur=0; p.getDuration().then(d=>{ dur=d; }).catch(()=>{});
             p.on('play', ()=>{ ui.playing=true; });
@@ -3094,12 +3123,13 @@ class Component extends DCLogic {
   blockInner(bk, edit){
     const h = (...a)=>this.h(...a);
     switch(bk.type){
-      case 'text': return h('div', null, (bk.heading || edit) ? this.ceText(edit, 'div', this.fmt(bk, 'h', { ...this.headingStyle(bk.hstyle||'section'), marginBottom:'10px' }), bk, 'heading') : null, this.ceText(edit, 'p', this.fmt(bk, 'b', { font:'400 17px/28px var(--font-roboto)', color:'var(--content-neutral-primary)' }), bk, 'body'));
+      case 'text': return h('div', null, (bk.heading || edit) ? this.ceText(edit, 'div', this.fmt(bk, 'h', { ...this.headingStyle(bk.hstyle||'section'), marginBottom:'18px' }), bk, 'heading') : null, this.ceText(edit, 'p', this.fmt(bk, 'b', { font:'400 17px/28px var(--font-roboto)', color:'var(--content-neutral-primary)' }), bk, 'body'));
       case 'statement': return h('div', { style:{ borderTop:'2px solid var(--pink-600, #ff176b)', borderBottom:'2px solid var(--pink-600, #ff176b)', padding:'30px 18px', textAlign:'center' } }, this.ceText(edit, 'p', this.fmt(bk, 'b', { font:'400 27px/38px var(--font-inter)', letterSpacing:'-.4px', color:'var(--content-neutral-primary)' }), bk, 'text'));
       case 'paragraph': return this.ceText(edit, 'p', this.fmt(bk, 'b', { font:'400 17px/28px var(--font-roboto)', color:'var(--content-neutral-primary)' }), bk, 'body');
       case 'heading': return this.ceText(edit, 'div', this.fmt(bk, 'h', this.headingStyle(bk.hstyle||'section')), bk, 'text');
       case 'columns': return h('div', { style:{ display:'grid', gridTemplateColumns:`repeat(${(bk.cols||[]).length||2},1fr)`, gap:'28px' } }, (bk.cols||[]).map((c,i)=>h('p', { key:c.id||i, style:{ font:'400 15px/25px var(--font-roboto)', color:'var(--content-neutral-primary)', margin:0 } }, c.body)));
       case 'table': return this.viewTable(bk);
+      case 'cardgrid': return this.viewCardGrid(bk);
       case 'code': return this.viewCode(bk);
       case 'interactiveapp': return this.viewInteractiveApp(bk);
       case 'scormpkg': return this.viewScormPkg(bk);
@@ -3413,6 +3443,7 @@ class Component extends DCLogic {
   viewList(bk, edit){
     const numbered = (bk.variant||'numbered') === 'numbered';
     return this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'26px', padding:'4px 0' } },
+      bk.intro ? this.ceText(edit, 'p', { font:'400 17px/28px var(--font-roboto)', color:'var(--content-neutral-primary)', whiteSpace:'pre-wrap', marginBottom:'2px' }, bk, 'intro') : null,
       (bk.items||[]).map((it,i)=>this.h('div', { key:it.id||i, style:{ display:'flex', alignItems:'flex-start', gap:'26px' } },
         numbered
           ? this.h('div', { style:{ width:'44px', height:'44px', flex:'none', borderRadius:'50%', background:'var(--pink-600, #ff176b)', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', font:'500 19px/1 var(--font-inter)' } }, i+1)
@@ -3471,6 +3502,14 @@ class Component extends DCLogic {
           this.h('div', { style:face({ opacity:o?1:0, transition:'opacity .25s', transform:'rotateY(180deg)' }) },
             this.h('div', { style:{ position:'absolute', top:'14px', right:'14px' } }, this.ic('x', 17, 'var(--content-neutral-secondary)', 1.8)),
             this.ceIn(edit, 'div', { font:(bl>160?'400 13px/19px var(--font-roboto)':'400 15px/22px var(--font-roboto)'), color:'var(--content-neutral-primary)', overflowWrap:'break-word', width:'100%', maxHeight:'138px', overflow:'auto' }, bk, 'cards', i, 'body', c.body)))); }));
+  }
+  viewCardGrid(bk){
+    return this.h('div', { style:{ display:'grid', gridTemplateColumns:`repeat(${bk.cols||2},1fr)`, gap:'20px' } },
+      (bk.cards||[]).map((c,i)=>this.h('div',{ key:c.id||i, style:{ background:'#fff', border:'1px solid var(--border-neutral-secondary)', borderRadius:'16px', padding:'26px 26px 22px', boxShadow:'var(--shadow-xs)' } },
+        (c.icon && this.iconPaths()[c.icon]) ? this.h('div',{ style:{ width:'52px', height:'52px', borderRadius:'13px', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:'14px', background: c.tone==='gray'?'var(--gray-100)':'#FFF0F5', color: c.tone==='gray'?'var(--content-neutral-secondary)':'var(--pink-600, #ff176b)' } }, this.ic(c.icon,26,undefined,1.9)) : null,
+        this.h('div',{ style:{ font:'600 17px/22px var(--font-inter, Inter, sans-serif)', color:'var(--content-neutral-primary)', marginBottom:'7px' } }, c.title),
+        this.h('div',{ style:{ font:'400 14px/22px var(--font-roboto)', color:'var(--content-neutral-secondary)' } }, c.body,
+          c.linkUrl ? this.h('span', null, ' ', this.h('a',{ href:c.linkUrl, target:'_blank', style:{ color:'var(--pink-600, #ff176b)', fontWeight:500 } }, c.linkText||c.linkUrl)) : null))));
   }
   viewCode(bk){
     return this.h('div', { style:{ borderRadius:'14px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)', background:'#fff', boxShadow:'var(--shadow-xs)' } },
@@ -3818,6 +3857,8 @@ class Component extends DCLogic {
       case 'heading': { const t={title:'h1',section:'h2',subheading:'h3',eyebrow:'h4'}[bk.hstyle||'section']||'h2'; return `<section class="bk"><${t}>${e(bk.text)}</${t}></section>`; }
       case 'columns': return `<section class="bk"><div style="display:grid;grid-template-columns:repeat(${(bk.cols||[]).length||2},1fr);gap:28px">${(bk.cols||[]).map(c=>`<p>${e(c.body)}</p>`).join('')}</div></section>`;
       case 'table': { const rows=bk.rows||[]; return `<section class="bk"><table class="match"><tbody>${rows.map((r,ri)=>`<tr>${r.map(c=>(bk.header!==false&&ri===0)?`<th>${e(c)}</th>`:`<td>${e(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></section>`; }
+      case 'cardgrid': { const P=this.iconPaths(); const icon=(c)=>{ if(!c.icon||!P[c.icon]) return ''; const col=c.tone==='gray'?'#6b6b6b':'#ff176b'; const bgc=c.tone==='gray'?'#f4f4f4':'#FFF0F5'; return `<div style="width:52px;height:52px;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;background:${bgc}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="${col}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${P[c.icon].split('|').map(d=>`<path d="${d}"/>`).join('')}</svg></div>`; };
+        return `<section class="bk"><div style="display:grid;grid-template-columns:repeat(${bk.cols||2},1fr);gap:20px">${(bk.cards||[]).map(c=>`<div style="background:#fff;border:1px solid #e9e9e9;border-radius:16px;padding:26px 26px 22px">${icon(c)}<div style="font:600 17px/22px Inter,sans-serif;color:#1a1a1a;margin-bottom:7px">${e(c.title)}</div><div style="font:400 14px/22px Roboto,sans-serif;color:#6b6b6b">${e(c.body)}${c.linkUrl?` <a href="${e(c.linkUrl)}" target="_blank" style="color:#ff176b;font-weight:500">${e(c.linkText||c.linkUrl)}</a>`:''}</div></div>`).join('')}</div></section>`; }
       case 'code': return `<section class="bk"><iframe title="Custom code" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals" style="width:100%;height:${(bk.height||320)}px;border:1px solid #e9e9e9;border-radius:12px;display:block" srcdoc="${e(bk.code||'')}"></iframe></section>`;
       case 'interactiveapp': return `<section class="bk"><iframe title="${e(bk.name||'Interactive app')}" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals" style="width:100%;height:${(bk.height||560)}px;border:1px solid #e9e9e9;border-radius:12px;display:block" srcdoc="${e(bk.html||'')}"></iframe></section>`;
       case 'scormpkg': return `<section class="bk"><iframe title="${e(bk.name||'SCORM package')}" sandbox="allow-scripts allow-forms allow-popups allow-modals" src="pkg_${e(bk.id)}/${e(bk.launch||'index.html')}" style="width:100%;height:${(bk.height||600)}px;border:1px solid #e9e9e9;border-radius:12px;display:block"></iframe></section>`;
@@ -3834,7 +3875,7 @@ class Component extends DCLogic {
       case 'imagetext': return `<section class="bk"><h3>${e(bk.heading||'')}</h3><p>${e(bk.body||'')}</p><p class="muted">[Image]</p></section>`;
       case 'audio': { const s=(bk.src||'').trim()||(bk.url||'').trim(); return `<section class="bk"><b>${e(bk.title||'Voice note')}</b>${s?`<audio controls src="${e(s)}"></audio>`:''}${bk.caption?`<p class="muted">${e(bk.caption)}</p>`:''}</section>`; }
       case 'attachment': return `<section class="bk"><b>${e(bk.title||'Resources')}</b><ul>${(bk.files||[]).map(f=>`<li><a href="${e(f.src)}" download="${e(f.name)}">${e(f.name)}</a></li>`).join('')}</ul></section>`;
-      case 'list': { const tag = (bk.variant||'numbered')==='numbered'?'ol':'ul'; return `<section class="bk"><${tag}>${(bk.items||[]).map(it=>`<li>${e(it.text)}</li>`).join('')}</${tag}></section>`; }
+      case 'list': { const tag = (bk.variant||'numbered')==='numbered'?'ol':'ul'; return `<section class="bk">${bk.intro?`<p>${e(bk.intro)}</p>`:''}<${tag}>${(bk.items||[]).map(it=>`<li>${e(it.text)}</li>`).join('')}</${tag}></section>`; }
       case 'gallery': return `<section class="bk"><p class="muted">[Gallery: ${bk.images.map(im=>e(im.caption)).join(', ')}]</p></section>`;
       case 'multimedia': { const mode=bk.source||'url'; const url=(bk.url||'').trim();
         if(mode==='embed' && (bk.embed||'').trim()) return `<section class="bk"><div class="video">${bk.embed}</div>${bk.caption?`<p class="muted">${e(bk.caption)}</p>`:''}</section>`;

@@ -1,0 +1,1826 @@
+{
+  "course": {
+    "description": "",
+    "lessons": [
+      {
+        "description": "",
+        "id": "buu93vQPekVlfpmaHsp9d6IVVNJjhdBu",
+        "items": [
+          {
+            "id": "cmq94k0hm00303b7ptwvig9oe",
+            "settings": {
+              "v": 2,
+              "textWidth": 92,
+              "paddingTop": 3,
+              "quotesInline": false,
+              "audioPosition": "bottom",
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "attachedToNextBlock": true,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "text",
+            "items": [
+              {
+                "id": "cmq94k0hm00363b7pudp5rutw",
+                "heading": "<strong>Heading</strong>",
+                "paragraph": "<div data-editor-id=\"87f9c116-8f4d-4ec7-a13d-7db008bf36b3\"><p style=\"text-align: center; line-height: 1.5;\"><span style=\"font-size: 5rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\"><strong>Meet Robin - your new AI assistant, available 24/7, right from your desktop.</strong></span></span></span></p><p><span style=\"font-size: 2rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\">Whether you need to reset a password, find information, or get help with a process, Robin is here to handle it in seconds - no waiting, no back-and-forth.</span></span></span></p><p><span style=\"font-size: 2rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\">In this guide:</span></span></span></p></div>"
+              }
+            ],
+            "family": "text",
+            "variant": "paragraph",
+            "createdAt": "2026-06-11T06:36:38.960Z",
+            "updatedAt": "2026-06-11T06:36:38.960Z",
+            "globalBlockId": "32551a55-f1a5-42ec-aaa3-4093951783a7"
+          },
+          {
+            "id": "cmq97ei3s00q83b7p34mn4p1s",
+            "settings": {
+              "v": 2,
+              "listWidth": 92,
+              "paddingTop": 0,
+              "quotesInline": false,
+              "audioPosition": "bottom",
+              "listItemColor": "#ff176b",
+              "paddingBottom": 0,
+              "paddingLinked": true,
+              "attachedToNextBlock": true,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO",
+              "listItemColorContrast": "LIGHT"
+            },
+            "type": "list",
+            "items": [
+              {
+                "id": "cmq97ei3t00q93b7psk5cw676",
+                "paragraph": "<div data-editor-id=\"1d42915c-0020-4731-a875-ef6362d398cd\"><p><span style=\"font-size: 2rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\">You'll get to know Robin</span></span></span></p></div>"
+              },
+              {
+                "id": "cmq97ei3t00qa3b7p8ytmgmf2",
+                "paragraph": "<div data-editor-id=\"0c42e410-8ef6-46bd-b71b-561e4fa8801d\"><p><span style=\"font-size: 2rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\">Understand how AI works and how to use it safely</span></span></span></p></div>"
+              },
+              {
+                "id": "cmq97ei3t00qb3b7pbx595vp3",
+                "paragraph": "<div data-editor-id=\"2f65068d-b6ec-4c0f-8422-2268dcaadc9d\"><p><span style=\"font-size: 2rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\">See it in action with real examples from your day-to-day work</span></span></span></p></div>"
+              }
+            ],
+            "family": "list",
+            "variant": "numbered",
+            "createdAt": "2026-06-11T07:56:20.584Z",
+            "updatedAt": "2026-06-11T07:56:20.584Z",
+            "globalBlockId": "48955c4d-1ddb-4baf-8f0c-7ea04dd83061"
+          },
+          {
+            "id": "cmq97frkv00r53b7p52ytbh3h",
+            "settings": {
+              "v": 2,
+              "textWidth": 92,
+              "paddingTop": 3,
+              "quotesInline": false,
+              "audioPosition": "bottom",
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "attachedToNextBlock": true,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "text",
+            "items": [
+              {
+                "id": "cmq97frkv00r63b7pid62hrdw",
+                "paragraph": "<div data-editor-id=\"511cc6a0-072a-4631-99c0-24acc2eabcc4\"><p><span style=\"font-size: 2.5rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\"><strong>Let's start with a quick introduction - who Robin is and what he can do for you.</strong></span></span></span></p></div>"
+              }
+            ],
+            "family": "text",
+            "variant": "paragraph",
+            "createdAt": "2026-06-11T07:57:19.496Z",
+            "updatedAt": "2026-06-11T07:57:19.496Z",
+            "globalBlockId": "794db143-beb6-4bad-957e-d1964500d516"
+          },
+          {
+            "id": "cmq94ivge002q3b7pi9w0cmqh",
+            "settings": {
+              "v": 2,
+              "cardMode": "WHITE",
+              "mediaWidth": "1",
+              "paddingTop": 3,
+              "showBorder": false,
+              "quotesInline": false,
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "attachedToNextBlock": true,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "multimedia",
+            "items": [
+              {
+                "id": "cmq94ivge002r3b7psqzffrib",
+                "media": {
+                  "embed": {
+                    "src": "//cdn.embedly.com/widgets/media.html?src=https%3A%2F%2Fplayer.vimeo.com%2Fvideo%2F1178520269%3Fh%3D9e8fb7b250%26app_id%3D122963&dntp=1&display_name=Vimeo&url=https%3A%2F%2Fvimeo.com%2F1178520269%2F9e8fb7b250%3Fshare%3Dcopy%26amp%3Bfl%3Dsv%26amp%3Bfe%3Dci&image=https%3A%2F%2Fi.vimeocdn.com%2Fvideo%2F2140128496-ff3c1e81f82a99a4406ab3305e3e86efddbd9084d427b8af918957f3132daeb7-d_1280%3Fregion%3Dus&type=text%2Fhtml&schema=vimeo",
+                    "type": "embed",
+                    "title": "Robin_Intro kit_Male",
+                    "favicon": "https://vimeo.com/favicon.ico",
+                    "provider": "Vimeo",
+                    "embedType": "video",
+                    "thumbnail": "https://i.vimeocdn.com/video/2140128496-ff3c1e81f82a99a4406ab3305e3e86efddbd9084d427b8af918957f3132daeb7-d_1280?region=us",
+                    "description": null,
+                    "originalUrl": "https://vimeo.com/1178520269/9e8fb7b250?share=copy&amp;fl=sv&amp;fe=ci",
+                    "providerUrl": "https://vimeo.com/"
+                  }
+                },
+                "settings": {
+                  "showMetaData": false
+                }
+              }
+            ],
+            "family": "multimedia",
+            "variant": "embed",
+            "createdAt": "2026-06-11T06:35:45.780Z",
+            "updatedAt": "2026-06-11T06:35:45.780Z",
+            "globalBlockId": "e1111397-9c25-4462-8cca-9e17a5645cdd"
+          },
+          {
+            "id": "cmq96wr6m00hb3b7p493smar5",
+            "settings": {
+              "v": 2,
+              "mightyMods": [
+                {
+                  "data": {
+                    "location": 0,
+                    "firstColor": "#ffffff",
+                    "blendAmount": 100,
+                    "secondColor": "#ffffff",
+                    "inheritColor": true,
+                    "gradientStyle": "linear-180",
+                    "radialDistance": "circular",
+                    "radialPosition": "center"
+                  },
+                  "tagName": "mighty-rise-block-mod-background-gradient"
+                },
+                {
+                  "data": {
+                    "border": "3px",
+                    "fontSize": 15,
+                    "dropShadow": "medium",
+                    "labelColor": "#FFFFFF",
+                    "borderColor": "#FAFAFA",
+                    "labelCasing": "none",
+                    "borderRadius": 30,
+                    "letterSpacing": 17,
+                    "backgroundColor": "#FF176B"
+                  },
+                  "tagName": "mighty-rise-block-mod-button-style"
+                }
+              ],
+              "paddingTop": 3,
+              "quotesInline": false,
+              "continueColor": "#f62883",
+              "continueWidth": 25,
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "continueRadius": 30,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "divider",
+            "items": [
+              {
+                "id": "cmq96wr6m00hc3b7p16yjy3x7",
+                "type": "",
+                "title": "CONTINUE",
+                "buttonColor": "brand",
+                "completeHint": "Complete the content above before moving on."
+              }
+            ],
+            "family": "continue",
+            "variant": "continue",
+            "createdAt": "2026-06-11T07:42:32.548Z",
+            "updatedAt": "2026-06-11T07:42:32.548Z",
+            "globalBlockId": "2b648633-a3f2-4a7f-8ede-ebf72e6d7b92"
+          },
+          {
+            "id": "cmq955xav003y3b7pqo4vqszp",
+            "settings": {
+              "v": 2,
+              "textWidth": 92,
+              "paddingTop": 3,
+              "quotesInline": false,
+              "audioPosition": "bottom",
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "attachedToNextBlock": true,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "text",
+            "items": [
+              {
+                "id": "cmq955xav003z3b7pmb82qpuy",
+                "heading": "<strong>Heading</strong>",
+                "paragraph": "<div data-editor-id=\"42e253b5-adc0-4915-bdd6-0c537828c18d\"><p style=\"text-align: left; line-height: 1.5;\"><span style=\"font-size: 3rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\">Before we dive in, we want to make sure</span></span></span></p><p style=\"text-align: left; line-height: 1.5;\"><span style=\"font-size: 5rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\"><strong>you</strong> <strong>feel confident with AI</strong>.</span></span></span></p><p style=\"text-align: left; line-height: 1.5;\"><span style=\"font-size: 2rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\">Here are 3 short clips that answer the most common questions.</span></span></span></p></div>"
+              }
+            ],
+            "family": "text",
+            "variant": "paragraph",
+            "createdAt": "2026-06-11T06:53:41.100Z",
+            "updatedAt": "2026-06-11T06:53:41.100Z",
+            "globalBlockId": "030e4c58-1626-494a-89ce-ab8db161f497"
+          },
+          {
+            "id": "cmq957bbs004c3b7pg4cdjcyf",
+            "settings": {
+              "v": 2,
+              "cardMode": "WHITE",
+              "mediaWidth": "1",
+              "paddingTop": 3,
+              "showBorder": false,
+              "quotesInline": false,
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "attachedToNextBlock": true,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "multimedia",
+            "items": [
+              {
+                "id": "cmq957bbs004d3b7pzs6o8dcg",
+                "media": {
+                  "embed": {
+                    "src": "//cdn.embedly.com/widgets/media.html?src=https%3A%2F%2Fplayer.vimeo.com%2Fvideo%2F1200032278%3Fh%3Dfd87609324%26app_id%3D122963&dntp=1&display_name=Vimeo&url=https%3A%2F%2Fvimeo.com%2F1200032278%2Ffd87609324&image=https%3A%2F%2Fi.vimeocdn.com%2Fvideo%2F2167016163-bccd9bc790a46b1c21f40077cb98d3716aa088bba0f522109054b5fed84a23ed-d_1280%3Fregion%3Dus&type=text%2Fhtml&schema=vimeo",
+                    "type": "embed",
+                    "title": "What is Robin? And why agentic AI is nothing to fear",
+                    "favicon": "https://vimeo.com/favicon.ico",
+                    "provider": "Vimeo",
+                    "embedType": "video",
+                    "thumbnail": "https://i.vimeocdn.com/video/2167016163-bccd9bc790a46b1c21f40077cb98d3716aa088bba0f522109054b5fed84a23ed-d_1280?region=us",
+                    "description": null,
+                    "originalUrl": "https://vimeo.com/1200032278/fd87609324",
+                    "providerUrl": "https://vimeo.com/"
+                  }
+                },
+                "settings": {
+                  "showMetaData": false
+                }
+              }
+            ],
+            "family": "multimedia",
+            "variant": "embed",
+            "createdAt": "2026-06-11T06:54:46.016Z",
+            "updatedAt": "2026-06-11T06:54:46.016Z",
+            "globalBlockId": "790a5ee6-6a6b-44f8-ac7e-be93dca3fe02"
+          },
+          {
+            "id": "cmq9768ew00jh3b7p0hm15dii",
+            "settings": {
+              "v": 2,
+              "mightyMods": [
+                {
+                  "data": {
+                    "location": 0,
+                    "firstColor": "#ffffff",
+                    "blendAmount": 100,
+                    "secondColor": "#ffffff",
+                    "inheritColor": true,
+                    "gradientStyle": "linear-180",
+                    "radialDistance": "circular",
+                    "radialPosition": "center"
+                  },
+                  "tagName": "mighty-rise-block-mod-background-gradient"
+                },
+                {
+                  "data": {
+                    "border": "3px",
+                    "fontSize": 15,
+                    "dropShadow": "medium",
+                    "labelColor": "#FFFFFF",
+                    "borderColor": "#FAFAFA",
+                    "labelCasing": "none",
+                    "borderRadius": 30,
+                    "letterSpacing": 17,
+                    "backgroundColor": "#FF176B"
+                  },
+                  "tagName": "mighty-rise-block-mod-button-style"
+                }
+              ],
+              "paddingTop": 3,
+              "quotesInline": false,
+              "continueColor": "#f62883",
+              "continueWidth": 25,
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "continueRadius": 30,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "divider",
+            "items": [
+              {
+                "id": "cmq9768ex00ji3b7pt6fep3pi",
+                "type": "completeBlock",
+                "title": "CONTINUE",
+                "buttonColor": "brand",
+                "completeHint": "Complete the content above before moving on."
+              }
+            ],
+            "family": "continue",
+            "variant": "continue",
+            "createdAt": "2026-06-11T07:55:04.156Z",
+            "updatedAt": "2026-06-11T07:55:04.156Z",
+            "globalBlockId": "96f4fc75-026a-44aa-929d-89855a3bf332"
+          },
+          {
+            "id": "cmq957rxy004m3b7p2zmn22wa",
+            "settings": {
+              "v": 2,
+              "textWidth": 92,
+              "paddingTop": 3,
+              "quotesInline": false,
+              "audioPosition": "bottom",
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "attachedToNextBlock": true,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "text",
+            "items": [
+              {
+                "id": "cmq957rxy004n3b7p8w6f9hsu",
+                "heading": "<strong>Heading</strong>",
+                "paragraph": "<div data-editor-id=\"a29c8917-b1c6-45ee-a8e2-ccf393474dac\"><p style=\"text-align: left; line-height: 1.5;\"><span style=\"font-size: 3rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\">Now that you know what agentic AI can do - it's natural to wonder:</span></span></span></p><p style=\"text-align: left; line-height: 1.5;\"><span style=\"font-size: 5rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\"><strong>Can I trust Robin?</strong></span></span></span></p><p style=\"line-height: 1.5;\"><span style=\"font-size: 2rem;\"><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\">Here's the answer.</span></span></p></div>"
+              }
+            ],
+            "family": "text",
+            "variant": "paragraph",
+            "createdAt": "2026-06-11T06:55:07.498Z",
+            "updatedAt": "2026-06-11T06:55:07.498Z",
+            "globalBlockId": "f87cd62f-b194-4f9f-8425-2a07f8c85770"
+          },
+          {
+            "id": "cmq958bkn00503b7psq3dbd2u",
+            "settings": {
+              "v": 2,
+              "cardMode": "WHITE",
+              "mediaWidth": "1",
+              "paddingTop": 3,
+              "showBorder": false,
+              "quotesInline": false,
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "attachedToNextBlock": true,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "multimedia",
+            "items": [
+              {
+                "id": "cmq958bkn00513b7p8rmemros",
+                "media": {
+                  "embed": {
+                    "src": "//cdn.embedly.com/widgets/media.html?src=https%3A%2F%2Fplayer.vimeo.com%2Fvideo%2F1200032308%3Fh%3De243e2daf2%26app_id%3D122963&dntp=1&display_name=Vimeo&url=https%3A%2F%2Fvimeo.com%2F1200032308%2Fe243e2daf2&image=https%3A%2F%2Fi.vimeocdn.com%2Fvideo%2F2167016210-b8f6f4e3ed6b9ddbd593f058f1abfc9fa425606217f63fd88db1228aa6fbe28e-d_1280%3Fregion%3Dus&type=text%2Fhtml&schema=vimeo",
+                    "type": "embed",
+                    "title": "Can I trust Robin",
+                    "favicon": "https://vimeo.com/favicon.ico",
+                    "provider": "Vimeo",
+                    "embedType": "video",
+                    "thumbnail": "https://i.vimeocdn.com/video/2167016210-b8f6f4e3ed6b9ddbd593f058f1abfc9fa425606217f63fd88db1228aa6fbe28e-d_1280?region=us",
+                    "description": null,
+                    "originalUrl": "https://vimeo.com/1200032308/e243e2daf2",
+                    "providerUrl": "https://vimeo.com/"
+                  }
+                },
+                "settings": {
+                  "showMetaData": false
+                }
+              }
+            ],
+            "family": "multimedia",
+            "variant": "embed",
+            "createdAt": "2026-06-11T06:55:32.907Z",
+            "updatedAt": "2026-06-11T06:55:32.907Z",
+            "globalBlockId": "534f1eee-10bb-4e02-b925-87bec87d9d71"
+          },
+          {
+            "id": "cmq976wd200kz3b7patlg2myo",
+            "settings": {
+              "v": 2,
+              "mightyMods": [
+                {
+                  "data": {
+                    "location": 0,
+                    "firstColor": "#ffffff",
+                    "blendAmount": 100,
+                    "secondColor": "#ffffff",
+                    "inheritColor": true,
+                    "gradientStyle": "linear-180",
+                    "radialDistance": "circular",
+                    "radialPosition": "center"
+                  },
+                  "tagName": "mighty-rise-block-mod-background-gradient"
+                },
+                {
+                  "data": {
+                    "border": "3px",
+                    "fontSize": 15,
+                    "dropShadow": "medium",
+                    "labelColor": "#FFFFFF",
+                    "borderColor": "#FAFAFA",
+                    "labelCasing": "none",
+                    "borderRadius": 30,
+                    "letterSpacing": 17,
+                    "backgroundColor": "#FF176B"
+                  },
+                  "tagName": "mighty-rise-block-mod-button-style"
+                }
+              ],
+              "paddingTop": 3,
+              "quotesInline": false,
+              "continueColor": "#f62883",
+              "continueWidth": 25,
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "continueRadius": 30,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "divider",
+            "items": [
+              {
+                "id": "cmq976wd200l03b7p3wkpu4nc",
+                "type": "completeBlock",
+                "title": "CONTINUE",
+                "buttonColor": "brand",
+                "completeHint": "Complete the content above before moving on."
+              }
+            ],
+            "family": "continue",
+            "variant": "continue",
+            "createdAt": "2026-06-11T07:50:25.811Z",
+            "updatedAt": "2026-06-11T07:50:25.811Z",
+            "globalBlockId": "399bbb57-cefd-482e-a2bd-c086ce670784"
+          },
+          {
+            "id": "cmq9594qs005g3b7pmje3t97k",
+            "settings": {
+              "v": 2,
+              "textWidth": 92,
+              "paddingTop": 3,
+              "quotesInline": false,
+              "audioPosition": "bottom",
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "attachedToNextBlock": true,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "text",
+            "items": [
+              {
+                "id": "cmq9594qs005h3b7pdx84gdbp",
+                "heading": "<strong>Heading</strong>",
+                "paragraph": "<div data-editor-id=\"32b538a8-259d-4850-91a5-d33a478bffa4\"><p style=\"line-height: 1.5;\"><span style=\"font-size: 2rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\">Feeling good about it? Great.</span></span></span></p><p style=\"line-height: 1.5;\"><span style=\"font-size: 3rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\">Now let's look at </span></span></span><span style=\"font-size: 4rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\"><strong>how to talk to Robin so you get the best results</strong></span></span></span><span style=\"font-size: 3rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\">.</span></span></span></p></div>"
+              }
+            ],
+            "family": "text",
+            "variant": "paragraph",
+            "createdAt": "2026-06-11T06:56:10.753Z",
+            "updatedAt": "2026-06-11T06:56:10.753Z",
+            "globalBlockId": "73e6c480-167f-4d98-b74c-178a5762fa19"
+          },
+          {
+            "id": "cmq959lif005u3b7pv81pim8e",
+            "settings": {
+              "v": 2,
+              "cardMode": "WHITE",
+              "mediaWidth": "1",
+              "paddingTop": 3,
+              "showBorder": false,
+              "quotesInline": false,
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "attachedToNextBlock": true,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "multimedia",
+            "items": [
+              {
+                "id": "cmq959lif005v3b7p5ezpmdrh",
+                "media": {
+                  "embed": {
+                    "src": "//cdn.embedly.com/widgets/media.html?src=https%3A%2F%2Fplayer.vimeo.com%2Fvideo%2F1200032343%3Fh%3D5b808641ce%26app_id%3D122963&dntp=1&display_name=Vimeo&url=https%3A%2F%2Fvimeo.com%2F1200032343%2F5b808641ce&image=https%3A%2F%2Fi.vimeocdn.com%2Fvideo%2F2167016214-deb53ed76d45be47638bb0ae0d571a958b25e0fecaa022fe19b41f8735a8da70-d_1280%3Fregion%3Dus&type=text%2Fhtml&schema=vimeo",
+                    "type": "embed",
+                    "title": "How to ask Robin the right way",
+                    "favicon": "https://vimeo.com/favicon.ico",
+                    "provider": "Vimeo",
+                    "embedType": "video",
+                    "thumbnail": "https://i.vimeocdn.com/video/2167016214-deb53ed76d45be47638bb0ae0d571a958b25e0fecaa022fe19b41f8735a8da70-d_1280?region=us",
+                    "description": null,
+                    "originalUrl": "https://vimeo.com/1200032343/5b808641ce",
+                    "providerUrl": "https://vimeo.com/"
+                  }
+                },
+                "settings": {
+                  "showMetaData": false
+                }
+              }
+            ],
+            "family": "multimedia",
+            "variant": "embed",
+            "createdAt": "2026-06-11T06:56:32.445Z",
+            "updatedAt": "2026-06-11T06:56:32.445Z",
+            "globalBlockId": "a2f38300-93d1-477a-92a6-51aa0c245cab"
+          },
+          {
+            "id": "cmq977cq700lr3b7pp9rzjrjh",
+            "settings": {
+              "v": 2,
+              "mightyMods": [
+                {
+                  "data": {
+                    "location": 0,
+                    "firstColor": "#ffffff",
+                    "blendAmount": 100,
+                    "secondColor": "#ffffff",
+                    "inheritColor": true,
+                    "gradientStyle": "linear-180",
+                    "radialDistance": "circular",
+                    "radialPosition": "center"
+                  },
+                  "tagName": "mighty-rise-block-mod-background-gradient"
+                },
+                {
+                  "data": {
+                    "border": "3px",
+                    "fontSize": 15,
+                    "dropShadow": "medium",
+                    "labelColor": "#FFFFFF",
+                    "borderColor": "#FAFAFA",
+                    "labelCasing": "none",
+                    "borderRadius": 30,
+                    "letterSpacing": 17,
+                    "backgroundColor": "#FF176B"
+                  },
+                  "tagName": "mighty-rise-block-mod-button-style"
+                }
+              ],
+              "paddingTop": 3,
+              "quotesInline": false,
+              "continueColor": "#f62883",
+              "continueWidth": 25,
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "continueRadius": 30,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "divider",
+            "items": [
+              {
+                "id": "cmq977cq700ls3b7p8y197r8j",
+                "type": "completeBlock",
+                "title": "CONTINUE",
+                "buttonColor": "brand",
+                "completeHint": "Complete the content above before moving on."
+              }
+            ],
+            "family": "continue",
+            "variant": "continue",
+            "createdAt": "2026-06-11T07:50:47.031Z",
+            "updatedAt": "2026-06-11T07:50:47.031Z",
+            "globalBlockId": "ca906a03-6323-4172-beb3-b0d1c3cb0a0a"
+          },
+          {
+            "id": "cmq95aue5006a3b7pam9t1mji",
+            "settings": {
+              "v": 2,
+              "textWidth": 92,
+              "paddingTop": 3,
+              "quotesInline": false,
+              "audioPosition": "bottom",
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "attachedToNextBlock": true,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "text",
+            "items": [
+              {
+                "id": "cmq95aue5006b3b7pk5z1zrde",
+                "heading": "<strong>Heading</strong>",
+                "paragraph": "<div data-editor-id=\"70f2c0ea-3e06-4c41-bb8e-a083df11e228\"><p style=\"line-height: 1.5;\"><span style=\"font-size: 2rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\">You've got the foundation.</span></span></span></p><p style=\"line-height: 1.5;\"><span style=\"font-size: 3rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\"><strong>Now let's see how to actually get to Robin.</strong></span></span></span></p></div>"
+              }
+            ],
+            "family": "text",
+            "variant": "paragraph",
+            "createdAt": "2026-06-11T06:57:30.780Z",
+            "updatedAt": "2026-06-11T06:57:30.780Z",
+            "globalBlockId": "534d348f-40d4-4b6a-b742-f0b7d4910d2d"
+          },
+          {
+            "id": "cmq9ff3kk00cg3b7p2al181f5",
+            "settings": {
+              "v": 2,
+              "width": "2",
+              "height": 300,
+              "autoResize": true,
+              "paddingTop": 3,
+              "quotesInline": false,
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "attachedToNextBlock": true,
+              "hasCustomCompletion": false,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "html",
+            "items": [
+              {
+                "id": "cmq9ff3kl00ch3b7pfidw4hnj",
+                "srcdoc": "<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css\">\n\n<style>\n  @font-face {\n    font-family: 'Gelix';\n    src: url('https://articulateusercontent.com/rise/fonts/qXfBrJFtSIkIqhli-GellixVF.woff') format('woff');\n    font-weight: 100 900;\n  }\n  * { box-sizing: border-box; margin: 0; padding: 0; }\n  .wrapper {\n    font-family: 'Gelix', 'Inter', sans-serif;\n    padding: 3rem 2.5rem;\n    max-width: 900px;\n    background: #ffffff;\n    margin: 0 auto;\n  }\n  .grid {\n    display: grid;\n    grid-template-columns: 1fr 1fr;\n    gap: 20px;\n  }\n  .card {\n    background: #ffffff;\n    border: 1px solid #e8e8e8;\n    border-radius: 20px;\n    padding: 1.75rem 1.75rem 1.5rem;\n    opacity: 0;\n    transform: translateY(18px);\n    animation: fadeUp 0.45s forwards;\n  }\n  .card:nth-child(1) { animation-delay: 0.05s; }\n  .card:nth-child(2) { animation-delay: 0.18s; }\n  .card:nth-child(3) { animation-delay: 0.31s; }\n  .card:nth-child(4) { animation-delay: 0.44s; }\n  @keyframes fadeUp {\n    to { opacity: 1; transform: translateY(0); }\n  }\n  .icon-wrap {\n    width: 54px;\n    height: 54px;\n    border-radius: 13px;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    margin-bottom: 1rem;\n    font-size: 26px;\n    background: #FFF0F5;\n    color: #FF2D78;\n  }\n  .icon-wrap.gray {\n    background: #F3F3F3;\n    color: #888888;\n  }\n  .card-label {\n    font-size: 17px;\n    font-weight: 600;\n    color: #111111;\n    margin-bottom: 7px;\n  }\n  .card-desc {\n    font-size: 15px;\n    color: #666666;\n    line-height: 1.6;\n  }\n  .card-desc a {\n    color: #FF2D78;\n    text-decoration: none;\n    border-bottom: 1px solid #FF2D78;\n    padding-bottom: 1px;\n    font-weight: 500;\n    white-space: nowrap;\n  }\n</style>\n\n<div class=\"wrapper\">\n  <div class=\"grid\">\n    <div class=\"card\">\n      <div class=\"icon-wrap\"><i class=\"ti ti-world\"></i></div>\n      <p class=\"card-label\">Portal</p>\n      <p class=\"card-desc\">Access Robin directly through <a href=\"https://helpdesksupport906573681.servicedesk.atera.com/ai-assistant\" target=\"_blank\">the link</a>.</p>\n    </div>\n    <div class=\"card\">\n      <div class=\"icon-wrap\"><i class=\"ti ti-device-desktop\"></i></div>\n      <p class=\"card-label\">Desktop</p>\n      <p class=\"card-desc\">Click the AI Assistant icon on your desktop to open Robin instantly.</p>\n    </div>\n    <div class=\"card\">\n      <div class=\"icon-wrap\"><i class=\"ti ti-brand-teams\"></i></div>\n      <p class=\"card-label\">Microsoft Teams</p>\n      <p class=\"card-desc\">Message Robin directly from Teams, just like you'd message a colleague.</p>\n    </div>\n    <div class=\"card\">\n      <div class=\"icon-wrap gray\"><i class=\"ti ti-mail\"></i></div>\n      <p class=\"card-label\">Email</p>\n      <p class=\"card-desc\">Email support is available, though Robin works best through the channels above.</p>\n    </div>\n  </div>\n</div>"
+              }
+            ],
+            "family": "html",
+            "variant": "inline",
+            "createdAt": "2026-06-11T11:40:45.302Z",
+            "updatedAt": "2026-06-11T11:40:45.302Z",
+            "globalBlockId": "778b9fde-5377-430f-bb65-877f5a3ae703"
+          },
+          {
+            "id": "cmq977p0o00mj3b7pnk0fiz3h",
+            "settings": {
+              "v": 2,
+              "mightyMods": [
+                {
+                  "data": {
+                    "location": 0,
+                    "firstColor": "#ffffff",
+                    "blendAmount": 100,
+                    "secondColor": "#ffffff",
+                    "inheritColor": true,
+                    "gradientStyle": "linear-180",
+                    "radialDistance": "circular",
+                    "radialPosition": "center"
+                  },
+                  "tagName": "mighty-rise-block-mod-background-gradient"
+                },
+                {
+                  "data": {
+                    "border": "3px",
+                    "fontSize": 15,
+                    "dropShadow": "medium",
+                    "labelColor": "#FFFFFF",
+                    "borderColor": "#FAFAFA",
+                    "labelCasing": "none",
+                    "borderRadius": 30,
+                    "letterSpacing": 17,
+                    "backgroundColor": "#FF176B"
+                  },
+                  "tagName": "mighty-rise-block-mod-button-style"
+                }
+              ],
+              "paddingTop": 3,
+              "quotesInline": false,
+              "continueColor": "#f62883",
+              "continueWidth": 25,
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "continueRadius": 30,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "divider",
+            "items": [
+              {
+                "id": "cmq977p0o00mk3b7pp8yrctnv",
+                "type": "",
+                "title": "CONTINUE",
+                "buttonColor": "brand",
+                "completeHint": "Complete the content above before moving on."
+              }
+            ],
+            "family": "continue",
+            "variant": "continue",
+            "createdAt": "2026-06-11T07:51:02.959Z",
+            "updatedAt": "2026-06-11T07:51:02.959Z",
+            "globalBlockId": "00bd1047-4f3c-461a-bce3-cfdb935c0575"
+          },
+          {
+            "id": "cmq95cc8q00723b7pjhg14w8t",
+            "settings": {
+              "v": 2,
+              "textWidth": 92,
+              "paddingTop": 3,
+              "quotesInline": false,
+              "audioPosition": "bottom",
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "attachedToNextBlock": true,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "text",
+            "items": [
+              {
+                "id": "cmq95cc8q00733b7paveaji6u",
+                "heading": "<strong>Heading</strong>",
+                "paragraph": "<div data-editor-id=\"20510215-66d6-4fe8-8b89-8e210b948b5f\"><p style=\"line-height: 1.5;\"><span style=\"font-size: 5rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\"><strong>So what does this look like in real life?</strong></span></span></span></p><p style=\"line-height: 1.5;\"><span style=\"font-size: 3rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\">Here are a few examples of what you can do with Robin starting today.</span></span></span></p></div>"
+              }
+            ],
+            "family": "text",
+            "variant": "paragraph",
+            "createdAt": "2026-06-11T06:58:40.411Z",
+            "updatedAt": "2026-06-11T06:58:40.411Z",
+            "globalBlockId": "fd95d507-9549-4235-94de-c8cc95a2fc6a"
+          },
+          {
+            "id": "cmq95d0e1007g3b7pdy79f82r",
+            "settings": {
+              "v": 2,
+              "width": "2",
+              "height": 300,
+              "autoResize": true,
+              "paddingTop": 3,
+              "quotesInline": false,
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "attachedToNextBlock": true,
+              "hasCustomCompletion": false,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "html",
+            "items": [
+              {
+                "id": "cmq95d0e2007h3b7p4cqwqqr4",
+                "srcdoc": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Vimeo Row</title>\n    <style>\n        body { \n            margin: 0; \n            padding: 10px; \n            background-color: transparent; \n        }\n        \n        .container {\n            display: flex;\n            flex-direction: row;\n            gap: 15px;\n            justify-content: center;\n            align-items: flex-start;\n        }\n\n        .video-item {\n            flex: 1;\n            position: relative;\n            padding-bottom: 18.6%; /* Maintains 16:9 ratio across the row */\n            height: 0;\n        }\n\n        .video-item iframe {\n            position: absolute;\n            top: 0;\n            left: 0;\n            width: 100%;\n            height: 100%;\n        }\n\n        /* Responsive: Stack videos vertically on mobile screens */\n        @media (max-width: 600px) {\n            .container { flex-direction: column; }\n            .video-item { \n                width: 100%; \n                padding-bottom: 56.25%; \n            }\n        }\n    </style>\n</head>\n<body>\n\n<div class=\"container\">\n    <div class=\"video-item\">\n        <iframe src=\"https://player.vimeo.com/video/1200032394?h=58012e2d3a&badge=0&autopause=0&player_id=0&app_id=58479\" \n                frameborder=\"0\" allow=\"autoplay; fullscreen; picture-in-picture\" allowfullscreen></iframe>\n    </div>\n\n    <div class=\"video-item\">\n        <iframe src=\"https://player.vimeo.com/video/1107330145?h=df5d82535b&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479\" \n                frameborder=\"0\" allow=\"autoplay; fullscreen; picture-in-picture\" allowfullscreen></iframe>\n    </div>\n\n</div>\n\n<script src=\"https://player.vimeo.com/api/player.js\"></script>\n</body>\n</html>"
+              }
+            ],
+            "family": "html",
+            "variant": "inline",
+            "createdAt": "2026-06-11T06:59:11.705Z",
+            "updatedAt": "2026-06-11T06:59:11.705Z",
+            "globalBlockId": "4346122c-f8e7-4a78-b54b-e053b84c659d"
+          },
+          {
+            "id": "cmq9780zv00nb3b7pki64xh0i",
+            "settings": {
+              "v": 2,
+              "mightyMods": [
+                {
+                  "data": {
+                    "location": 0,
+                    "firstColor": "#ffffff",
+                    "blendAmount": 100,
+                    "secondColor": "#ffffff",
+                    "inheritColor": true,
+                    "gradientStyle": "linear-180",
+                    "radialDistance": "circular",
+                    "radialPosition": "center"
+                  },
+                  "tagName": "mighty-rise-block-mod-background-gradient"
+                },
+                {
+                  "data": {
+                    "border": "3px",
+                    "fontSize": 15,
+                    "dropShadow": "medium",
+                    "labelColor": "#FFFFFF",
+                    "borderColor": "#FAFAFA",
+                    "labelCasing": "none",
+                    "borderRadius": 30,
+                    "letterSpacing": 17,
+                    "backgroundColor": "#FF176B"
+                  },
+                  "tagName": "mighty-rise-block-mod-button-style"
+                }
+              ],
+              "paddingTop": 3,
+              "quotesInline": false,
+              "continueColor": "#f62883",
+              "continueWidth": 25,
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "continueRadius": 30,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "divider",
+            "items": [
+              {
+                "id": "cmq9780zv00nc3b7p67v7y6g2",
+                "type": "",
+                "title": "CONTINUE",
+                "buttonColor": "brand",
+                "completeHint": "Complete the content above before moving on."
+              }
+            ],
+            "family": "continue",
+            "variant": "continue",
+            "createdAt": "2026-06-11T07:51:18.477Z",
+            "updatedAt": "2026-06-11T07:51:18.477Z",
+            "globalBlockId": "429eff3d-c05a-4b20-9759-ed53689acda6"
+          },
+          {
+            "id": "cmq95411a003k3b7pzhym7i5n",
+            "settings": {
+              "v": 2,
+              "textWidth": 92,
+              "paddingTop": 3,
+              "quotesInline": false,
+              "audioPosition": "bottom",
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "attachedToNextBlock": true,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "text",
+            "items": [
+              {
+                "id": "cmq95411a003l3b7phik9127p",
+                "heading": "<strong>Heading</strong>",
+                "paragraph": "<div data-editor-id=\"4d995ecd-1f13-4129-b84c-da72c8f42261\"><p style=\"line-height: 1.5;\"><span style=\"font-size: 2rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\">You've just seen what Robin can do. Now it's your turn — and there's something in it for you.</span></span></span></p><p style=\"line-height: 1.5;\"><span style=\"font-size: 3rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\"><strong>Have one real IT conversation with Robin</strong>, and you'll earn a raffle entry for a <strong>chance to win a prize.</strong></span></span></span></p><p style=\"line-height: 1.5;\"><span style=\"font-size: 2rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\">That's all it takes.</span></span></span></p><p style=\"line-height: 1.5;\"><span style=\"font-size: 2rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\">Robin is available 24/7 — no ticket, no queue, no waiting.</span></span></span></p><p style=\"line-height: 1.5;\"><span style=\"font-size: 3rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\"><strong>You already know how to use it. ✦</strong></span></span></span></p></div>"
+              }
+            ],
+            "family": "text",
+            "variant": "paragraph",
+            "createdAt": "2026-06-11T06:52:13.074Z",
+            "updatedAt": "2026-06-11T06:52:13.074Z",
+            "globalBlockId": "280ca8cd-276e-41a0-99a9-2262a5699574"
+          },
+          {
+            "id": "cmq9ed5iy01aa3b7pip3seid0",
+            "settings": {
+              "v": 2,
+              "width": "2",
+              "height": 750,
+              "autoResize": false,
+              "paddingTop": 3,
+              "quotesInline": false,
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "attachedToNextBlock": true,
+              "hasCustomCompletion": false,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "html",
+            "items": [
+              {
+                "id": "cmq9ed5iz01ab3b7p6c513p9f",
+                "srcdoc": "<style>\n  html, body {\n    margin: 0;\n    padding: 0;\n    height: 100%;\n  }\n</style>\n<div style=\"\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 9999;\n\">\n  <iframe \n    src=\"https://helpdesksupport906573681.servicedesk.atera.com/ai-assistant\"\n    style=\"width: 100%; height: 100%; border: none;\"\n  ></iframe>\n</div>"
+              }
+            ],
+            "family": "html",
+            "variant": "inline",
+            "createdAt": "2026-06-11T11:11:14.915Z",
+            "updatedAt": "2026-06-11T11:11:14.915Z",
+            "globalBlockId": "6e9d3aa7-f23e-4533-971d-7b0d2e2aaea2"
+          },
+          {
+            "id": "cmq9788ak00np3b7plgxhb3go",
+            "settings": {
+              "v": 2,
+              "mightyMods": [
+                {
+                  "data": {
+                    "location": 0,
+                    "firstColor": "#ffffff",
+                    "blendAmount": 100,
+                    "secondColor": "#ffffff",
+                    "inheritColor": true,
+                    "gradientStyle": "linear-180",
+                    "radialDistance": "circular",
+                    "radialPosition": "center"
+                  },
+                  "tagName": "mighty-rise-block-mod-background-gradient"
+                },
+                {
+                  "data": {
+                    "border": "3px",
+                    "fontSize": 15,
+                    "dropShadow": "medium",
+                    "labelColor": "#FFFFFF",
+                    "borderColor": "#FAFAFA",
+                    "labelCasing": "none",
+                    "borderRadius": 30,
+                    "letterSpacing": 17,
+                    "backgroundColor": "#FF176B"
+                  },
+                  "tagName": "mighty-rise-block-mod-button-style"
+                }
+              ],
+              "paddingTop": 3,
+              "quotesInline": false,
+              "continueColor": "#f62883",
+              "continueWidth": 25,
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "continueRadius": 30,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "divider",
+            "items": [
+              {
+                "id": "cmq9788ak00nq3b7pa8ymidsx",
+                "type": "",
+                "title": "CONTINUE",
+                "buttonColor": "brand",
+                "completeHint": "Complete the content above before moving on."
+              }
+            ],
+            "family": "continue",
+            "variant": "continue",
+            "createdAt": "2026-06-11T07:51:27.945Z",
+            "updatedAt": "2026-06-11T07:51:27.945Z",
+            "globalBlockId": "6ce97e09-6b1a-44b2-8142-a01ecb84b5f8"
+          },
+          {
+            "id": "cmq95mlsb007o3b7pjxtln3jq",
+            "settings": {
+              "v": 2,
+              "textWidth": 92,
+              "paddingTop": 3,
+              "quotesInline": false,
+              "audioPosition": "bottom",
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "attachedToNextBlock": true,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "text",
+            "items": [
+              {
+                "id": "cmq95mlsb007p3b7pzkg0bxs4",
+                "heading": "<strong>Heading</strong>",
+                "paragraph": "<div data-editor-id=\"56254dfc-ce84-492c-911a-e06528f0043a\"><p style=\"line-height: 1.5;\"><span style=\"font-size: 3rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\"><strong>Before you go - we'd love to hear from you.</strong></span></span></span></p><p style=\"line-height: 1.5;\"><span style=\"font-size: 2rem;\"><span><span style=\"font-family: Gellix; --mighty-font-family: Gellix;\">Take a moment to share your first impressions of Robin and&nbsp;<strong>earn 2 raffle tickets.</strong></span></span></span></p></div>"
+              }
+            ],
+            "family": "text",
+            "variant": "paragraph",
+            "createdAt": "2026-06-11T07:06:39.314Z",
+            "updatedAt": "2026-06-11T07:06:39.314Z",
+            "globalBlockId": "239525a6-e2bb-4567-84d6-783a02385f75"
+          },
+          {
+            "id": "cmq9ac39401323b7pnac2h5iy",
+            "settings": {
+              "v": 2,
+              "cardMode": "WHITE",
+              "mediaWidth": "1",
+              "mightyMods": [
+                {
+                  "data": {
+                    "hideImage": true
+                  },
+                  "tagName": "mighty-rise-block-mod-hide-embed-image"
+                }
+              ],
+              "paddingTop": 3,
+              "quotesInline": false,
+              "paddingBottom": 3,
+              "paddingLinked": true,
+              "attachedToNextBlock": false,
+              "markerColorContrast": "AUTO",
+              "snippetColorContrast": "AUTO"
+            },
+            "type": "multimedia",
+            "items": [
+              {
+                "id": "cmq9ac39501333b7p4fcbacoo",
+                "media": {
+                  "embed": {
+                    "src": "//cdn.embedly.com/widgets/media.html?src=https%3A%2F%2Fatera.typeform.com%2Fto%2FD7Z3fHiW%3Ftypeform-embed%3Doembed%26typeform-medium%3Dembed-oembed%26format%3Djson&display_name=Typeform&url=https%3A%2F%2Fatera.typeform.com%2Fto%2FD7Z3fHiW&image=https%3A%2F%2Fpublic-assets.typeform.com%2Fpublic%2Fadmin%2F2VWurKeiR4R7.png&type=text%2Fhtml&schema=typeform",
+                    "type": "embed",
+                    "title": "Virgin Hotels - First time experience with Robin",
+                    "favicon": "https://public-assets.typeform.com/public/favicon/favicon.ico",
+                    "provider": "Typeform",
+                    "embedType": "rich",
+                    "thumbnail": "https://public-assets.typeform.com/public/admin/2VWurKeiR4R7.png",
+                    "description": "Turn data collection into an experience with Typeform. Create beautiful online forms, surveys, quizzes, and so much more. Try it for FREE.",
+                    "originalUrl": "https://atera.typeform.com/to/D7Z3fHiW",
+                    "providerUrl": "https://typeform.com"
+                  }
+                },
+                "settings": {
+                  "showMetaData": false
+                }
+              }
+            ],
+            "family": "multimedia",
+            "variant": "embed",
+            "createdAt": "2026-06-11T09:18:26.815Z",
+            "updatedAt": "2026-06-11T09:18:26.815Z",
+            "globalBlockId": "fb43925c-6158-40ad-b721-d91cad55575a"
+          }
+        ],
+        "settings": {},
+        "title": "",
+        "type": "blocks",
+        "author": "aid|06af9bdd-bfb9-45a9-a847-7f752e3b9278",
+        "courseId": "iS5FNVQs9Mqnhvv7P7FcYG9vr05PAlhL",
+        "createdAt": "2026-06-11T06:30:29.737Z",
+        "deleted": false,
+        "duplicatedFromId": "",
+        "experiments": null,
+        "headerImage": {},
+        "icon": null,
+        "isPartnerContentAuthor": false,
+        "lastUpdatedBy": "aid|06af9bdd-bfb9-45a9-a847-7f752e3b9278",
+        "media": {},
+        "metadata": null,
+        "originalId": null,
+        "piles": [],
+        "position": null,
+        "ready": true,
+        "selectedAuthorId": "none",
+        "transferredAt": null,
+        "updatedAt": "2026-06-17T08:45:17.650Z"
+      }
+    ],
+    "title": "Get to Know Robin",
+    "exportSettings": {
+      "completeWith": "reporting",
+      "identifier": "iS5FNVQs9Mqnhvv7P7FcYG9vr05PAlhL_rise",
+      "resetLearnerData": false,
+      "quizId": null,
+      "storylineId": null,
+      "completionPercentage": 100,
+      "reporting": "completed-incomplete",
+      "updateResumeData": true,
+      "hideLmsUi": false,
+      "title": "Get to Know Robin",
+      "format": "zip",
+      "target": "scorm12",
+      "locales": [],
+      "shareId": "WxFk_TW5j2DW6ioDoKaNHp61m-fKi24U",
+      "activeLMS": 0,
+      "exportType": "lms",
+      "targetName": "SCORM 1.2",
+      "isTranslated": false,
+      "quizComplete": false,
+      "activeEdition": null,
+      "loadOnlyInLMS": true,
+      "isRemotePackage": false,
+      "disableCoverPage": false,
+      "enableExitCourse": true,
+      "storylineComplete": false,
+      "localesPackageType": "single",
+      "notifyLearnersOfUpdates": false,
+      "enableTelemetryCollection": false
+    },
+    "lmsOptions": {
+      "enableTelemetryCollection": false,
+      "disableCoverPage": false,
+      "enableExitCourse": true
+    },
+    "id": "iS5FNVQs9Mqnhvv7P7FcYG9vr05PAlhL",
+    "originalId": null,
+    "author": "aid|06af9bdd-bfb9-45a9-a847-7f752e3b9278",
+    "selectedAuthorId": "",
+    "color": "#ff631e",
+    "navigationMode": "",
+    "sharePassword": "",
+    "shareId": "WxFk_TW5j2DW6ioDoKaNHp61m-fKi24U",
+    "copyOf": "",
+    "order": "1784546772427",
+    "fonts": null,
+    "media": {},
+    "coverImage": {
+      "media": {
+        "image": {
+          "key": "Gemini_Generated_Image_ (1).png",
+          "crushedKey": "rise/courses/iS5FNVQs9Mqnhvv7P7FcYG9vr05PAlhL/cDmBjE-neU3E47P4.jpg",
+          "dimensions": {
+            "originalWidth": 1200,
+            "originalHeight": 896
+          },
+          "isSkipCrush": true,
+          "originalUrl": "Gemini_Generated_Image_ (1).png",
+          "sourcedFrom": "USER",
+          "useCrushedKey": false,
+          "src": ""
+        }
+      }
+    },
+    "jobs": [],
+    "labelSetId": "",
+    "deleted": false,
+    "createdAt": "2026-06-11T06:30:29.718Z",
+    "updatedAt": "2026-07-20T11:26:12.427Z",
+    "markComplete": false,
+    "isDefault": false,
+    "ready": true,
+    "reviewId": "",
+    "headingTypefaceId": "_vy9IVqRPwz6wQlKi0wsA9dsYpZ7gsQ3",
+    "bodyTypefaceId": "Wstu1lVkR_rUsAuU6x1N_UImwchzygj2",
+    "uiTypefaceId": "_vy9IVqRPwz6wQlKi0wsA9dsYpZ7gsQ3",
+    "sidebarMode": "open",
+    "tenantId": "1d1fc5d6-e611-44d5-b0ca-f3a9b6993d03",
+    "showLessonCount": true,
+    "showNavigationButtons": true,
+    "allowSearch": true,
+    "animateBlockEntrance": true,
+    "transferredAt": null,
+    "allowCopy": false,
+    "enableVideoPlaybackSpeed": null,
+    "jobType": null,
+    "partnerContentId": null,
+    "cardImage": {},
+    "theme": {
+      "themeId": "classic",
+      "coverImage": "",
+      "mightyMods": [
+        {
+          "data": {
+            "typefaces": [
+              {
+                "id": "VeoiGxPNkZCs_pIeSSPB9qV1",
+                "name": "Nekst",
+                "fonts": [
+                  {
+                    "id": "Jjp1meaxcU34inbvtKRUqp8t",
+                    "key": "rise/fonts/dMo0YYurr95cwwqm-Nekst-Bold.woff",
+                    "style": "bold",
+                    "original": "Nekst-Bold.woff"
+                  },
+                  {
+                    "id": "Vfgb73kwEa5xyxpyy-dh9bZj",
+                    "key": "rise/fonts/plAAkZ3fNjqEpAkE-Nekst-Regular.woff",
+                    "style": "regular",
+                    "original": "Nekst-Regular.woff"
+                  }
+                ],
+                "default": false
+              },
+              {
+                "id": "qgpNBlmdAhuX4or9Vc35mDw5",
+                "name": "Gellix",
+                "fonts": [
+                  {
+                    "id": "Xuxn0Xcf5n_G8gDbvtGjDuhT",
+                    "key": "rise/fonts/_ZFrw5XVye5qaAnP-Gellix-Bold.woff",
+                    "style": "bold",
+                    "original": "Gellix-Bold.woff"
+                  },
+                  {
+                    "id": "HueDsTHKuMhjruYRShZapfb5",
+                    "key": "rise/fonts/qXfBrJFtSIkIqhli-GellixVF.woff",
+                    "style": "regular",
+                    "original": "GellixVF.woff"
+                  }
+                ],
+                "default": false
+              }
+            ]
+          },
+          "tagName": "mighty-rise-theme-mod-font-families"
+        }
+      ],
+      "navigation": true,
+      "showAuthor": true,
+      "allowSearch": true,
+      "colorAccent": "#ff631e",
+      "blockCorners": "ROUNDED",
+      "buttonScheme": "LIGHT",
+      "uiTypefaceId": "_vy9IVqRPwz6wQlKi0wsA9dsYpZ7gsQ3",
+      "coverPageType": "IMAGE",
+      "accentContrast": "AUTO",
+      "bodyTypefaceId": "Wstu1lVkR_rUsAuU6x1N_UImwchzygj2",
+      "navigationType": "SIDEBAR",
+      "blockPaddingTop": 30,
+      "coverImageAlpha": 50,
+      "navigationStyle": "LIGHT",
+      "showLessonCount": true,
+      "showStartButton": true,
+      "lessonHeaderSize": "MEDIUM",
+      "buttonInlineStyle": "ROUNDED",
+      "coverImageDefault": "https://cdn.articulate.com/assets/rise/assets/themes/classic/cover-image/7_abstract.jpg",
+      "headingTypefaceId": "_vy9IVqRPwz6wQlKi0wsA9dsYpZ7gsQ3",
+      "hideLessonHeaders": false,
+      "lessonHeaderColor": null,
+      "lessonHeaderImage": "",
+      "lessonHeaderStyle": "LIGHT",
+      "sidebarStartsOpen": true,
+      "blockPaddingBottom": 30,
+      "blockNavigationType": "STEPPED",
+      "markLessonsComplete": false,
+      "animateBlockEntrance": true,
+      "blockNavigationStyle": "DOTS",
+      "navigationRestricted": false,
+      "buttonNavigationStyle": "FULL",
+      "showNavigationButtons": true,
+      "compactShowLessonCount": true,
+      "lessonHeaderImageAlpha": 0.6,
+      "lessonHeaderImageColor": "DARK",
+      "enableVideoPlaybackSpeed": true,
+      "customColorLessonHeaderContrast": "AUTO"
+    },
+    "lessonHeaderImage": {},
+    "overlayNavigationImage": {},
+    "type": "onePage",
+    "experiments": {
+      "publishes": {
+        "LMS": {
+          "published_at": "2026-07-20T11:26:17.537Z",
+          "published_by": "aid|06af9bdd-bfb9-45a9-a847-7f752e3b9278"
+        },
+        "INSTANT_LINK": {
+          "published_at": "2026-06-11T11:57:32.066Z",
+          "published_by": "aid|06af9bdd-bfb9-45a9-a847-7f752e3b9278"
+        }
+      }
+    },
+    "settings": {},
+    "defaultLocaleId": null,
+    "metadata": {
+      "createdVia": "blank"
+    },
+    "blockBackgroundImage": {},
+    "otherTypefaceIds": null,
+    "contentUpdatedAt": "2026-06-17T08:45:17.650Z",
+    "authorType": "standard",
+    "lastPublishedAt": "2026-07-20T11:26:17.537Z",
+    "localizationMetadata": {},
+    "features": {
+      "rise-rte-fonts": true,
+      "ai-learner-chatbot": true,
+      "rise-audio-release": true,
+      "rise-course-navigation": true,
+      "rise-process-accessibility": true,
+      "rise-matching-accessibility": true,
+      "rise-block-controls-phase-four": true
+    },
+    "aiTutorConfig": null,
+    "authors": [
+      {
+        "id": "aid|06af9bdd-bfb9-45a9-a847-7f752e3b9278",
+        "avatar": "small.png",
+        "authorName": "Atera Training"
+      }
+    ],
+    "aiLearnerCourseApiKey": null,
+    "mondrian": {},
+    "bodyTypeface": "Merriweather",
+    "headingTypeface": "Lato",
+    "uiTypeface": "Lato"
+  },
+  "labelSet": {
+    "iso639Code": "en",
+    "labels": {
+      "exitMessage": "You may now leave this page.",
+      "salutation": "You’ve completed the course!",
+      "a11yAiTutorArticulateLogo": "Articulate - open in new tab",
+      "a11yAiTutorAskButton": "Ask AI Tutor",
+      "a11yAiTutorAssistantMessage": "AI Tutor response",
+      "a11yAiTutorChatWindow": "AI Tutor chat window",
+      "a11yAiTutorCloseTipsModal": "Close tips modal",
+      "a11yAiTutorFeedbackDismiss": "Dismiss feedback",
+      "a11yAiTutorFeedbackInput": "Type your feedback",
+      "a11yAiTutorFeedbackSubmit": "Submit feedback",
+      "a11yAiTutorFeedbackWhyUnhelpful": "Why is it unhelpful?",
+      "a11yAiTutorHide": "Hide AI Tutor chat",
+      "a11yAiTutorInput": "Type your message for AI Tutor",
+      "a11yAiTutorSection": "AI Tutor",
+      "a11yAiTutorSeeTips": "See tips for using AI Tutor",
+      "a11yAiTutorSendButton": "Send message to AI Tutor",
+      "a11yAiTutorStartOver": "Return to AI Tutor home screen",
+      "a11yAiTutorThumbsDown": "Rate response as not helpful",
+      "a11yAiTutorThumbsDownSubmitted": "Not helpful, feedback submitted",
+      "a11yAiTutorThumbsUp": "Rate response as helpful",
+      "a11yAiTutorThumbsUpSubmitted": "Helpful, feedback submitted",
+      "a11yAiTutorUserMessage": "User message",
+      "a11yAnswerLive": "Your answer",
+      "a11yAuthorPrefix": "By",
+      "a11yBlockChartAxisX": "x-axis",
+      "a11yBlockChartAxisY": "y-axis",
+      "a11yBlockChartBar": "Bar chart",
+      "a11yBlockChartInstructions": "Use arrow keys to navigate data points. Screen reader users may need to switch modes to interact.",
+      "a11yBlockChartLine": "Line chart",
+      "a11yBlockChartPie": "Pie chart",
+      "a11yBlockChartPreposition": "of",
+      "a11yBlockCode": "Custom Interaction",
+      "a11yBlockCodeSnippet": "Code",
+      "a11yBlockEmbed": "Embedded Content",
+      "a11yBlockFlashcardBack": "Back of card",
+      "a11yBlockFlashcardFront": "Front of card",
+      "a11yBlockFlashcardGrid": "Flashcard grid",
+      "a11yBlockFlashcardStack": "Flashcard carousel",
+      "a11yBlockFlashcardStackRoleDescription": "Carousel",
+      "a11yBlockFlashcardStackSlideControls": "Slide controls",
+      "a11yBlockFlashcardStackSlideControlsGoToNext": "Go to next slide",
+      "a11yBlockFlashcardStackSlideControlsGoToPrevious": "Go to previous slide",
+      "a11yBlockFlashcardStackSlideControlsGoToSlide": "Go to slide",
+      "a11yBlockFlashcardStackSlidePreposition": "of",
+      "a11yBlockFlashcardStackSlideRoleDescription": "Slide",
+      "a11yBlockImageCarousel": "Image Carousel",
+      "a11yBlockImageCarouselRoleDescription": "Carousel",
+      "a11yBlockImageCarouselSlideControls": "Slide controls",
+      "a11yBlockImageCarouselSlideControlsGoToNext": "Go to next slide",
+      "a11yBlockImageCarouselSlideControlsGoToPrevious": "Go to previous slide",
+      "a11yBlockImageCarouselSlideControlsGoToSlide": "Go to slide",
+      "a11yBlockImageCarouselSlidePreposition": "of",
+      "a11yBlockImageCarouselSlideRoleDescription": "Slide",
+      "a11yBlockKnowledgeCheck": "Knowledge check",
+      "a11yBlockKnowledgeCheckFIB": "Knowledge check: Fill in the blank",
+      "a11yBlockKnowledgeCheckM": "Knowledge check: Matching",
+      "a11yBlockKnowledgeCheckMC": "Knowledge check: Multiple choice",
+      "a11yBlockKnowledgeCheckMR": "Knowledge check: Multiple response",
+      "a11yBlockProcessCarousel": "Carousel",
+      "a11yBlockProcessRoleDescription": "Carousel",
+      "a11yBlockProcessSlideControls": "Slide controls",
+      "a11yBlockProcessSlideControlsGoToNext": "Go to next slide",
+      "a11yBlockProcessSlideControlsGoToPrevious": "Go to previous slide",
+      "a11yBlockProcessSlideControlsGoToSlide": "Go to slide",
+      "a11yBlockProcessSlideControlsIntroduction": "Introduction",
+      "a11yBlockProcessSlideControlsSummary": "Summary",
+      "a11yBlockProcessSlidePreposition": "of",
+      "a11yBlockProcessSlideRoleDescription": "Slide",
+      "a11yBlockQuoteCarousel": "Quote Carousel",
+      "a11yBlockQuoteCarouselRoleDescription": "Carousel",
+      "a11yBlockQuoteCarouselSlideControls": "Slide controls",
+      "a11yBlockQuoteCarouselSlideControlsGoToNext": "Go to next slide",
+      "a11yBlockQuoteCarouselSlideControlsGoToPrevious": "Go to previous slide",
+      "a11yBlockQuoteCarouselSlideControlsGoToSlide": "Go to slide",
+      "a11yBlockQuoteCarouselSlidePreposition": "of",
+      "a11yBlockQuoteCarouselSlideRoleDescription": "Slide",
+      "a11yBlockStoryline": "Storyline",
+      "a11yBlockSurveyCharCount": "Character count:",
+      "a11yBlockSurveyConfirmation": "Thanks! Your responses were sent.",
+      "a11yBlockSurveySubmitting": "Submitting survey responses.",
+      "a11yBlockSurveyValidationError": "Please answer all required questions to continue",
+      "a11yBlockTimeline": "Timeline",
+      "a11yBlockVideoSidePanelTablist": "Video details",
+      "a11yCarouselNext": "Next",
+      "a11yCarouselPrevious": "Previous",
+      "a11yCertificateDownloadFailed": "Failed to download certificate",
+      "a11yCorrectLive": "Correct answer",
+      "a11yCoverCourseCompleted": "Course Completed",
+      "a11yCoverCourseLength": "Course Length",
+      "a11yCoverRequirementComplete": "Requirement complete",
+      "a11yCoverRequirementFailed": "Requirement failed",
+      "a11yCoverRequirementIncomplete": "Requirement incomplete",
+      "a11yExcelIcon": "Microsoft Excel spreadsheet",
+      "a11yFileIcon": "File",
+      "a11yGroupAudioPlayer": "Audio player",
+      "a11yGroupScenario": "Interactive scenario",
+      "a11yGroupVideoPlayer": "Video player",
+      "a11yLabeledGraphicBlock": "Labeled graphic",
+      "a11yLabeledGraphicButtonMarker": "Marker",
+      "a11yLabeledGraphicIconArrowDown": "Down arrow",
+      "a11yLabeledGraphicIconArrowDownLeft": "Down left arrow",
+      "a11yLabeledGraphicIconArrowDownRight": "Down right arrow",
+      "a11yLabeledGraphicIconArrowLeft": "Left arrow",
+      "a11yLabeledGraphicIconArrowRight": "Right arrow",
+      "a11yLabeledGraphicIconArrowUp": "Up arrow",
+      "a11yLabeledGraphicIconArrowUpLeft": "Up left arrow",
+      "a11yLabeledGraphicIconArrowUpRight": "Up right arrow",
+      "a11yLabeledGraphicIconCheck": "Check mark",
+      "a11yLabeledGraphicIconDot": "Dot",
+      "a11yLabeledGraphicIconHeart": "Heart",
+      "a11yLabeledGraphicIconInformation": "Information",
+      "a11yLabeledGraphicIconPin": "Map pin",
+      "a11yLabeledGraphicIconPlus": "Plus",
+      "a11yLabeledGraphicIconQuestion": "Question mark",
+      "a11yLabeledGraphicIconX": "X",
+      "a11yLabeledGraphicUnviewed": "Not viewed",
+      "a11yLabeledGraphicViewed": "Viewed",
+      "a11yMatchingColumn1": "Matching column 1",
+      "a11yMatchingColumn2": "Matching column 2",
+      "a11yMatchingItemMatchedWith": "Matched with",
+      "a11yMatchingItemMatchWith": "Match with",
+      "a11yMatchingItemSelectableItem": "Selectable item",
+      "a11yMatchingItemShowLess": "Show less",
+      "a11yMatchingItemShowMore": "Show more",
+      "a11yMediaCaptions": "Captions",
+      "a11yMediaCaptionsOff": "Captions off",
+      "a11yMediaCurrentTime": "Current time",
+      "a11yMediaDownload": "Download",
+      "a11yMediaDuration": "Duration",
+      "a11yMediaErrorVideo": "This video could not be loaded.",
+      "a11yMediaExitFullscreen": "Exit fullscreen",
+      "a11yMediaExitPictureInPicture": "Exit picture-in-picture",
+      "a11yMediaFullscreen": "Fullscreen",
+      "a11yMediaMoreOptions": "More options",
+      "a11yMediaMoreOptionsBack": "Back to more options",
+      "a11yMediaMute": "Mute",
+      "a11yMediaPause": "Pause",
+      "a11yMediaPictureInPicture": "Picture-in-picture",
+      "a11yMediaPlay": "Play",
+      "a11yMediaPlaybackRate": "Playback Rate",
+      "a11yMediaPlaybackRateNormal": "Normal",
+      "a11yMediaPlayVideo": "Play video",
+      "a11yMediaRemainingTime": "Remaining time",
+      "a11yMediaReplay": "Replay",
+      "a11yMediaSeek": "Seek",
+      "a11yMediaSeekDisabled": "Forward seeking is disabled",
+      "a11yMediaUnmute": "Unmute",
+      "a11yMediaVolume": "Volume",
+      "a11yNavigationMenuClose": "Close navigation menu",
+      "a11yNavigationMenuOpen": "Open navigation menu",
+      "a11yNoticeLinkNewTab": "(opens in a new tab)",
+      "a11yPageMarker": "Top of page",
+      "a11yPDFIcon": "PDF file",
+      "a11yPPTIcon": "PowerPoint presentation",
+      "a11yPreposition": "of",
+      "a11yProgressSummaryRequirementCompleted": "Requirement completed, check mark",
+      "a11yProgressSummaryRequirementNotCompleted": "Requirement not completed, empty square",
+      "a11yQuizFailed": "Failed",
+      "a11yQuizFeedback": "Feedback",
+      "a11yQuizPassed": "Passed",
+      "a11yQuizReviewCorrectlyChecked": "Correctly checked",
+      "a11yQuizReviewCorrectlySelected": "Correctly selected",
+      "a11yQuizReviewCorrectlyUnchecked": "Correctly unchecked",
+      "a11yQuizReviewCorrectlyUnselected": "Correctly unselected",
+      "a11yQuizReviewIncorrectlyChecked": "Incorrectly checked",
+      "a11yQuizReviewIncorrectlySelected": "Incorrectly selected",
+      "a11yQuizReviewIncorrectlyUnchecked": "Incorrectly unchecked",
+      "a11yQuizReviewIncorrectlyUnselected": "Incorrectly unselected",
+      "a11yRegionMainLesson": "Lesson content",
+      "a11yRegionMainOverview": "Course overview",
+      "a11yRegionNavLesson": "Navigation menu",
+      "a11yRegionNavOverview": "Table of contents",
+      "a11yRestrictedNav": "This lesson is currently unavailable",
+      "a11yRTFIcon": "Rich Text File",
+      "a11ySearchClose": "Close search menu",
+      "a11ySearchInput": "Search",
+      "a11ySearchInputClear": "clear search term",
+      "a11ySearchOpen": "Open search menu",
+      "a11ySortingCategories": "Categories",
+      "a11ySortingCategoriesComplete": "Categories. Interaction completed.",
+      "a11ySortingCategory": "category",
+      "a11ySortingComplete": "cards correct",
+      "a11ySortingCompleteOf": "of",
+      "a11ySortingCorrect": "Correct",
+      "a11ySortingCurrentItem": "Current item",
+      "a11ySortingIncorrect": "Incorrect. Choose another category.",
+      "a11ySortingNextItem": "Next item",
+      "a11yStatusAdditionalContent": "Additional content has been loaded",
+      "a11yStatusContinued": "Continued",
+      "a11yUnzoomImage": "Unzoom image",
+      "a11yWordIcon": "Microsoft Word document",
+      "a11yZipIcon": "Zip file",
+      "a11yZoomImage": "Zoom image",
+      "aiTutorAskButton": "Ask AI Tutor",
+      "aiTutorBlankHeading": "Hey there, need a hand?",
+      "aiTutorBlankPillExplain": "Explain this in simpler terms",
+      "aiTutorBlankPillSearch": "Search course content",
+      "aiTutorBlankPillSummarize": "Summarize this training",
+      "aiTutorDisabledWhileQuiz": "AI Tutor is disabled while a quiz is in progress.",
+      "aiTutorDisclaimer": "AI isn't perfect—double check important information.",
+      "aiTutorErrorGeneral": "Something went wrong. Try refreshing the page or submitting a new request.",
+      "aiTutorErrorUnavailable": "AI Tutor is currently unavailable.",
+      "aiTutorFeedbackDetailsPlaceholder": "Share additional details (optional)",
+      "aiTutorFeedbackImprovementNote": "Your feedback helps improve this feature.",
+      "aiTutorFeedbackLearnMore": "Learn more",
+      "aiTutorFeedbackPopoverTitle": "Tell us more",
+      "aiTutorFeedbackReasonIncorrect": "Incorrect information",
+      "aiTutorFeedbackReasonNoAnswer": "Didn't answer my question",
+      "aiTutorFeedbackReasonNotHelpful": "Explanation wasn't helpful for me",
+      "aiTutorFeedbackReasonNotRelevant": "Response wasn't relevant",
+      "aiTutorFeedbackReasonOther": "Other",
+      "aiTutorFeedbackSubmit": "Submit",
+      "aiTutorFeedbackThankYou": "Thank you for your feedback",
+      "aiTutorFeedbackToast": "Thanks for your feedback",
+      "aiTutorGeneratingResponse": "Generating response",
+      "aiTutorHideTooltip": "Hide",
+      "aiTutorInputPlaceholder": "Type your message",
+      "aiTutorPrivacyLink": "privacy policy",
+      "aiTutorSeeTips": "See tips",
+      "aiTutorStartOverTooltip": "Start over",
+      "aiTutorTermsLink": "terms of use",
+      "aiTutorTermsPrefix": "By using this service, you agree to the Articulate",
+      "aiTutorTipsGotIt": "Got it",
+      "aiTutorTipsTip1": "AI can make mistakes. Use it as a guide, but verify what matters.",
+      "aiTutorTipsTip2": "Focus on topics covered in the course. Ask specific questions for best results.",
+      "aiTutorTipsTip3": "Don't share personal or sensitive information.",
+      "aiTutorTipsTitle": "What to know",
+      "audioCollapsePlayer": "Collapse audio player",
+      "audioExpandPlayer": "Expand audio player",
+      "audioHideTranscript": "Hide transcript",
+      "audioNoTranscriptAvailable": "No transcript available",
+      "audioPlaySpeed": "Play speed",
+      "audioShowTranscript": "Show transcript",
+      "audioTranscript": "Audio transcript",
+      "blocksClickToFlip": "Click to flip",
+      "blocksPreposition": "of",
+      "certificateDownload": "Download certificate",
+      "certificateDownloadInProgress": "Downloading...",
+      "certificateRetryDownload": "Retry download",
+      "courseCompletionOverdue": "Overdue",
+      "courseExit": "EXIT COURSE",
+      "courseFinish": "Finish",
+      "courseHome": "Home",
+      "courseResume": "Continue On",
+      "courseSkipToLesson": "SKIP TO RESOURCE",
+      "courseStart": "Get Started ",
+      "coverCompleteAllLessons": "Complete all lessons in this course",
+      "coverCompleted": "Completed",
+      "coverCompleteLessonsInCourse": "lessons in this course",
+      "coverCompleteLessonsName": "Complete",
+      "coverCompleteLessonsPreposition": "of",
+      "coverCourseRequirements": "Course Requirements",
+      "coverHour": "Hour",
+      "coverHours": "Hours",
+      "coverLesson": "Lesson",
+      "coverLessons": "Lessons",
+      "coverMinute": "Minute",
+      "coverMinutes": "Minutes",
+      "coverNoAttemptsRemaining": "No attempts remaining",
+      "coverPublished": "Published",
+      "coverQuizPercentOrHigher": "% or higher",
+      "coverQuizScoreOf": "Score of",
+      "curtainLoading": "Your content is loading.",
+      "curtainOffline": "Your computer is offline.",
+      "curtainOfflineReconnecting": "Attempting to reconnect…",
+      "curtainSessionTimedOut": "Your session has timed out.",
+      "curtainSessionTimedOutRefresh": "Refresh",
+      "curtainSessionTimedOutRestart": "Click refresh to restart your session.",
+      "curtainSomethingWrong": "Something went wrong.",
+      "curtainSomethingWrongRefresh": "Refresh",
+      "curtainSomethingWrongTryAgain": "Click to refresh and try again.",
+      "customBlockVideoError": "Video didn't load",
+      "embedLinkGroup": "Embedded web content",
+      "embedPlayerGroup": "Embedded media player",
+      "embedReadMore": "Read more",
+      "embedViewOn": "VIEW ON",
+      "knowledgeCheckCorrectAnswerRequiredBlock": "Requires a correct answer to continue",
+      "knowledgeCheckCorrectAnswerRequiredNav": "Complete previous knowledge checks to unlock this lesson",
+      "knowledgeCheckMaxRetriesReached": "You have reached the maximum amount of retries.",
+      "knowledgeCheckRetriesAttemptsRemaining": "Attempts remaining:",
+      "l10nChooseLanguage": "Choose your course language",
+      "l10nChooseLanguageContinue": "Continue",
+      "labeledGraphicMarkerLabel": "Labeled graphic marker",
+      "lessonComplete": "COMPLETE",
+      "lessonName": "Resource",
+      "lessonPreposition": "of",
+      "lessonRestricted": "Lessons must be completed in order",
+      "noResults": "No results for",
+      "numberedDividerGroup": "Numbered divider",
+      "overviewPageTitleSuffix": "Overview",
+      "pauseButtonLabel": "Pause",
+      "playButtonLabel": "Play",
+      "processComplete": "Viewed",
+      "processLandmark": "Process",
+      "processLessonName": "Resource",
+      "processNextStep": "NEXT STEP",
+      "processStart": "START",
+      "processStartAgain": "START AGAIN",
+      "processStepName": "Step",
+      "processStepPreposition": "of",
+      "processSwipe": "Swipe to continue",
+      "progressPieClickToComplete": "Click to complete",
+      "progressPieClickToReset": "Click to reset",
+      "progressPieCompleted": "Completed",
+      "progressPieQuizFailed": "Failed",
+      "progressPieUnstarted": "Unstarted",
+      "progressSummary": "Progress Summary",
+      "progressSummaryBackToLearning": "Back to my learning",
+      "progressSummaryCompleted": "Completed:",
+      "progressSummaryCompletionRequirement": "Completion Requirement",
+      "progressSummaryCongratulations": "Congratulations!",
+      "progressSummaryNextUp": "Next up",
+      "progressSummaryNoAttemptsRemaining": "No attempts remaining.",
+      "progressSummaryNoTitle": "(No Title)",
+      "progressSummaryPercentComplete": "% Complete",
+      "progressSummaryPercentCompletion": "% Completion",
+      "progressSummaryQuizRequirement": "Quiz Requirement",
+      "progressSummaryRequirementsMet": "You've met all the requirements.",
+      "progressSummaryScoreOf": "Score of",
+      "progressSummaryScoreOfPreposition": "% on",
+      "progressSummaryStartOver": "Start Over",
+      "progressSummaryViewQuiz": "View quiz",
+      "progressSummaryYouCompleted": "You completed:",
+      "progressSummaryYouScored": "You scored",
+      "quizAcceptableResponses": "Acceptable responses",
+      "quizAnswerPlaceholder": "Type your answer here",
+      "quizContinue": "Continue",
+      "quizCorrect": "Correct",
+      "quizIncorrect": "Incorrect",
+      "quizNext": "NEXT",
+      "quizPassing": "PASSING",
+      "quizQuestion": "Question",
+      "quizRequireAnswer": "Please answer the question to continue",
+      "quizRequirePassingScore": "Must pass quiz before continuing",
+      "quizRestart": "Restart",
+      "quizResults": "Quiz Results",
+      "quizScore": "Your score",
+      "quizSkipAhead": "Skip Ahead to Lesson",
+      "quizStart": "START QUIZ",
+      "quizSubmit": "SUBMIT",
+      "quizTakeAgain": "TAKE AGAIN",
+      "quizTimerElapsed": "Time elapsed",
+      "quizTimerExpired": "Time expired",
+      "quizTimerExpiredAction": "OK",
+      "quizTimerExpiredMessage": "You have reached the time limit for this quiz. Your results will be automatically submitted",
+      "quizTimerHide": "Hide",
+      "quizTimerLimit": "Time limit",
+      "quizTimerMinute": "Minute",
+      "quizTimerMinutePlural": "Minutes",
+      "quizTimerRemaining": "Time left",
+      "quizTimerShow": "Show timer",
+      "result": "result",
+      "results": "results",
+      "scenarioComplete": "Scenario Complete!",
+      "scenarioContinue": "CONTINUE",
+      "scenarioStartOver": "START OVER",
+      "scenarioTryAgain": "TRY AGAIN",
+      "search": "search",
+      "seekSliderLabel": "Seek",
+      "sortingCardsCorrect": "Cards Correct",
+      "sortingLandmark": "Sorting Activity",
+      "sortingReplay": "REPLAY",
+      "surveyConfirmation": "Thanks! Your responses were sent.",
+      "surveyFreeResponseRequired": "Please enter a response",
+      "surveyPlaceholder": "Share your thoughts",
+      "surveyRatingRequired": "Please select a rating",
+      "surveyMultipleChoiceRequired": "Please select an answer",
+      "surveyMultipleResponseRequired": "Please select at least one answer",
+      "surveyRequired": "Required",
+      "surveySubmit": "Submit",
+      "surveySubmitting": "Submitting...",
+      "surveyValidationError": "Please answer all required questions to continue.",
+      "videoChapters": "Chapters",
+      "videoCheckpointDefaultTitle": "Checkpoint",
+      "videoCheckpointNoContent": "No content added to this checkpoint.",
+      "videoCheckpointPausedAt": "Paused at",
+      "videoCheckpointResume": "Resume video",
+      "videoNoChapters": "No chapters yet",
+      "videoNoChaptersMessage": "Add timestamps in the block settings to organize your video.",
+      "videoShowLessChapters": "Show less chapters",
+      "videoShowMoreChapters": "Show more chapters",
+      "videoTranscript": "Transcript",
+      "videoViewTranscript": "View transcript"
+    },
+    "id": "CIWtz1TBukInxcKZJLRXgyl4",
+    "author": "aid|06af9bdd-bfb9-45a9-a847-7f752e3b9278",
+    "name": "English",
+    "defaultId": 1,
+    "defaultSet": true,
+    "deleted": false,
+    "createdAt": "2024-09-12T13:27:46.163Z",
+    "updatedAt": "2025-09-17T12:21:54.021Z",
+    "transferredAt": null
+  },
+  "settings": {
+    "completionPercentage": 100,
+    "reporting": "completed-incomplete",
+    "resetLearnerData": false,
+    "filename": "get-to-know-robin-scorm12-OxdZYoYD.zip",
+    "coursePackageVersion": "OxdZYoYD",
+    "exporterAuthId": "aid|06af9bdd-bfb9-45a9-a847-7f752e3b9278",
+    "cdnUri": "https://cdn.articulate.com",
+    "courseUpdateCallbackUrl": "https://rise-runtime.360.prod.art-internal.com/publish/course/iS5FNVQs9Mqnhvv7P7FcYG9vr05PAlhL",
+    "format": "zip",
+    "identifier": "iS5FNVQs9Mqnhvv7P7FcYG9vr05PAlhL_rise",
+    "loadOnlyInLMS": true,
+    "isRemotePackage": false,
+    "reviewContentUrl": "https://360.articulate.com/review/content",
+    "s3Metadata": {
+      "author": "aid|06af9bdd-bfb9-45a9-a847-7f752e3b9278",
+      "tenant-id": "1d1fc5d6-e611-44d5-b0ca-f3a9b6993d03"
+    },
+    "title": "Get to Know Robin"
+  },
+  "exportAggregate": {
+    "subscriptionId": "1d1fc5d6-e611-44d5-b0ca-f3a9b6993d03",
+    "exportId": "-VzV7xjMBO2hmZt-F-Pfxm_HAb_aXeO3",
+    "courseId": "iS5FNVQs9Mqnhvv7P7FcYG9vr05PAlhL",
+    "courseType": "microlearn",
+    "courseTheme": "classic",
+    "courseCreatedVia": "blank",
+    "courseLessons": {
+      "total": 1,
+      "ai": 0,
+      "blocks": {
+        "total": 1,
+        "ai": 0
+      }
+    },
+    "courseBlocks": {
+      "total": 25,
+      "ai": 0,
+      "text": {
+        "total": 9,
+        "ai": 0
+      },
+      "list": {
+        "total": 1,
+        "ai": 0
+      },
+      "multimedia": {
+        "total": 5,
+        "ai": 0
+      },
+      "divider": {
+        "total": 7,
+        "ai": 0
+      },
+      "html": {
+        "total": 3,
+        "ai": 0
+      }
+    }
+  },
+  "fonts": [
+    {
+      "id": "_vy9IVqRPwz6wQlKi0wsA9dsYpZ7gsQ3",
+      "name": "Lato",
+      "default": true,
+      "key": "Lato2-Regular.woff",
+      "style": "normal",
+      "family": "Lato",
+      "weight": "400"
+    },
+    {
+      "id": "_vy9IVqRPwz6wQlKi0wsA9dsYpZ7gsQ3",
+      "name": "Lato",
+      "default": true,
+      "key": "Lato2-Light.woff",
+      "style": "normal",
+      "family": "Lato",
+      "weight": "300"
+    },
+    {
+      "id": "_vy9IVqRPwz6wQlKi0wsA9dsYpZ7gsQ3",
+      "name": "Lato",
+      "default": true,
+      "key": "Lato2-Italic.woff",
+      "style": "italic",
+      "family": "Lato",
+      "weight": "400"
+    },
+    {
+      "id": "_vy9IVqRPwz6wQlKi0wsA9dsYpZ7gsQ3",
+      "name": "Lato",
+      "default": true,
+      "key": "Lato2-Bold.woff",
+      "style": "normal",
+      "family": "Lato",
+      "weight": "700"
+    },
+    {
+      "id": "_vy9IVqRPwz6wQlKi0wsA9dsYpZ7gsQ3",
+      "name": "Lato",
+      "default": true,
+      "key": "Lato2-Black.woff",
+      "style": "normal",
+      "family": "Lato",
+      "weight": "900"
+    },
+    {
+      "id": "Wstu1lVkR_rUsAuU6x1N_UImwchzygj2",
+      "name": "Merriweather",
+      "default": true,
+      "key": "Merriweather-Black.woff",
+      "style": "normal",
+      "family": "Merriweather",
+      "weight": "900"
+    },
+    {
+      "id": "Wstu1lVkR_rUsAuU6x1N_UImwchzygj2",
+      "name": "Merriweather",
+      "default": true,
+      "key": "Merriweather-Italic.woff",
+      "style": "italic",
+      "family": "Merriweather",
+      "weight": "400"
+    },
+    {
+      "id": "Wstu1lVkR_rUsAuU6x1N_UImwchzygj2",
+      "name": "Merriweather",
+      "default": true,
+      "key": "Merriweather-Bold.woff",
+      "style": "normal",
+      "family": "Merriweather",
+      "weight": "700"
+    },
+    {
+      "id": "Wstu1lVkR_rUsAuU6x1N_UImwchzygj2",
+      "name": "Merriweather",
+      "default": true,
+      "key": "Merriweather-Regular.woff",
+      "style": "normal",
+      "family": "Merriweather",
+      "weight": "400"
+    },
+    {
+      "id": "Wstu1lVkR_rUsAuU6x1N_UImwchzygj2",
+      "name": "Merriweather",
+      "default": true,
+      "key": "Merriweather-Light.woff",
+      "style": "normal",
+      "family": "Merriweather",
+      "weight": "300"
+    }
+  ],
+  "partnerContent": []
+}
