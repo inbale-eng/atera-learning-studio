@@ -43,10 +43,13 @@
   .lc-scroll::-webkit-scrollbar-track{background:transparent}
   .lc-scroll::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:8px;border:2px solid transparent;background-clip:padding-box}
   .lc-scroll::-webkit-scrollbar-thumb:hover{background:var(--gray-400);background-clip:padding-box}
+  [dir="rtl"] span:not([dir]){unicode-bidi:plaintext;text-align:match-parent}
   @keyframes lc-pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   @keyframes lc-fade{from{opacity:0}to{opacity:1}}
   @keyframes lc-slide{from{transform:translateX(100%)}to{transform:none}}
   @keyframes lc-spin{to{transform:rotate(360deg)}}
+  @keyframes lc-sbs-r{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+  @keyframes lc-sbs-l{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:none}}
   @media (max-width:900px){ .blk-grip{display:none !important} }
 </style>
 </helmet>
@@ -100,6 +103,7 @@ class Component extends DCLogic {
   uid(){ return 'x' + Math.random().toString(36).slice(2, 9); }
   h(){ return React.createElement.apply(null, arguments); }
   now(){ return 'Jul 13, 2026'; }
+  rtl(){ return !!((this.curItem()||{}).rtl); }
 
   mutate(fn, desc, key){
     const before = this.snapshot();
@@ -232,6 +236,7 @@ class Component extends DCLogic {
   scheduleLocalSave(){ clearTimeout(this._ls); this._ls = setTimeout(()=>this.saveLocal(), 350); }
   saveLocal(lib){ try{ localStorage.setItem(this.draftKey(), JSON.stringify({ savedAt: Date.now(), library: lib || this.state.library, folders: this.state.folders, team: this.state.team, changes: this.state.changes || [], base: this._base || null })); }catch(e){ if(!this._lsWarned || Date.now()-this._lsWarned>60000){ this._lsWarned=Date.now(); this.toast('Draft too large to auto-save locally — click Save to keep your changes'); } } }
   componentDidMount(){
+    window.__ls = this;
     try{ let l=document.querySelector('link[rel="icon"]'); if(!l){ l=document.createElement('link'); l.rel='icon'; document.head.appendChild(l); } l.type='image/png'; l.href='assets/learning-studio-favicon.png'; }catch(e){}
     this._rs = ()=>{ clearTimeout(this._rst); this._rst = setTimeout(()=>this.setState({ winW:window.innerWidth }), 120); };
     window.addEventListener('resize', this._rs);
@@ -537,6 +542,7 @@ class Component extends DCLogic {
       timeline:{ name:'Timeline', desc:'Events on a time axis', icon:'timeline' },
       itimeline:{ name:'Interactive timeline', desc:'Clickable events, one at a time', icon:'timeline' },
       chatsim:{ name:'Chat simulation', desc:'A conversation that unfolds message by message', icon:'chat' },
+      chatscored:{ name:'Graded chat', desc:'A chat scenario where reply choices are scored', icon:'chat' },
       knowledge:{ name:'Knowledge check', desc:'Single or multiple choice', icon:'quiz' },
       truefalse:{ name:'True / False', desc:'Quick two-option check', icon:'truefalse' },
       fillblank:{ name:'Fill in the blank', desc:'Type the missing words', icon:'fillblank' },
@@ -552,7 +558,7 @@ class Component extends DCLogic {
       { name:'Text & data', items:['text','paragraph','heading','statement','callout','list','statrow','cardgrid','columns','table','divider'] },
       { name:'Media', items:['imagetext','gallery','multimedia','audio','attachment','code'] },
       { name:'Interactive', items:['labeledgraphic','tabs','accordion','process','stepbystep','timeline','itimeline','chatsim','flashcards','reveal','sorting','checklist','interactiveapp','scormpkg'] },
-      { name:'Assessment', items:['knowledge','truefalse','fillblank','matching','ordering'] },
+      { name:'Assessment', items:['knowledge','truefalse','fillblank','matching','ordering','chatscored'] },
     ];
   }
   defaultBlock(type){
@@ -587,6 +593,7 @@ class Component extends DCLogic {
       case 'tabs': return B({ tabs:[ { id:this.uid(), label:'Overview', body:'What this section covers.' }, { id:this.uid(), label:'Details', body:'The finer points go here.' }, { id:this.uid(), label:'Tips', body:'Helpful advice for the learner.' } ] });
       case 'timeline': return B({ events:[ { id:this.uid(), date:'Day 1', title:'Kickoff', body:'Create the customer and invite contacts.' }, { id:this.uid(), date:'Week 1', title:'Deploy agents', body:'Install monitoring on the first devices.' }, { id:this.uid(), date:'Month 1', title:'Optimize', body:'Set up automations and review metrics.' } ] });
       case 'chatsim': return B({ personA:'Customer', personB:'Technician', messages:[ { id:this.uid(), from:'a', text:'Hi, my laptop keeps freezing since this morning.' }, { id:this.uid(), from:'b', text:'Sorry to hear that! Let\'s check it together — is it freezing on a specific app, or everywhere?' }, { id:this.uid(), from:'a', text:'Mostly when I open the browser.' }, { id:this.uid(), from:'q', options:[ { id:this.uid(), text:'Got it. I\'m opening a remote session to take a look.', reply:'Great, thank you!', good:true }, { id:this.uid(), text:'Try restarting and call back if it happens again.', reply:'I already restarted twice… this is frustrating.', good:false } ] }, { id:this.uid(), from:'b', text:'I can see a browser extension eating all the memory — removing it now.' } ] });
+      case 'chatscored': return B({ graded:true, personA:'Customer', personB:'Technician', feedbackCorrect:'Well handled — you made the right calls.', feedbackWrong:'Some replies could be better — review the conversation and try again.', messages:[ { id:this.uid(), from:'a', text:'Hi, I can\'t log in to my email since this morning.' }, { id:this.uid(), from:'q', options:[ { id:this.uid(), text:'Let\'s reset your password together — I\'ll send you a secure link.', reply:'Great, I got the link. It works now!', good:true }, { id:this.uid(), text:'Just wait a while, it usually fixes itself.', reply:'I\'ve already waited two hours…', good:false } ] }, { id:this.uid(), from:'a', text:'Thanks for the quick help!' }, { id:this.uid(), from:'q', options:[ { id:this.uid(), text:'Happy to help! I\'ll document the fix on the ticket and close it.', reply:'Perfect, have a great day.', good:true }, { id:this.uid(), text:'Sure. Bye.', reply:'Oh… okay.', good:false } ] } ] });
       case 'itimeline': return B({ events:[ { id:this.uid(), date:'2019', title:'The beginning', body:'Where the story starts — describe the first milestone.' }, { id:this.uid(), date:'2021', title:'Growing up', body:'The second milestone.' }, { id:this.uid(), date:'2023', title:'Breakthrough', body:'The third milestone.' }, { id:this.uid(), date:'Today', title:'Where we are', body:'The current state.' } ] });
       case 'truefalse': return B({ graded:true, statement:'Autopilot always keeps a human in control.', answer:true, feedbackCorrect:'Correct — a human is always in control.', feedbackWrong:'Not quite — review the material and try again.' });
       case 'fillblank': return B({ graded:true, text:'The Atera brand color is ___ and the AI accent is ___.', answers:['pink','violet'], feedbackCorrect:'Correct.', feedbackWrong:'Check your answers and try again.' });
@@ -597,6 +604,301 @@ class Component extends DCLogic {
       case 'scormpkg': return B({ height:600, name:'', data:'', launch:'', size:0 });
       default: return B({});
     }
+  }
+
+  /* ===== Import from Rise (Articulate) — SCORM / web export zip ===== */
+  pickRiseZip(){ const inp=document.createElement('input'); inp.type='file'; inp.accept='.zip'; inp.style.display='none'; document.body.appendChild(inp);
+    inp.onchange=()=>{ const f=inp.files&&inp.files[0]; document.body.removeChild(inp); if(f) this.importRiseZip(f); }; inp.click(); }
+  async importRiseZip(f){
+    this.toast('Reading Rise package…');
+    try{
+      await this._ensureScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+      const zip = await window.JSZip.loadAsync(f);
+      let b64 = null;
+      const rd = (zip.file(/(^|\/)runtime-data\.js$/i)||[])[0];
+      if(rd){ const t = await rd.async('string'); const m = t.match(/__jsonp\([^,]+,\s*"([A-Za-z0-9+\/=]+)"/); if(m) b64 = m[1]; }
+      if(!b64){ for(const fl of zip.file(/\.(js|html)$/i)){ const t = await fl.async('string');
+        const m = t.match(/__jsonp\("runtime-data[^"]*",\s*"([A-Za-z0-9+\/=]+)"/) || t.match(/window\.courseData\s*=\s*['"]([A-Za-z0-9+\/=]{400,})['"]/); if(m){ b64 = m[1]; break; } } }
+      if(!b64){ this.toast('No Rise course data found in this zip — is it a Rise export?'); return; }
+      const bytes = Uint8Array.from(atob(b64), c=>c.charCodeAt(0));
+      const rc = JSON.parse(new TextDecoder('utf-8').decode(bytes));
+      const conv = await this.riseConvert(rc.course || rc, zip);
+      this.mutate(lib=>{ lib.unshift(conv.item); }, 'Imported Rise course "'+conv.item.title+'"');
+      this.openEditor(conv.item.id);
+      const w = conv.warnings.length ? ' · '+conv.warnings.length+' need'+(conv.warnings.length===1?'s':'')+' review' : '';
+      this.toast('Imported "'+conv.item.title+'" — '+conv.count+' blocks'+w);
+      if(conv.warnings.length) console.warn('Rise import notes:', conv.warnings);
+    }catch(err){ this.toast('Import failed: '+(err.message||err)); }
+  }
+  async riseConvert(course, zip){
+    const warnings = []; const lessons = []; let count = 0;
+    const src = Array.isArray(course.lessons)?course.lessons:[];
+    for(const L of src){
+      if(!L || /^section$/i.test(L.type||'')) continue;
+      const blocks = [];
+      for(const it of (Array.isArray(L.items)?L.items:[])){ const bs = await this.riseItemBlocks(it, zip, warnings); bs.forEach(b=>blocks.push(b)); }
+      count += blocks.length;
+      lessons.push(this.mkLesson(this.risePlain(L.title)||this.risePlain(course.title)||('Lesson '+(lessons.length+1)), blocks));
+    }
+    if(!lessons.length) lessons.push(this.mkLesson('Lesson 1', [ this.defaultBlock('text') ]));
+    const item = { id:this.uid(), kind:'course', title:this.risePlain(course.title)||'Imported Rise course', description:this.risePlain(course.description)||'', author:(this.state.team[0]||{}).name||'Atera Training', updated:this.now(), folderId:this.state.activeFolder||null, cover:'dark', lessons };
+    return { item, warnings, count };
+  }
+  async riseItemBlocks(it, zip, warnings){
+    const subs = Array.isArray(it&&it.items)?it.items:[];
+    const t = (it&&it.type)||'', v = (it&&it.variant)||'';
+    const P = (h)=>this.risePlain(h);
+    try{
+      switch(t){
+        case 'text': case 'note': { const out=[]; subs.forEach(s=>out.push.apply(out, this.riseTextBlocks(s, t==='note'?'note':v))); return out; }
+        case 'list': {
+          const items = subs.map(s=>({ id:this.uid(), text:P(s.paragraph||s.title) })).filter(x=>x.text);
+          if(/check/i.test(v)) return [ this.b('checklist', { title:'', scope:'lesson', items }) ];
+          return [ this.b('list', { variant:/number/i.test(v)?'numbered':'bullets', items }) ];
+        }
+        case 'multimedia': {
+          const out = [];
+          for(const s of subs){ const m = s.media||{};
+            const cap = P(s.caption) || ((s.settings&&s.settings.showMetaData) ? P(s.title) : '');
+            if(m.embed) out.push(this.riseEmbedBlock(m.embed, cap));
+            else if(m.video){ const raw = m.video.url||m.video.key||m.video.originalUrl; const du = await this.riseAsset(zip, raw);
+              if(du && /^data:/.test(du)) out.push(this.b('multimedia', { source:'file', fileSrc:du, fileName:P(s.title)||String(raw||'video').split('/').pop(), caption:cap }));
+              else if(du && /^https?:/.test(du)) out.push(this.b('multimedia', { source:'url', url:du, caption:cap }));
+              else { out.push(this.b('multimedia', { source:'file', fileSrc:'', fileName:'', caption:(cap?cap+' — ':'')+'video file "'+String(raw||'?').split('/').pop()+'" was too large to import — re-upload it here or use a URL' }));
+                warnings.push('Video file "'+String(raw||'?').split('/').pop()+'" too large to carry over — needs re-upload'); } }
+            else if(m.audio){ const du = await this.riseAsset(zip, m.audio.url||m.audio.key||m.audio.originalUrl); out.push(this.b('audio', { title:P(s.title)||'Audio', src:du||'', caption:cap })); }
+            else if(m.attachment){ const raw = m.attachment.url||m.attachment.key||m.attachment.originalUrl; const du = await this.riseAsset(zip, raw);
+              const nm = P(s.title) || String(raw||'file').split('?')[0].split('/').pop();
+              if(du && /^data:/.test(du)) out.push(this.b('attachment', { title:'Resources', files:[{ id:this.uid(), name:nm, size:Math.round(Math.max(0,(du.length-du.indexOf(',')-1))*0.75), src:du }] }));
+              else warnings.push('Attachment "'+nm+'" was too large to carry over — re-add it in a File download block'); } }
+          return out;
+        }
+        case 'image': {
+          const out = [];
+          for(const s of subs){ const im=(s.media&&s.media.image)||{}; const du = await this.riseAsset(zip, im.src||im.url||im.originalUrl||im.key);
+            const cap=P(s.caption), body=P(s.paragraph), head=P(s.heading);
+            if(head||body) out.push(this.b('imagetext', { heading:head, body:body||cap, imgSrc:du, textPos:'right' }));
+            else out.push(this.b('gallery', { images:[{ id:this.uid(), imgSrc:du, caption:cap }] })); }
+          return out;
+        }
+        case 'gallery': {
+          const ims = [];
+          for(const s of subs){ const im=(s.media&&s.media.image)||{}; const du = await this.riseAsset(zip, im.src||im.url||im.originalUrl||im.key); ims.push({ id:this.uid(), imgSrc:du, caption:P(s.caption) }); }
+          return ims.length ? [ this.b('gallery', { images:ims }) ] : [];
+        }
+        case 'divider': {
+          if(/continue/i.test(v)){ let l = P(subs[0]&&subs[0].title)||'Continue'; if(l===l.toUpperCase()) l = l.charAt(0)+l.slice(1).toLowerCase(); return [ this.b('divider', { variant:'continue', label:l }) ]; }
+          if(/spacer/i.test(v)) return [ this.b('divider', { variant:'spacer', height:48 }) ];
+          return [ this.b('divider', { variant:'line' }) ];
+        }
+        case 'html': {
+          const out = [];
+          subs.forEach(s=>{ const doc=s.srcdoc||''; if(!doc) return;
+            const fixed = /position:\s*fixed/i.test(doc);
+            const h = fixed ? 680 : Math.min(760, 320 + ((doc.match(/class="card"|<iframe/gi)||[]).length)*60);
+            out.push(this.b('code', { height:h, code:doc })); });
+          return out;
+        }
+        case 'quote': return subs.map(s=>this.b('statement', { text:P(s.paragraph||s.quote||s.title) })).filter(b=>b.text);
+        case 'table': case 'chart': {
+          const rows = this.riseTableRows(it);
+          if(rows.length) return [ this.b('table', { header:true, rows }) ];
+          warnings.push('Table/chart could not be parsed — imported as plain text');
+          return this.riseFallback(it);
+        }
+        case 'interactive': {
+          if(/accordion|tabs/i.test(v)){ const items = [];
+            for(const s of subs){ const x = { id:this.uid(), title:P(s.title||s.heading), label:P(s.title||s.heading), body:P(s.description||s.paragraph||s.body) }; if(!x.title && !x.body) continue;
+              const im = s.media && s.media.image; if(im){ const du = await this.riseAsset(zip, im.src||im.url||im.originalUrl||im.key); if(du){ x.media = 'image'; x.imgSrc = du; } }
+              items.push(x); }
+            return [ /tabs/i.test(v) ? this.b('tabs', { tabs:items }) : this.b('accordion', { items }) ]; }
+          if(/process|step/i.test(v)){ let hasMedia = false;
+            const steps = [];
+            for(const s of subs){ const st = { id:this.uid(), title:P(s.title||s.heading), body:P(s.description||s.paragraph) }; if(!st.title && !st.body) continue;
+              const im = s.media && s.media.image; if(im){ const du = await this.riseAsset(zip, im.src||im.url||im.originalUrl||im.key); if(du) hasMedia = true; }
+              steps.push(st); }
+            return [ this.b('stepbystep', { noMedia:!hasMedia, steps }) ]; }
+          if(/flash/i.test(v)) return [ this.b('flashcards', { cards: subs.map(s=>({ front:P(s.frontText||(s.front&&s.front.description)||s.title), back:P(s.backText||(s.back&&s.back.description)||s.description) })).filter(c=>c.front||c.back) }) ];
+          if(/timeline/i.test(v)) return [ this.b('itimeline', { events: subs.map(s=>({ id:this.uid(), date:P(s.label||s.date), title:P(s.title||s.heading), body:P(s.description||s.paragraph) })).filter(x=>x.title||x.body) }) ];
+          if(/label|graphic|hotspot/i.test(v)){
+            const imRef = (it.media&&it.media.image) || ((subs[0]&&subs[0].media&&subs[0].media.image)||null);
+            const imgSrc = imRef ? await this.riseAsset(zip, imRef.src||imRef.url||imRef.originalUrl||imRef.key) : null;
+            const num = (x, d)=>{ const n = parseFloat(x); return isFinite(n) ? Math.max(2, Math.min(98, n<=1 ? n*100 : n)) : d; };
+            const markers = subs.filter(s=>P(s.title||s.heading)||P(s.description||s.paragraph)).map((s,i)=>({ id:this.uid(),
+              x:num(s.x!=null?s.x:(s.placementX!=null?s.placementX:(s.left!=null?s.left:(s.percentX!=null?s.percentX:null))), 20+((i*25)%60)),
+              y:num(s.y!=null?s.y:(s.placementY!=null?s.placementY:(s.top!=null?s.top:(s.percentY!=null?s.percentY:null))), 25+((i*20)%50)),
+              title:P(s.title||s.heading), body:P(s.description||s.paragraph) }));
+            if(markers.length){ if(!imgSrc) warnings.push('Labeled graphic imported without its image — add it in block settings');
+              return [ this.b('labeledgraphic', { imgSrc, markers }) ]; }
+          }
+          if(/sort/i.test(v)){
+            const cats = subs.map(s=>P(s.title||s.heading)).filter(Boolean);
+            const items = []; subs.forEach((s,ci)=>{ (Array.isArray(s.items)?s.items:(Array.isArray(s.cards)?s.cards:[])).forEach(x=>{ const tx = P(x.title||x.text||x.paragraph||x.description); if(tx) items.push({ id:this.uid(), text:tx, cat:ci }); }); });
+            if(cats.length>1 && items.length) return [ this.b('sorting', { prompt:P(it.title)||'Drag each item into the correct category.', categories:cats, items }) ];
+          }
+          if(/button/i.test(v)){
+            const cards = subs.map(s=>({ id:this.uid(), icon:'globe', tone:'pink', title:P(s.title||s.label)||'Open link', body:P(s.description)||'', linkText:'Open', linkUrl:String(s.url||s.href||s.destination||(s.settings&&s.settings.url)||'') })).filter(c=>c.linkUrl||c.title);
+            if(cards.length) return [ this.b('cardgrid', { cols:Math.min(2,cards.length), cards }) ];
+          }
+          warnings.push('Interactive "'+v+'" simplified to text');
+          return this.riseFallback(it);
+        }
+        case 'knowledgeCheck': {
+          const out = [];
+          for(const s of subs){ const q = P(s.title||s.question); const answers = Array.isArray(s.answers)?s.answers:[];
+            if(/match/i.test(v) || answers.some(a=>a && (a.matchTitle!=null || a.match!=null))){
+              const pairs = answers.map(a=>({ id:this.uid(), left:P(a.title||a.text), right:P(a.matchTitle!=null?a.matchTitle:(a.match!=null?a.match:'')) })).filter(p=>p.left||p.right);
+              if(pairs.length){ out.push(this.b('matching', { graded:true, pairs, feedbackCorrect:P(s.correctFeedback)||'All matched correctly.', feedbackWrong:P(s.incorrectFeedback)||'Some matches are off \u2014 try again.' })); continue; } }
+            if(/blank|fill/i.test(v)){
+              const ans = answers.map(a=>P(a.title||a.text)).filter(Boolean);
+              const txt = q && /_{2,}/.test(q) ? q : (q ? q+' ___' : '___');
+              if(ans.length){ out.push(this.b('fillblank', { graded:true, text:txt.replace(/_{2,}/g,'___'), answers:[ans[0]], feedbackCorrect:P(s.correctFeedback)||'Correct.', feedbackWrong:P(s.incorrectFeedback)||'Check your answer and try again.' })); continue; }
+              const fb = this.riseFallback({ items:[s] }); warnings.push('Fill-in-the-blank "'+q+'" needs review'); if(fb.length){ out.push.apply(out, fb); continue; } }
+            if(answers.length){ out.push(this.b('knowledge', { graded:true, multi: /response/i.test(v) || answers.filter(a=>a.correct).length>1, question:q,
+              options: answers.map(a=>({ id:this.uid(), text:P(a.title||a.text), correct:!!a.correct })),
+              feedbackCorrect:P(s.correctFeedback)||'That\u2019s right.', feedbackWrong:P(s.incorrectFeedback)||'Not quite \u2014 review and try again.' })); }
+            else { warnings.push('Knowledge check "'+(q||v)+'" needs review'); out.push.apply(out, this.riseFallback(it)); break; } }
+          return out;
+        }
+        default: {
+          const fb = this.riseFallback(it);
+          if(fb.length) warnings.push('Unsupported Rise block "'+t+(v?(' / '+v):'')+'" imported as plain text');
+          return fb;
+        }
+      }
+    }catch(err){ warnings.push('Block "'+t+'" failed to convert: '+(err.message||err)); return this.riseFallback(it); }
+  }
+  riseTextBlocks(s, v){
+    const toks = [].concat(this.riseTokens(s.heading), this.riseTokens(s.paragraph)).filter(t=>t.kind==='list' || (t.text && !/^heading$/i.test(t.text)));
+    if(!toks.length) return [];
+    if(v && /note|callout/i.test(v)) return [ this.b('callout', { variant:'note', title:'', body: toks.map(t=>t.kind==='list'?t.items.join('\n'):t.text).join('\n\n') }) ];
+    if(v && /statement/i.test(v)) return [ this.b('statement', { text: toks.filter(t=>t.kind==='para').map(t=>t.text).join(' ') }) ];
+    // group consecutive paragraphs of the same style into blocks; lists become native list blocks in place
+    const runs = [];
+    toks.forEach(t=>{
+      if(t.kind==='list'){ runs.push({ kind:'list', tok:t }); return; }
+      const kind = t.rem>=3 ? 'h' : (t.strong || t.rem>=2.25) ? 'sub' : t.rem>=1.5 ? 'big' : 'p';
+      const last = runs[runs.length-1];
+      if(last && last.kind===kind) last.paras.push(t); else runs.push({ kind, paras:[t] });
+    });
+    const out = [];
+    for(let i=0;i<runs.length;i++){
+      const r = runs[i];
+      if(r.kind==='list'){ out.push(this.b('list', { variant:r.tok.ordered?'numbered':'bullets', items:r.tok.items.map(x=>({ id:this.uid(), text:x })) })); continue; }
+      const txt = r.paras.map(p=>p.text);
+      if(r.kind==='h'){
+        const hstyle = Math.max.apply(null, r.paras.map(p=>p.rem)) >= 4.5 ? 'title' : 'section';
+        const next = runs[i+1];
+        if(next && next.kind==='p'){ out.push(this.b('text', { hstyle, heading:txt.join(' '), body:next.paras.map(p=>p.text).join('\n\n') })); i++; }
+        else out.push(this.b('heading', { hstyle, text:txt.join(' ') }));
+      }
+      else if(r.kind==='sub') out.push(this.b('heading', { hstyle:'subheading', text:txt.join(' ') }));
+      else if(r.kind==='big') out.push(this.b('paragraph', { fsize:'L', body:txt.join('\n\n') }));
+      else out.push(this.b('paragraph', { body:txt.join('\n\n') }));
+    }
+    return out;
+  }
+  riseTokens(html){
+    if(!html) return [];
+    const d = document.createElement('div'); d.innerHTML = String(html);
+    const root = d.querySelector('[data-editor-id]') || d;
+    const toks = [];
+    const remOf = (el)=>{ let rem = 0; const scan = (x)=>{ const st = x.getAttribute && x.getAttribute('style'); if(st){ const m = st.match(/font-size:\s*([\d.]+)rem/); if(m) rem = Math.max(rem, parseFloat(m[1])); } };
+      scan(el); el.querySelectorAll('[style*="font-size"]').forEach(scan); return rem || 1; };
+    const txtOf = (el)=>(el.textContent||'').replace(/\u00a0/g,' ').replace(/\s+/g,' ').trim();
+    const strongOf = (el)=>{ const t = txtOf(el); let sl = 0; el.querySelectorAll('strong,b').forEach(x=>{ sl += (x.textContent||'').trim().length; }); return t.length>0 && sl >= t.length*0.7; };
+    const walk = (node)=>{
+      for(const el of Array.from(node.children||[])){
+        const tag = (el.tagName||'').toLowerCase();
+        if(tag==='ol' || tag==='ul'){ const items = Array.from(el.children).filter(x=>(x.tagName||'').toLowerCase()==='li').map(txtOf).filter(Boolean); if(items.length) toks.push({ kind:'list', ordered:tag==='ol', items }); }
+        else if(tag==='h1' || tag==='h2'){ const t = txtOf(el); if(t) toks.push({ kind:'para', text:t, rem:Math.max(remOf(el), tag==='h1'?5:3.5), strong:true }); }
+        else if(tag==='h3' || tag==='h4'){ const t = txtOf(el); if(t) toks.push({ kind:'para', text:t, rem:Math.max(remOf(el), 2.5), strong:true }); }
+        else if(tag==='p' || tag==='blockquote' || tag==='li'){ const t = txtOf(el); if(t) toks.push({ kind:'para', text:t, rem:remOf(el), strong:strongOf(el) }); }
+        else if(el.children && el.children.length){ walk(el); }
+        else { const t = txtOf(el); if(t) toks.push({ kind:'para', text:t, rem:remOf(el), strong:strongOf(el) }); }
+      }
+    };
+    if(!root.children || !root.children.length){ const t = txtOf(root); return t ? [{ kind:'para', text:t, rem:1, strong:false }] : []; }
+    walk(root);
+    return toks;
+  }
+  risePlain(html){ if(html==null) return ''; const d=document.createElement('div'); d.innerHTML=String(html); return (d.textContent||'').replace(/\u00a0/g,' ').replace(/\s+/g,' ').trim(); }
+  riseParas(html){
+    if(!html) return [];
+    const d = document.createElement('div'); d.innerHTML = String(html);
+    let ps = Array.prototype.slice.call(d.querySelectorAll('p,h1,h2,h3,h4,li'));
+    if(!ps.length) ps = [d];
+    return ps.map(p=>{
+      let rem = 1;
+      const scan = (el)=>{ const st = el.getAttribute && el.getAttribute('style'); if(st){ const m = st.match(/font-size:\s*([\d.]+)rem/); if(m) rem = Math.max(rem, parseFloat(m[1])); } };
+      scan(p); p.querySelectorAll('[style*="font-size"]').forEach(scan);
+      const text = (p.textContent||'').replace(/\u00a0/g,' ').replace(/\s+/g,' ').trim();
+      let sl = 0; p.querySelectorAll('strong,b').forEach(x=>{ sl += (x.textContent||'').trim().length; });
+      return { text, rem, strong: text.length>0 && sl >= text.length*0.7 };
+    }).filter(p=>p.text);
+  }
+  riseEmbedBlock(emb, caption){
+    let u = String(emb.originalUrl||'').replace(/&amp;/g,'&');
+    try{ const s = String(emb.src||''); const qi = s.indexOf('?'); if(qi>=0){ const uu = new URLSearchParams(s.slice(qi+1)).get('url'); if(uu) u = uu.replace(/&amp;/g,'&'); } }catch(e){}
+    const vm = u.match(/vimeo\.com\/(?:video\/)?(\d+)(?:\/([a-zA-Z0-9]+))?/);
+    if(vm){ const h = vm[2] || (u.match(/[?&]h=([a-zA-Z0-9]+)/)||[])[1]; return this.b('multimedia', { source:'url', url:'https://vimeo.com/'+vm[1]+(h?('?h='+h):''), caption:caption||'' }); }
+    const yt = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{11})/);
+    if(yt) return this.b('multimedia', { source:'url', url:'https://www.youtube.com/watch?v='+yt[1], caption:caption||'' });
+    const src = u || (emb.src ? ((/^\/\//.test(emb.src)?'https:':'')+emb.src) : '');
+    return this.b('multimedia', { source:'embed', embed:'<iframe src="'+src+'" style="width:100%;height:100%;border:none" allow="autoplay; fullscreen" allowfullscreen></iframe>', caption:caption||'' });
+  }
+  async riseAsset(zip, url){
+    if(!url) return null; const u = String(url);
+    if(/^data:/.test(u)) return u;
+    const name = u.split('?')[0].split('#')[0].split('/').pop();
+    if(!name) return null;
+    const esc = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const fl = ((zip.file(new RegExp('(^|\\/)assets\\/'+esc+'$'))||[])[0]) || ((zip.file(new RegExp('(^|\\/)'+esc+'$'))||[])[0]);
+    if(!fl) return /^https?:/.test(u) ? u : null;
+    const b64 = await fl.async('base64');
+    const ext = (name.split('.').pop()||'').toLowerCase();
+    const mime = { png:'image/png', jpg:'image/jpeg', jpeg:'image/jpeg', gif:'image/gif', webp:'image/webp', svg:'image/svg+xml', mp4:'video/mp4', webm:'video/webm', mp3:'audio/mpeg', m4a:'audio/mp4', wav:'audio/wav' }[ext] || 'application/octet-stream';
+    const du = 'data:'+mime+';base64,'+b64;
+    if(b64.length <= 4000000) return du;
+    // big image: downscale to keep it embeddable; other big files are dropped
+    if(/^image\/(png|jpeg|webp)/.test(mime)){
+      try{
+        const img = await new Promise((res, rej)=>{ const im = new Image(); im.onload = ()=>res(im); im.onerror = rej; im.src = du; });
+        const k = Math.min(1, 1600/Math.max(img.width, img.height));
+        const c = document.createElement('canvas'); c.width = Math.round(img.width*k); c.height = Math.round(img.height*k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        const out = c.toDataURL('image/jpeg', .85);
+        if(out.length < 4200000) return out;
+      }catch(e){}
+    }
+    return null;
+  }
+  riseTableRows(it){
+    // find the first 2D array anywhere in the item — Rise stores table cells as rows of rich-text cells
+    let found = null;
+    const scan = (o, depth)=>{ if(!o || depth>7 || found) return;
+      if(Array.isArray(o)){
+        if(o.length>1 && o.every(r=>Array.isArray(r) && r.length)){ found = o; return; }
+        return o.forEach(x=>scan(x, depth+1));
+      }
+      if(typeof o==='object') Object.keys(o).forEach(k=>scan(o[k], depth+1)); };
+    scan(it, 0);
+    if(!found) return [];
+    const cell = (c)=>{ if(c==null) return ''; if(typeof c==='string') return this.risePlain(c);
+      if(typeof c==='object') return this.risePlain(c.value!=null?c.value:(c.paragraph!=null?c.paragraph:(c.text!=null?c.text:(c.content!=null?c.content:'')))); return String(c); };
+    const rows = found.map(r=>r.map(cell));
+    // drop fully-empty rows/cols
+    const keep = rows.filter(r=>r.some(x=>x));
+    return keep.length>1 ? keep : [];
+  }
+  riseFallback(it){
+    const texts = [];
+    const walk = (o)=>{ if(!o) return;
+      if(Array.isArray(o)) return o.forEach(walk);
+      if(typeof o==='object'){ ['heading','title','paragraph','description','caption','label'].forEach(k=>{ if(typeof o[k]==='string'){ const s=this.risePlain(o[k]); if(s) texts.push(s); } }); if(Array.isArray(o.items)) walk(o.items); } };
+    walk(it);
+    const body = texts.filter((x,i)=>texts.indexOf(x)===i).join('\n\n').trim();
+    return body ? [ this.b('paragraph', { body }) ] : [];
   }
 
   /* ============================== shared UI ============================== */
@@ -787,7 +1089,7 @@ class Component extends DCLogic {
           this.h('div', { style:{ font:'400 13px/18px var(--font-roboto)', color:'var(--content-neutral-secondary)', marginTop:'3px' } }, sorted.length+' item'+(sorted.length===1?'':'s'))),
         this.h('div', { style:{ flex:1 } }),
         this.saveButton(),
-        this.btn('Create with AI', () => this.setState({ modal:'ai', aiText:'', aiAuthor:(this.state.team[0]||{}).name||'', aiLessons:'auto', aiQuiz:true, aiBusy:false, aiErr:null }), 'secondary', { icon:'sparks', style:{ color:'var(--content-ai-text-bold)', borderColor:'var(--violet-200)' } }),
+        this.btn('Import Rise zip', () => this.pickRiseZip(), 'secondary', { icon:'pkg' }),
         this.btn('New content', () => this.setState({ modal:'create', newKind:'course', newTitle:'', newAuthor:'', newFolderId:this.state.activeFolder||null, folderMenuOpen:false }), 'primary', { icon:'plus' })),
       this.h('div', { style:{ display:'flex', alignItems:'center', gap:'10px', marginTop:'20px', flexWrap:'wrap' } },
         this.h('div', { style:{ display:'flex', alignItems:'center', gap:'8px', padding:'0 12px', height:'34px', width:mob?'100%':'300px', border:'1px solid '+(q?'var(--gray-400)':'var(--border-neutral-secondary)'), borderRadius:'8px', background:q?'#fff':'var(--gray-50)', color:'var(--content-neutral-tertiary)' } },
@@ -1172,6 +1474,7 @@ class Component extends DCLogic {
       + '{"type":"list","variant":"numbered"|"bullets","items":[{"text":string}]} — a styled list; numbered for ordered points, bullets otherwise\n'
       + '{"type":"itimeline","events":[{"date":string,"title":string,"body":string}]} — an interactive clickable timeline; use for chronological/milestone content\n'
       + '{"type":"chatsim","personA":string,"personB":string,"messages":[{"from":"a"|"b","text":string} | {"from":"q","options":[{"text":string,"reply":string,"good":boolean}]}]} — a chat revealed message by message; "q" messages pause the chat and let the learner CHOOSE personB\'s reply (2-3 options, exactly one good:true, each with personA\'s reaction as "reply"). Great for support dialogues, objection handling, decision practice — include 1-2 "q" choice points when the content suits it\n'
+      + '{"type":"chatscored","graded":true,"personA":string,"personB":string,"feedbackCorrect":string,"feedbackWrong":string,"messages":[...same as chatsim...]} — a GRADED chat scenario that counts toward the final score; must include 2-3 "q" choice points (exactly one good:true each); correct only when every choice is good. Use for assessed conversation practice\n'
       + (file && file.media==='application/pdf' ? '{"type":"imagetext","heading":string,"body":string,"textPos":"right"|"left"|"top"|"bottom","page":number,"crop":{"x":number,"y":number,"w":number,"h":number}} — shows a screenshot/figure cropped from that PDF page. "crop" is the TIGHT bounding box of only the figure/screenshot itself, in relative page coordinates (0-1, x/y = top-left corner) — never include surrounding body text, headers or page margins; omit crop only if the figure truly fills the page. Layout rule: wide figures (wider than tall) get textPos "bottom" or "top"; tall figures get "right" or "left". Use one whenever a source page has a useful screenshot, diagram or figure.\n'
         + '{"type":"gallery","layout":"grid","images":[{"caption":string,"page":number,"crop":{"x":number,"y":number,"w":number,"h":number}}]} — when a page contains SEVERAL screenshots/figures, crop each one separately (own tight crop box) into one gallery block instead of a single imagetext of the whole page. Give each image a short caption.\n' : '')
       + 'Rules: 4-8 blocks per lesson; every lesson starts with a text block introducing it; '
@@ -1353,6 +1656,7 @@ class Component extends DCLogic {
       const k = arrs[b.type];
       if(k) nb[k] = Array.isArray(b[k]) ? b[k].map(x=>Object.assign({}, x, { id:this.uid() })) : [];
       if(b.type==='knowledge'){ nb.graded = true; nb.multi = !!b.multi; if(!nb.options.some(o=>o.correct)) nb.options.forEach((o,i)=>o.correct = i===0); }
+      if(b.type==='chatsim'||b.type==='chatscored'){ nb.messages = (Array.isArray(b.messages)?b.messages:[]).map(m=>{ const nm=Object.assign({}, m, { id:this.uid() }); if(Array.isArray(nm.options)) nm.options=nm.options.map(o=>Object.assign({}, o, { id:this.uid() })); return nm; }); if(b.type==='chatscored') nb.graded = true; }
       if(b.type==='imagetext'){ const pg = parseInt(b.page, 10); if(!nb.imgSrc && pg>=1 && pages[pg-1]) nb.imgSrc = pages[pg-1]; delete nb.page; delete nb.crop; if(!nb.textPos) nb.textPos='right'; }
       return nb;
     };
@@ -1395,13 +1699,14 @@ class Component extends DCLogic {
       this.h('input', { value: it.title, size: Math.max(6, (it.title||'').length + 1), onChange:e=>this.withItem(i=>i.title=e.target.value), style:{ border:'none', outline:'none', font:'600 16px/1 var(--font-inter)', letterSpacing:'-.3px', color:'var(--content-neutral-primary)', maxWidth:'440px', padding:'6px 8px', borderRadius:'7px' }, onFocus:e=>e.target.style.background='var(--gray-100)', onBlur:e=>e.target.style.background='transparent' }),
       this.h('span', { style:{ flex:'none', padding:'3px 9px', borderRadius:'999px', font:'500 11px/16px var(--font-roboto)', background:'var(--gray-100)', color:'var(--content-neutral-secondary)' } }, isCourse?'Course':'Single lesson'),
       this.h('div', { style:{ flex:1 } }),
+      this.rtlToggle(it),
       this.saveButton(),
       this.btn('Preview', ()=>this.startLearner(), 'secondary', { icon:'eye', sm:true }),
       this.btn('Export SCORM', ()=>this.setState({ modal:'export' }), 'dark', { icon:'download', sm:true }));
 
     const idx = this.state.currentLessonIdx;
-    const canvas = this.h('div', { className:'lc-scroll', 'data-canvas':'1', style:{ flex:1, overflowY:'auto', overflowX:'hidden', height:'calc(100vh - 58px)', background:'var(--bg-lvl-1, #f4f4f4)' } },
-      this.h('div', { onClick:(e)=>{ if(e.target===e.currentTarget) this.setState({ selectedBlockId:null, popover:null }); }, style:{ maxWidth:'1040px', margin:'0 auto', padding:(this.mob()?'18px 14px 140px':'26px 64px 140px'), minHeight:'100%' } },
+    const canvas = this.h('div', { className:'lc-scroll', 'data-canvas':'1', style:{ flex:1, overflowY:'auto', overflowX:'hidden', height:'calc(100vh - 58px)', background:'#fff' } },
+      this.h('div', { onClick:(e)=>{ if(e.target===e.currentTarget) this.setState({ selectedBlockId:null, popover:null }); }, dir:(it.rtl?'rtl':undefined), style:{ maxWidth:'1040px', margin:'0 auto', padding:(this.mob()?'18px 14px 140px':'26px 64px 140px'), minHeight:'100%' } },
         this.editorHero(it, lesson, idx, isCourse),
         this.h('div', { onClick:(e)=>{ if(e.target===e.currentTarget) this.setState({ selectedBlockId:null, popover:null }); }, style:{ marginTop:'6px' } },
           lesson.blocks.length === 0 ? this.editorEmpty() : this.h(React.Fragment, null, this.insertBar(0), lesson.blocks.map((bk, i) => this.h(React.Fragment, { key:bk.id }, this.blockShell(bk, i, lesson.blocks.length), this.insertBar(i+1)))),
@@ -1430,7 +1735,7 @@ class Component extends DCLogic {
     const on = cp.enabled !== false;
     return this.h('div', { className:'lc-scroll', style:{ flex:1, overflowY:'auto', overflowX:'hidden', height:'calc(100vh - 58px)' } },
       this.h('div', { style:{ maxWidth:'1040px', margin:'0 auto', padding:(this.mob()?'18px 14px 120px':'26px 64px 120px') } },
-        this.h('div', { style:{ background:'#fff', border:'1px solid var(--border-neutral-secondary)', borderRadius:'16px', boxShadow:'var(--shadow-xs)', padding:'40px 44px', opacity:on?1:.45, transition:'opacity .15s', overflow:'hidden' } },
+        this.h('div', { dir:(it.rtl?'rtl':undefined), style:{ background:'#fff', border:'1px solid var(--border-neutral-secondary)', borderRadius:'16px', boxShadow:'var(--shadow-xs)', padding:'40px 44px', opacity:on?1:.45, transition:'opacity .15s', overflow:'hidden' } },
           this.h('div', { style:{ margin:'-40px -44px 28px', height:'190px' } }, this.imageSlot('cover-'+it.id, 'Drop a cover image (optional)')),
           this.h('div', { style:{ font:'500 12px/16px var(--font-roboto)', letterSpacing:'.05em', textTransform:'uppercase', color:'var(--content-neutral-tertiary)', marginBottom:'10px' } }, 'Course'),
           this.h('input', { value:it.title, onChange:e=>this.withItem(i=>i.title=e.target.value), placeholder:'Course title', style:{ width:'100%', background:'transparent', border:'none', outline:'none', color:'var(--content-neutral-primary)', font:'600 34px/42px var(--font-inter)', letterSpacing:'-1px', padding:0, marginBottom:'8px' } }),
@@ -1448,9 +1753,17 @@ class Component extends DCLogic {
         this.h('div', { style:{ marginTop:'10px', font:'400 12px/17px var(--font-roboto)', color:'var(--content-neutral-tertiary)' } }, 'Learners see this before the first lesson — in preview and in the SCORM export. The contents list follows your lessons automatically. Title and description are editable right on the cover.')));
   }
 
+  rtlToggle(it){
+    const on = !!it.rtl;
+    return this.h('button', { onClick:()=>this.withItem(i=>i.rtl=!i.rtl),
+      title: on ? 'Right-to-left is on — learners see this training in RTL (Hebrew, Arabic). Click to switch back.' : 'Switch this training to right-to-left — for Hebrew or Arabic content',
+      style:{ display:'inline-flex', alignItems:'center', gap:'7px', height:'32px', padding:'0 12px', borderRadius:'8px', cursor:'pointer', font:'500 12.5px/1 var(--font-roboto)', border:'1px solid '+(on?'var(--gray-1000)':'var(--border-neutral-primary)'), background:on?'var(--gray-1000)':'#fff', color:on?'#fff':'var(--content-neutral-secondary)', transition:'background .15s' },
+      onMouseEnter:e=>{ if(!on) e.currentTarget.style.background='var(--gray-50)'; }, onMouseLeave:e=>{ if(!on) e.currentTarget.style.background='#fff'; } },
+      this.h('span', { style:{ font:'600 13px/1 var(--font-inter)' } }, 'א'), 'RTL');
+  }
   editorFooter(it, idx, isCourse){
     const last = !isCourse || idx === it.lessons.length-1;
-    return this.h('div', { style:{ marginTop:'40px', paddingTop:'24px', borderTop:'1px solid var(--border-neutral-secondary)', display:'flex', alignItems:'center', gap:'12px' } },
+    return this.h('div', { dir:'ltr', style:{ marginTop:'40px', paddingTop:'24px', borderTop:'1px solid var(--border-neutral-secondary)', display:'flex', alignItems:'center', gap:'12px' } },
       isCourse && idx>0 ? this.btn('Previous', ()=>this.setState({ currentLessonIdx:idx-1, selectedBlockId:null, popover:null, insertMenu:null }), 'secondary', { icon:'arrowLeft' }) : null,
       this.h('div', { style:{ flex:1 } }),
       this.h('span', { style:{ font:'400 12px/16px var(--font-roboto)', color:'var(--content-neutral-tertiary)' } }, 'Learners see this footer at the end of every lesson'),
@@ -1498,7 +1811,7 @@ class Component extends DCLogic {
     return this.h('div', { key:'ins'+index, className:'ins-bar', onClick:(e)=>{ e.stopPropagation(); this.openInsertMenu(index); },
       onDragOver:(e)=>{ if(this.state.dragBlock==null) return; e.preventDefault(); if(this.state.dropAt!==index) this.setState({ dropAt:index }); },
       onDrop:(e)=>{ e.preventDefault(); this.dropBlockAt(index); },
-      style:{ position:'relative', height:'60px', margin:'-2px 0 -44px', cursor:'pointer', zIndex: menu?45:14 },
+      style:{ position:'relative', height:'22px', margin:'-3px 0 -19px', cursor:'pointer', zIndex: menu?45:14 },
       onMouseEnter:e=>{ const c=e.currentTarget.querySelector('.ins-c'); if(c) c.style.opacity=1; }, onMouseLeave:e=>{ const c=e.currentTarget.querySelector('.ins-c'); if(c && !menu) c.style.opacity=0; } },
       drop ? this.h('div', { style:{ position:'absolute', left:0, right:0, top:'50%', height:'3px', marginTop:'-1.5px', borderRadius:'2px', background:'var(--gray-400)' } }) : null,
       this.h('div', { className:'ins-c', style:{ position:'absolute', inset:0, display:'flex', alignItems:'center', opacity: menu?1:0, transition:'opacity .15s', pointerEvents:'none' } },
@@ -1547,14 +1860,14 @@ class Component extends DCLogic {
     const bleed = bk.width === 'full' || bk.width === 'wide';
     const cardStyle = bleed
       ? { position:'relative', background:'transparent', padding:'0', border:'none', boxShadow:'none', borderRadius:'0' }
-      : { position:'relative', borderRadius:'16px', background:'#fff', padding:'6px 24px', border:'1px solid '+(sel?'var(--gray-400)':'var(--border-neutral-secondary)'), boxShadow: sel?'var(--shadow-md)':'var(--shadow-xs)', transition:'box-shadow .12s, border-color .12s' };
+      : { position:'relative', borderRadius:'14px', background: sel?'#fff':'transparent', padding:'6px 24px', border:'1px solid '+(sel?'var(--gray-400)':'transparent'), boxShadow: sel?'var(--shadow-md)':'none', transition:'box-shadow .12s, border-color .12s, background .12s' };
     return this.h('div', { key:'shell', className:'lc-block', 'data-bid':bk.id,
       onClick:(e)=>{ if(this.state.selectedBlockId !== bk.id) this.setState({ selectedBlockId:bk.id, popover:null }); },
       onDragOver:(e)=>{ if(this.state.dragBlock==null) return; e.preventDefault(); const r=e.currentTarget.getBoundingClientRect(); const at=(e.clientY - r.top) < r.height/2 ? i : i+1; if(this.state.dropAt!==at) this.setState({ dropAt:at }); },
       onDrop:(e)=>{ e.preventDefault(); this.dropBlockAt(this.state.dropAt); },
-      style:{ position:'relative', paddingTop:'46px', opacity: this.state.dragBlock===i ? .45 : 1 },
-      onMouseEnter:e=>{ const t=e.currentTarget.querySelector('.blk-tools'); if(t){ t.style.opacity=1; t.style.pointerEvents='auto'; } const g=e.currentTarget.querySelector('.blk-grip'); if(g) g.style.opacity=1; const r=e.currentTarget.querySelector('.blk-ring'); if(r && !sel && !bleed) r.style.boxShadow='var(--shadow-sm)'; },
-      onMouseLeave:e=>{ const t=e.currentTarget.querySelector('.blk-tools'); if(t && !active){ t.style.opacity=0; t.style.pointerEvents='none'; } const g=e.currentTarget.querySelector('.blk-grip'); if(g && !(this.state.insertMenu && this.state.insertMenu.gutter===i)) g.style.opacity=0; const r=e.currentTarget.querySelector('.blk-ring'); if(r && !sel && !bleed) r.style.boxShadow='var(--shadow-xs)'; } },
+      style:{ position:'relative', paddingTop:'16px', opacity: this.state.dragBlock===i ? .45 : 1 },
+      onMouseEnter:e=>{ const t=e.currentTarget.querySelector('.blk-tools'); if(t){ t.style.opacity=1; t.style.pointerEvents='auto'; } const g=e.currentTarget.querySelector('.blk-grip'); if(g) g.style.opacity=1; const r=e.currentTarget.querySelector('.blk-ring'); if(r && !sel && !bleed) r.style.borderColor='var(--border-neutral-secondary)'; },
+      onMouseLeave:e=>{ const t=e.currentTarget.querySelector('.blk-tools'); if(t && !active){ t.style.opacity=0; t.style.pointerEvents='none'; } const g=e.currentTarget.querySelector('.blk-grip'); if(g && !(this.state.insertMenu && this.state.insertMenu.gutter===i)) g.style.opacity=0; const r=e.currentTarget.querySelector('.blk-ring'); if(r && !sel && !bleed) r.style.borderColor='transparent'; } },
       (()=>{ const gOpen = this.state.insertMenu && this.state.insertMenu.gutter === i;
       return this.h('div', { className:'blk-grip', style:{ position:'absolute', left:'-58px', top:'50%', transform:'translateY(-50%)', display:'flex', alignItems:'center', gap:'2px', opacity:gOpen?1:0, transition:'opacity .12s', zIndex:gOpen?45:15 } },
         this.h('button', { title:'Add a block below', onClick:(e)=>{ e.stopPropagation(); this.openInsertMenu(i+1); },
@@ -1581,7 +1894,7 @@ class Component extends DCLogic {
     const isStyle = this.state.popover && this.state.popover.id===bk.id && this.state.popover.kind==='style';
     const isFormat = this.state.popover && this.state.popover.id===bk.id && this.state.popover.kind==='format';
     const cluster = (children)=>this.h('div', { style:{ display:'flex', alignItems:'center', gap:'2px', background:'#fff', borderRadius:'11px', padding:'4px', boxShadow:'var(--shadow-md)', border:'1px solid var(--border-neutral-secondary)' } }, children);
-    return this.h('div', { className:'blk-tools', style:{ position:'absolute', top:'6px', left:0, right:0, display:'flex', alignItems:'center', justifyContent:'space-between', opacity:active?1:0, transition:'opacity .12s', zIndex:16, pointerEvents:active?'auto':'none' } },
+    return this.h('div', { className:'blk-tools', dir:'ltr', style:{ position:'absolute', top:'2px', left:0, right:0, zIndex:30, display:'flex', alignItems:'center', justifyContent:'space-between', opacity:active?1:0, transition:'opacity .12s', zIndex:16, pointerEvents:active?'auto':'none' } },
       cluster([
         this.h('button', { key:'lbl', onClick:(e)=>{ e.stopPropagation(); if(this.canSwitchType(bk)) this.togglePop(bk.id,'switch'); else this.openContent(bk.id); }, style:{ display:'inline-flex', alignItems:'center', gap:'7px', padding:'5px 9px', border:'none', background:(pop==='switch')?'var(--gray-100)':'transparent', cursor:'pointer', font:'600 12px/1 var(--font-roboto)', color:'var(--content-neutral-primary)', borderRadius:'7px', position:'relative' }, onMouseEnter:e=>e.currentTarget.style.background='var(--gray-100)', onMouseLeave:e=>{ if(pop!=='switch') e.currentTarget.style.background='transparent'; } }, this.ic(meta.icon,15,'var(--content-neutral-secondary)'), meta.name, this.ic('chevDown',13,'var(--content-neutral-tertiary)')),
         this.h('div', { key:'d', style:{ width:'1px', height:'20px', background:'var(--border-neutral-secondary)', margin:'0 2px' } }),
@@ -1659,7 +1972,7 @@ class Component extends DCLogic {
     const bg = bk.bg || 'light';
     const M = { light:{}, gray:{ bg:'var(--gray-100)' }, tint:{ bg:'var(--gray-100)' }, brand:{ bg:'var(--gray-1000)', dark:true }, dark:{ bg:'#1a1a1a', dark:true }, black:{ bg:'#0a0a0a', dark:true } }[bg] || {};
     const vpad = { S:'8px', M:'18px', L:'40px' }[bk.pad || 'M'];
-    const style = { paddingTop:vpad, paddingBottom:vpad, textAlign: bk.align || 'left' };
+    const style = { paddingTop:vpad, paddingBottom:vpad, textAlign: (bk.align==='center'?'center':'start') };
     if(M.bg){ style.background=M.bg; style.paddingLeft='28px'; style.paddingRight='28px'; style.borderRadius='16px'; }
     if(M.dark){ Object.assign(style, {
       '--content-neutral-primary':'#ffffff',
@@ -1691,7 +2004,7 @@ class Component extends DCLogic {
   popShell(title, children){
     return this.h(React.Fragment, null,
       this.h('div', { key:'bd', onClick:(e)=>{ e.stopPropagation(); this.setState({ popover:null, fontMenu:null }); }, style:{ position:'fixed', inset:0, zIndex:40 } }),
-      this.h('div', { key:'pp', onClick:e=>e.stopPropagation(), style:{ position:'absolute', top:'42px', left:0, zIndex:50, width:'256px', background:'#fff', borderRadius:'14px', boxShadow:'var(--shadow-lg)', border:'1px solid var(--border-neutral-secondary)', padding:'14px', animation:'lc-pop .14s ease' } },
+      this.h('div', { key:'pp', onClick:e=>e.stopPropagation(), dir:'ltr', style:{ position:'absolute', top:'42px', left:0, zIndex:50, width:'256px', background:'#fff', borderRadius:'14px', boxShadow:'var(--shadow-lg)', border:'1px solid var(--border-neutral-secondary)', padding:'14px', animation:'lc-pop .14s ease' } },
         this.h('div', { style:{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'12px' } },
           this.h('div', { style:{ font:'600 13px/1 var(--font-inter)', flex:1, color:'var(--content-neutral-primary)' } }, title),
           this.iconBtn('x', ()=>this.setState({ popover:null, fontMenu:null }), { size:16 })),
@@ -1808,7 +2121,7 @@ class Component extends DCLogic {
     const cv = this.covers()[it.cover] || this.covers().brand;
     return this.h('div', { style:{ position:'relative' } },
       this.heroFor(it, lesson, idx, isCourse, cv),
-      this.h('button', { onClick:(e)=>{ e.stopPropagation(); this.setState({ drawerId:'header' }); }, title:'Edit lesson header', style:{ position:'absolute', top:'12px', right:'12px', zIndex:5, display:'inline-flex', alignItems:'center', gap:'7px', padding:'7px 12px', borderRadius:'8px', border:'1px solid var(--border-neutral-secondary)', cursor:'pointer', background:'rgba(255,255,255,.94)', color:'var(--content-neutral-primary)', font:'500 12px/1 var(--font-roboto)', boxShadow:'var(--shadow-sm)' },
+      this.h('button', { onClick:(e)=>{ e.stopPropagation(); this.setState({ drawerId:'header' }); }, title:'Edit lesson header', dir:'ltr', style:{ position:'absolute', top:'12px', [(it.rtl?'left':'right')]:'12px', zIndex:5, display:'inline-flex', alignItems:'center', gap:'7px', padding:'7px 12px', borderRadius:'8px', border:'1px solid var(--border-neutral-secondary)', cursor:'pointer', background:'rgba(255,255,255,.94)', color:'var(--content-neutral-primary)', font:'500 12px/1 var(--font-roboto)', boxShadow:'var(--shadow-sm)' },
         onMouseEnter:e=>e.currentTarget.style.background='#fff', onMouseLeave:e=>e.currentTarget.style.background='rgba(255,255,255,.94)' }, this.ic('pencil',14), 'Edit header'));
   }
   moveBlock(i, dir){ this.withLesson(l=>{ const j=i+dir; if(j<0||j>=l.blocks.length) return; const [x]=l.blocks.splice(i,1); l.blocks.splice(j,0,x); }); }
@@ -1955,7 +2268,7 @@ class Component extends DCLogic {
             this.h('span', { style:{ font:'400 13px/1 var(--font-roboto)', color:'var(--content-neutral-tertiary)' } }, 'px')),
           this.h('div', { style:{ display:'flex', gap:'6px', marginTop:'9px', flexWrap:'wrap' } }, [['Short',240],['Medium',360],['Tall',560],['Full screen',800]].map(([lb,h])=>this.h('button',{ key:lb, onClick:()=>this.patchBlock(bk.id,{height:h}), style:{ padding:'6px 11px', borderRadius:'999px', border:'1px solid '+((bk.height||320)===h?'var(--blue-500)':'var(--border-neutral-primary)'), background:(bk.height||320)===h?'var(--gray-100)':'#fff', color:(bk.height||320)===h?'var(--content-neutral-secondary)':'var(--content-neutral-secondary)', font:'500 12px/1 var(--font-roboto)', cursor:'pointer' } }, lb)))));
       case 'callout': return this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'10px' } },
-        this.segmented(['info','success','warning','ai'], bk.variant, v=>this.patchBlock(bk.id,{variant:v}), { info:'Info', success:'Success', warning:'Warning', ai:'AI' }),
+        this.segmented(['info','note','success','warning','ai'], bk.variant, v=>this.patchBlock(bk.id,{variant:v}), { info:'Info', note:'Note', success:'Success', warning:'Warning', ai:'AI' }),
         F(bk.title, v=>this.patchBlock(bk.id,{title:v}), { placeholder:'Title', style:{ fontWeight:600 } }),
         F(bk.body, v=>this.patchBlock(bk.id,{body:v}), { multiline:true, rows:2, placeholder:'Body' }));
       case 'divider': { const dv = bk.variant||'line';
@@ -1982,15 +2295,16 @@ class Component extends DCLogic {
         bk.steps.map((st,i)=>this.rowWrap([ this.h('div',{key:'n',style:{font:'600 12px/1 var(--font-roboto)',color:'var(--content-neutral-secondary)'}},'Step '+(i+1)), F(st.title, v=>this.setIn(bk.id,'steps',i,{title:v}), { placeholder:'Step title', style:{fontWeight:600} }), F(st.body, v=>this.setIn(bk.id,'steps',i,{body:v}), { multiline:true, rows:2, placeholder:'Step description' }) ], ()=>this.rmFrom(bk.id,'steps',i), bk.steps.length>1)),
         this.addRowBtn('Add step', ()=>this.addTo(bk.id,'steps',{title:'New step',body:'Description'})));
       case 'stepbystep': return this.h('div', null,
+        this.h('div', { style:{ marginBottom:'12px' } }, this.toggle('Include media (screenshot / video) in steps', !bk.noMedia, ()=>this.patchBlock(bk.id,{ noMedia:!bk.noMedia }))),
         bk.steps.map((st,i)=>this.rowWrap([
           this.h('div',{key:'n',style:{font:'600 12px/1 var(--font-roboto)',color:'var(--content-neutral-secondary)'}},'Step '+(i+1)),
           F(st.title, v=>this.setIn(bk.id,'steps',i,{title:v}), { placeholder:'Step title', style:{fontWeight:600} }),
-          this.h('div', { key:'mt', style:{ display:'flex', alignItems:'center', gap:'10px' } },
+          bk.noMedia ? null : this.h('div', { key:'mt', style:{ display:'flex', alignItems:'center', gap:'10px' } },
             this.h('span',{style:{font:'500 12px/16px var(--font-roboto)',color:'var(--content-neutral-secondary)'}},'Media'),
             this.segmented(['image','video'], st.media||'image', v=>this.setIn(bk.id,'steps',i,{media:v}), {image:'Image',video:'Video'})),
-          (st.media==='video')
+          bk.noMedia ? null : ((st.media==='video')
             ? F(st.videoUrl||'', v=>this.setIn(bk.id,'steps',i,{videoUrl:v}), { placeholder:'YouTube, Vimeo or .mp4 URL' })
-            : this.h('div', { key:'img', style:{ height:'130px', borderRadius:'10px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)' } }, this.imageSlot('sbs-'+bk.id+'-'+(st.id||i), 'Drop a screenshot')),
+            : this.h('div', { key:'img', style:{ height:'130px', borderRadius:'10px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)' } }, this.imageSlot('sbs-'+bk.id+'-'+(st.id||i), 'Drop a screenshot'))),
           F(st.body, v=>this.setIn(bk.id,'steps',i,{body:v}), { multiline:true, rows:2, placeholder:'What this does…' }) ], ()=>this.rmFrom(bk.id,'steps',i), bk.steps.length>1)),
         this.addRowBtn('Add step', ()=>this.addTo(bk.id,'steps',{id:this.uid(),title:'New step',body:'Describe this step.'})));
       case 'flashcards': return this.h('div', null,
@@ -2074,6 +2388,11 @@ class Component extends DCLogic {
           this.h('input', { type:'file', multiple:true, style:{ display:'none' }, onChange:e=>this.addAttachmentFiles(bk.id, e.target.files) })),
         this.h('div', { style:{ font:'400 12px/17px var(--font-roboto)', color:'var(--content-neutral-tertiary)' } }, 'Files are stored inside the course content — keep them under ~5 MB each.'));
       case 'gallery': return this.h('div', null,
+        this.h('div', { style:{ marginBottom:'14px' } },
+          this.h('div',{style:{font:'500 12px/16px var(--font-roboto)',color:'var(--content-neutral-secondary)',marginBottom:'8px'}},'Image height'),
+          this.h('div', { style:{ display:'flex', alignItems:'center', gap:'10px' } },
+            this.h('input', { type:'range', min:140, max:640, step:10, value:bk.imgH||220, onChange:e=>this.patchBlock(bk.id,{imgH:+e.target.value}), style:{ flex:1, accentColor:'var(--gray-1000)' } }),
+            this.h('span', { style:{ font:'400 13px/1 var(--font-roboto)', color:'var(--content-neutral-tertiary)', width:'46px' } }, (bk.imgH||220)+'px'))),
         this.h('div', { style:{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'14px' } }, this.h('span',{style:{font:'500 12px/16px var(--font-roboto)',color:'var(--content-neutral-secondary)'}},'Layout'), this.segmented(['grid','carousel'], bk.layout||'grid', v=>this.patchBlock(bk.id,{layout:v}), { grid:'Grid', carousel:'Carousel' })),
         this.h('div', { style:{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:'12px' } },
           bk.images.map((im,i)=>this.h('div', { key:im.id, style:{ position:'relative' } },
@@ -2082,7 +2401,8 @@ class Component extends DCLogic {
               ? this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'6px' } },
                   F(im.videoUrl||'', v=>this.setIn(bk.id,'images',i,{videoUrl:v}), { placeholder:'YouTube, Vimeo or .mp4 URL' }),
                   this.h('div', { style:{ borderRadius:'10px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)' } }, this.renderVideo({ url:im.videoUrl }, 110)))
-              : this.h('div', { style:{ height:'130px', borderRadius:'10px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)' } }, this.imageSlot('slot-'+bk.id+'-'+im.id, 'Drop an image')),
+              : this.h('div', { style:{ height:'130px', borderRadius:'10px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)', background:'#fff' } },
+                  im.imgSrc ? this.h('img', { src:im.imgSrc, alt:im.caption||'', style:{ width:'100%', height:'100%', objectFit:'contain', display:'block' } }) : this.imageSlot('slot-'+bk.id+'-'+im.id, 'Drop an image')),
             im.imgSrc ? this.h('div', { style:{ marginTop:'6px', display:'flex', gap:'8px', flexWrap:'wrap' } },
               this.addRowBtn('Crop image', ()=>this.openCrop(im.imgFull||im.imgSrc, du=>this.setIn(bk.id,'images',i,{ imgSrc:du, imgFull: im.imgFull||im.imgSrc }))),
               this.addRowBtn('Replace image', ()=>this.replaceBlockImage(du=>this.setIn(bk.id,'images',i,{ imgSrc:du, imgFull:du })))) : null,
@@ -2153,7 +2473,7 @@ class Component extends DCLogic {
       case 'timeline': return this.h('div', null,
         bk.events.map((ev,i)=>this.rowWrap([ this.h('div',{key:'r',style:{display:'flex',gap:'8px'}}, this.h('div',{style:{flex:'0 0 130px'}}, this.field(ev.date, v=>this.setIn(bk.id,'events',i,{date:v}), { label:'Date / label', placeholder:'Day 1' })), this.h('div',{style:{flex:1}}, this.field(ev.title, v=>this.setIn(bk.id,'events',i,{title:v}), { label:'Title', placeholder:'Title', style:{fontWeight:600} }))), this.field(ev.body, v=>this.setIn(bk.id,'events',i,{body:v}), { multiline:true, rows:2, placeholder:'Description' }) ], ()=>this.rmFrom(bk.id,'events',i), bk.events.length>1)),
         this.addRowBtn('Add event', ()=>this.addTo(bk.id,'events',{id:this.uid(),date:'Date',title:'Title',body:'Description'})));
-      case 'chatsim': {
+      case 'chatsim': case 'chatscored': {
         const P = (f)=> f==='b' ? (bk.personB||'B') : (bk.personA||'A');
         const init = (n)=>(n||'?').trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
         const ctl = (icon, title, onClick, disabled, danger)=>this.h('button', { key:title, title, disabled, onClick:(e)=>{ e.stopPropagation(); if(!disabled) onClick(); },
@@ -2199,7 +2519,8 @@ class Component extends DCLogic {
           this.h('div', { style:{ display:'flex', gap:'10px' } },
             this.addRowBtn('Add message', ()=>this.addTo(bk.id,'messages',{id:this.uid(),from:(bk.messages.length%2?'b':'a'),text:''})),
             this.addRowBtn('Add choice point', ()=>this.addTo(bk.id,'messages',{id:this.uid(),from:'q',options:[ { id:this.uid(), text:'A good reply', reply:'', good:true }, { id:this.uid(), text:'A weaker reply', reply:'', good:false } ]}))),
-          this.h('div', { style:{ font:'400 12px/17px var(--font-roboto)', color:'var(--content-neutral-tertiary)' } }, 'A choice point pauses the chat — the learner picks '+P('b')+"'s reply and sees "+P('a')+"'s reaction.")); }
+          this.h('div', { style:{ font:'400 12px/17px var(--font-roboto)', color:'var(--content-neutral-tertiary)' } }, 'A choice point pauses the chat — the learner picks '+P('b')+"'s reply and sees "+P('a')+"'s reaction."+(bk.type==='chatscored'?' Each choice point counts toward the score: all Good choices = correct.':'')),
+          bk.type==='chatscored' ? this.gradedControls(bk) : null); }
       case 'itimeline': return this.h('div', null,
         bk.events.map((ev,i)=>this.rowWrap([ this.h('div',{key:'r',style:{display:'flex',gap:'8px'}}, this.h('div',{style:{flex:'0 0 110px'}}, this.field(ev.date, v=>this.setIn(bk.id,'events',i,{date:v}), { placeholder:'2024' })), this.h('div',{style:{flex:1}}, this.field(ev.title, v=>this.setIn(bk.id,'events',i,{title:v}), { placeholder:'Event title', style:{fontWeight:600} }))), this.field(ev.body, v=>this.setIn(bk.id,'events',i,{body:v}), { multiline:true, rows:2, placeholder:'What happened' }) ], ()=>this.rmFrom(bk.id,'events',i), bk.events.length>1)),
         this.addRowBtn('Add event', ()=>this.addTo(bk.id,'events',{id:this.uid(),date:'Date',title:'Title',body:'Description'})));
@@ -2242,7 +2563,7 @@ class Component extends DCLogic {
   imageSlot(id, placeholder, shape){ return this.h('image-slot', { id, placeholder, shape:shape||'rect', style:{ width:'100%', height:'100%', display:'block' } }); }
   toggle(label, on, onClick){ return this.h('button', { onClick, style:{ display:'inline-flex', alignItems:'center', gap:'9px', padding:'7px 11px', border:'1px solid '+(on?'var(--gray-200)':'var(--border-neutral-primary)'), borderRadius:'9px', background:on?'var(--gray-100)':'#fff', cursor:'pointer', font:'500 13px/1 var(--font-roboto)', color:'var(--content-neutral-primary)' } },
     this.h('span', { style:{ width:'32px', height:'18px', borderRadius:'999px', background:on?'var(--gray-1000)':'var(--gray-300)', position:'relative', transition:'background .15s', flex:'none' } }, this.h('span', { style:{ position:'absolute', top:'2px', left:on?'16px':'2px', width:'14px', height:'14px', borderRadius:'50%', background:'#fff', transition:'left .15s' } })), label); }
-  isGradable(t){ return ['knowledge','truefalse','fillblank','matching','ordering'].includes(t); }
+  isGradable(t){ return ['knowledge','truefalse','fillblank','matching','ordering','chatscored'].includes(t); }
   gradedQuestions(it){ const out=[]; it.lessons.forEach(l=>l.blocks.forEach(b=>{ if(this.isGradable(b.type) && b.graded!==false) out.push(b); })); return out; }
   scoreNow(it){ const gs=this.gradedQuestions(it); let c=0,a=0; gs.forEach(b=>{ const r=this.lget(b.id); if(r.submitted) a++; if(r.result) c++; }); return { total:gs.length, correct:c, answered:a, pct: gs.length?Math.round(c/gs.length*100):0 }; }
   hh(s){ let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0; return h; }
@@ -2721,6 +3042,9 @@ class Component extends DCLogic {
     return this.h('div', null,
       this.h('div', { style:{ padding:'16px 20px 0', font:'600 15px/1 var(--font-inter)', letterSpacing:'-.2px' } }, 'Path settings'),
       this.panelSection('About', this.field(it.description||'', v=>this.withItem(i=>i.description=v), { multiline:true, rows:3, placeholder:'Short description learners see on the path cover…' }), true),
+      this.panelSection('Language & direction', this.h('div', null,
+        this.toggle('Right-to-left (Hebrew, Arabic)', !!it.rtl, ()=>this.withItem(i=>i.rtl=!i.rtl)),
+        this.h('div', { style:{ font:'400 12px/17px var(--font-roboto)', color:'var(--content-neutral-tertiary)', marginTop:'8px' } }, 'Flips the exported path for RTL trainings. Each course also has its own RTL switch in its editor.'))),
       this.panelSection('Path is complete when', this.h('div', null,
         radio('none','Required steps are done','Electives never block completion.'),
         radio('one','Required + at least one elective','Learners must pick at least one track.'),
@@ -2879,7 +3203,7 @@ class Component extends DCLogic {
       const cpv = this.cp(it);
       return this.h('div', null, header,
         this.h('div', { style:{ minHeight:'calc(100vh - 56px)', background:'var(--gray-50)', display:'flex', alignItems:'center', justifyContent:'center', padding:'40px 24px' } },
-          this.h('div', { style:{ maxWidth:'640px', width:'100%', background:'#fff', border:'1px solid var(--border-neutral-secondary)', borderRadius:'16px', boxShadow:'var(--shadow-sm)', padding:'44px 48px', animation:'lc-pop .25s ease', overflow:'hidden' } },
+          this.h('div', { dir:(it.rtl?'rtl':undefined), style:{ maxWidth:'640px', width:'100%', background:'#fff', border:'1px solid var(--border-neutral-secondary)', borderRadius:'16px', boxShadow:'var(--shadow-sm)', padding:'44px 48px', animation:'lc-pop .25s ease', overflow:'hidden' } },
             this.h('div', { style:{ margin:'-44px -48px 26px', height:'190px' } }, this.imageSlot('cover-'+it.id, 'Course image')),
             this.h('div', { style:{ font:'500 12px/16px var(--font-roboto)', letterSpacing:'.05em', textTransform:'uppercase', color:'var(--content-neutral-tertiary)', marginBottom:'10px' } }, 'Course'),
             this.h('h1', { style:{ font:'600 36px/44px var(--font-inter)', letterSpacing:'-1px', color:'var(--content-neutral-primary)', margin:'0 0 10px' } }, it.title),
@@ -2894,7 +3218,7 @@ class Component extends DCLogic {
             this.btn('Start course', ()=>this.setState({ learnerCover:false, learnerLessonIdx:0 }), 'primary', { icon:'arrowRight' }))));
     }
 
-    const sidebar = (isCourse && !this.mob()) ? this.h('aside', { className:'lc-scroll', style:{ width:'270px', flex:'none', borderRight:'1px solid var(--border-neutral-secondary)', background:'#fff', height:'calc(100vh - 56px)', overflow:'auto', padding:'20px 14px', position:'sticky', top:'56px' } },
+    const sidebar = (isCourse && !this.mob()) ? this.h('aside', { className:'lc-scroll', style:{ width:'270px', flex:'none', [it.rtl?'borderLeft':'borderRight']:'1px solid var(--border-neutral-secondary)', background:'#fff', height:'calc(100vh - 56px)', overflow:'auto', padding:'20px 14px', position:'sticky', top:'56px' } },
       this.h('div', { style:{ font:'600 11px/16px var(--font-roboto)', letterSpacing:'.06em', textTransform:'uppercase', color:'var(--content-neutral-tertiary)', padding:'0 8px 12px' } }, `${it.lessons.length} lessons`),
       it.lessons.map((l,i)=>{ const active=i===idx; const done=completed[l.id];
         return this.h('div', { key:l.id, onClick:()=>this.setState({ learnerLessonIdx:i }), style:{ display:'flex', alignItems:'center', gap:'11px', padding:'10px', borderRadius:'10px', cursor:'pointer', marginBottom:'2px', background:active?'var(--gray-100)':'transparent' },
@@ -2912,7 +3236,7 @@ class Component extends DCLogic {
 
     const allCl = it.lessons.flatMap(l=>(l.blocks||[]).filter(b=>b.type==='checklist'));
     const overlayCl = allCl.filter(b=>(it.kind==='course' && b.scope==='course') || (this.clDisplay(b)!=='inline' && lesson.blocks.includes(b)));
-    return this.h('div', null, header, this.h('div', { style:{ display:'flex' } }, sidebar, body), overlayCl.length ? this.learnerChecklistOverlay(overlayCl) : null);
+    return this.h('div', null, header, this.h('div', { dir:(it.rtl?'rtl':undefined), style:{ display:'flex' } }, sidebar, body), overlayCl.length ? this.learnerChecklistOverlay(overlayCl) : null);
   }
 
   get Reveal(){
@@ -3076,28 +3400,28 @@ class Component extends DCLogic {
   renderBlockView(bk, edit){ return this.blockStyleWrap(bk, this.contentWidthWrap(bk, this.blockInner(bk, edit))); }
   contentWidthWrap(bk, inner){
     if(bk.width === 'full' || bk.width === 'wide') return inner;
-    const prose = { text:'720px', paragraph:'720px', heading:'800px', statement:'840px', callout:'800px', quote:'760px', quiz:'760px', flashcards:null };
+    const prose = { text:'720px', paragraph:'720px', heading:'800px', statement:'840px', callout:'800px', quote:'760px', quiz:'760px', list:'720px', checklist:'720px', flashcards:null };
     const w = Object.prototype.hasOwnProperty.call(prose, bk.type) ? prose[bk.type] : null;
     if(!w) return inner; // grids, media and interactive blocks spread full width
     return this.h('div', { style:{ maxWidth:w, margin:'0 auto' } }, inner);
   }
   ceText(edit, tag, style, bk, field){
     const value = bk[field]==null ? '' : bk[field];
-    if(!edit) return this.h(tag, { style }, value);
+    if(!edit) return this.h(tag, { style:{ whiteSpace:'pre-wrap', ...style } }, value);
     return this.h(tag, { key:'ce-'+field, contentEditable:true, suppressContentEditableWarning:true, spellCheck:false,
       onMouseDown:e=>e.stopPropagation(), onClick:e=>e.stopPropagation(),
       onFocus:e=>{ e.currentTarget.style.boxShadow='0 0 0 2px var(--gray-100)'; },
-      onBlur:e=>{ e.currentTarget.style.boxShadow='none'; const v=e.currentTarget.textContent; if(v!==(bk[field]==null?'':bk[field])) this.patchBlock(bk.id,{ [field]:v }); },
-      style:{ ...style, outline:'none', cursor:'text', borderRadius:'5px', padding:'1px 3px', margin:'-1px -3px', transition:'box-shadow .1s' } }, value);
+      onBlur:e=>{ e.currentTarget.style.boxShadow='none'; const v=e.currentTarget.innerText.replace(/\r/g,'').replace(/\n$/,''); if(v!==(bk[field]==null?'':bk[field])) this.patchBlock(bk.id,{ [field]:v }); },
+      style:{ ...style, whiteSpace:'pre-wrap', outline:'none', cursor:'text', borderRadius:'5px', padding:'1px 3px', margin:'-1px -3px', transition:'box-shadow .1s' } }, value);
   }
   ceIn(edit, tag, style, bk, key, idx, field, value){
     value = value==null ? '' : value;
-    if(!edit) return this.h(tag, { style }, value);
+    if(!edit) return this.h(tag, { style:{ whiteSpace:'pre-wrap', ...style } }, value);
     return this.h(tag, { key:'cein-'+field+'-'+idx, contentEditable:true, suppressContentEditableWarning:true, spellCheck:false,
       onMouseDown:e=>e.stopPropagation(), onClick:e=>e.stopPropagation(),
       onFocus:e=>{ e.currentTarget.style.boxShadow='0 0 0 2px var(--gray-100)'; },
-      onBlur:e=>{ e.currentTarget.style.boxShadow='none'; const v=e.currentTarget.textContent; if(v!==value) this.setIn(bk.id, key, idx, { [field]:v }); },
-      style:{ ...style, outline:'none', cursor:'text', borderRadius:'5px', transition:'box-shadow .1s' } }, value);
+      onBlur:e=>{ e.currentTarget.style.boxShadow='none'; const v=e.currentTarget.innerText.replace(/\r/g,'').replace(/\n$/,''); if(v!==value) this.setIn(bk.id, key, idx, { [field]:v }); },
+      style:{ ...style, whiteSpace:'pre-wrap', outline:'none', cursor:'text', borderRadius:'5px', transition:'box-shadow .1s' } }, value);
   }
   viewStepByStep(bk){
     const h = this.h.bind(this);
@@ -3105,31 +3429,45 @@ class Component extends DCLogic {
     const n = steps.length;
     const cur = Math.min(this.lget(bk.id).step || 0, Math.max(0, n-1));
     const st = steps[cur]; if(!st) return null;
-    const nav = (dir, disabled) => h('button', { key:'nav'+dir, disabled, onClick:(e)=>{ e.stopPropagation(); if(!disabled) this.lset(bk.id, { step:cur+dir }); },
-      style:{ width:'38px', height:'38px', flex:'none', borderRadius:'50%', border:'1px solid '+(disabled?'var(--border-neutral-secondary)':'transparent'), background: disabled?'#fff':'var(--gray-1000)', color: disabled?'var(--content-neutral-tertiary)':'#fff', display:'flex', alignItems:'center', justifyContent:'center', cursor:disabled?'default':'pointer', transition:'background .15s' } },
-      this.ic(dir<0?'chevLeft':'chevRight', 18));
-    return h('div', null,
-      h('div', { style:{ display:'flex', justifyContent:'center', marginBottom:'16px' } },
-        h('span', { style:{ background:'var(--pink-600, #ff176b)', color:'#fff', borderRadius:'8px', padding:'8px 16px', font:'600 14px/1 var(--font-inter)' } }, 'Step '+(cur+1))),
-        h('div', { key:st.id||cur, style:{ animation:'lc-fade .2s ease' } },
-        h('h3', { style:{ font:'600 22px/28px var(--font-inter)', letterSpacing:'-.4px', margin:'0 0 14px', textAlign:'left', color:'var(--content-neutral-primary)' } }, st.title),
-        st.media==='video'
-          ? h('div', { style:{ borderRadius:'12px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)', marginBottom:'14px' } }, this.renderVideo({ url:st.videoUrl }, 300))
-          : h('div', { style:{ height:'300px', borderRadius:'12px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)', marginBottom:'14px' } }, this.imageSlot('sbs-'+bk.id+'-'+(st.id||cur), 'Drop a screenshot for this step')),
-        st.body ? h('p', { style:{ font:'400 15px/23px var(--font-roboto)', color:'var(--content-neutral-primary)', margin:0, textAlign:'left' } }, st.body) : null),
-      h('div', { style:{ display:'flex', alignItems:'center', gap:'10px', marginTop:'18px' } },
-        nav(-1, cur===0),
-        h('div', { style:{ flex:1, display:'flex', justifyContent:'center', gap:'6px' } },
-          steps.map((s,i)=>h('button', { key:s.id||i, title:'Step '+(i+1), onClick:(e)=>{ e.stopPropagation(); this.lset(bk.id, { step:i }); },
-            style:{ width:i===cur?'22px':'8px', height:'8px', borderRadius:'999px', border:'none', padding:0, cursor:'pointer', background: i===cur?'var(--gray-1000)':'var(--gray-300)', transition:'width .15s, background .15s' } }))),
-        nav(1, cur===n-1)));
+    this._sbsDir = this._sbsDir || {};
+    const go = (i)=>{ if(i===cur) return; this._sbsDir[bk.id] = i>cur?1:-1; this.lset(bk.id, { step:Math.max(0, Math.min(n-1, i)) }); };
+    const anim = ((this._sbsDir[bk.id]||1)<0?'lc-sbs-l':'lc-sbs-r')+' .3s cubic-bezier(.25,.6,.3,1)';
+    const isIntro = (s)=>s && s.title && !s.body && (bk.noMedia || !s.media);
+    const hasIntro = isIntro(steps[0]);
+    const intro = cur===0 && hasIntro;
+    const navBtn = (d, disabled)=>h('button', { key:'nav'+d, disabled, onClick:(e)=>{ e.stopPropagation(); if(!disabled) go(cur+d); },
+      style:{ position:'absolute', [(d<0)!==this.rtl()?'left':'right']:'26px', top:'50%', transform:'translateY(-50%)', width:'44px', height:'44px', borderRadius:'50%', border:'none', background:'var(--gray-1000)', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', transition:'background .15s, opacity .15s', zIndex:2, visibility:disabled?'hidden':'visible' },
+      onMouseEnter:e=>e.currentTarget.style.background='var(--gray-800)', onMouseLeave:e=>e.currentTarget.style.background='var(--gray-1000)' },
+      this.ic((d<0)!==this.rtl()?'chevLeft':'chevRight', 18));
+    const media = (bk.noMedia || intro) ? null : (st.media==='video'
+      ? h('div', { style:{ borderRadius:'12px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)', margin:'0 0 18px' } }, this.renderVideo({ url:st.videoUrl }, 300))
+      : h('div', { style:{ height:'300px', borderRadius:'12px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)', margin:'0 0 18px' } }, this.imageSlot('sbs-'+bk.id+'-'+(st.id||cur), 'Drop a screenshot for this step')));
+    const content = intro
+      ? h('div', { key:'s'+cur, style:{ animation:anim, textAlign:'center', padding:'34px 96px 10px' } },
+          h('h3', { style:{ font:'600 32px/40px var(--font-inter)', letterSpacing:'-.8px', margin:'0 0 30px', color:'var(--content-neutral-primary)' } }, st.title),
+          n>1 ? h('button', { onClick:(e)=>{ e.stopPropagation(); go(1); },
+            style:{ display:'inline-flex', alignItems:'center', gap:'9px', background:'var(--fill-brand-bold, #ff176b)', color:'#fff', border:'none', borderRadius:'999px', padding:'15px 36px', font:'600 14px/1 var(--font-inter)', letterSpacing:'1.6px', cursor:'pointer', transition:'background .15s' },
+            onMouseEnter:e=>e.currentTarget.style.background='#e41560', onMouseLeave:e=>e.currentTarget.style.background='var(--fill-brand-bold, #ff176b)' }, 'START', this.ic(this.rtl()?'chevLeft':'chevRight', 14, '#fff')) : null)
+      : h('div', { key:'s'+cur, style:{ animation:anim, padding:'4px 96px 8px' } },
+          h('h3', { style:{ font:'600 28px/36px var(--font-inter)', letterSpacing:'-.6px', margin:'0 0 16px', textAlign:'start', color:'var(--content-neutral-primary)' } }, st.title),
+          media,
+          st.body ? h('p', { style:{ font:'400 17px/29px var(--font-roboto)', color:'var(--content-neutral-primary)', margin:0, textAlign:'start', whiteSpace:'pre-wrap' } }, st.body) : null);
+    return h('div', { style:{ position:'relative', marginTop:'22px' } },
+      h('div', { style:{ position:'relative', background:'#fff', border:'1px solid var(--border-neutral-secondary)', borderRadius:'16px', boxShadow:'var(--shadow-sm)', padding:'42px 0 58px', minHeight:'190px', overflow:'visible' } },
+        intro ? null : h('span', { style:{ position:'absolute', top:0, left:'50%', transform:'translate(-50%,-50%)', background:'var(--pink-600, #ff176b)', color:'#fff', borderRadius:'10px', padding:'11px 22px', font:'600 15px/1 var(--font-inter)', boxShadow:'var(--shadow-xs)', whiteSpace:'nowrap' } }, 'Step '+(hasIntro?cur:cur+1)),
+        content,
+        navBtn(-1, cur===0),
+        navBtn(1, cur===n-1),
+        h('div', { style:{ position:'absolute', bottom:'24px', left:0, right:0, display:'flex', justifyContent:'center', gap:'7px' } },
+          steps.map((s,i)=>h('button', { key:s.id||i, title:(hasIntro && i>0)?('Step '+i):(hasIntro?'Intro':'Step '+(i+1)), onClick:(e)=>{ e.stopPropagation(); go(i); },
+            style:{ width:i===cur?'24px':'9px', height:'9px', borderRadius:'999px', border:'none', padding:0, cursor:'pointer', background: i===cur?'var(--gray-1000)':'var(--gray-300)', transition:'width .18s, background .18s' } })))));
   }
   blockInner(bk, edit){
     const h = (...a)=>this.h(...a);
     switch(bk.type){
-      case 'text': return h('div', null, (bk.heading || edit) ? this.ceText(edit, 'div', this.fmt(bk, 'h', { ...this.headingStyle(bk.hstyle||'section'), marginBottom:'18px' }), bk, 'heading') : null, this.ceText(edit, 'p', this.fmt(bk, 'b', { font:'400 17px/28px var(--font-roboto)', color:'var(--content-neutral-primary)' }), bk, 'body'));
+      case 'text': return h('div', null, (bk.heading || edit) ? this.ceText(edit, 'div', this.fmt(bk, 'h', { ...this.headingStyle(bk.hstyle||'section'), marginBottom:'18px' }), bk, 'heading') : null, this.ceText(edit, 'p', this.fmt(bk, 'b', { font:'400 17px/28px var(--font-roboto)', color:'var(--content-neutral-primary)', whiteSpace:'pre-wrap' }), bk, 'body'));
       case 'statement': return h('div', { style:{ borderTop:'2px solid var(--pink-600, #ff176b)', borderBottom:'2px solid var(--pink-600, #ff176b)', padding:'30px 18px', textAlign:'center' } }, this.ceText(edit, 'p', this.fmt(bk, 'b', { font:'400 27px/38px var(--font-inter)', letterSpacing:'-.4px', color:'var(--content-neutral-primary)' }), bk, 'text'));
-      case 'paragraph': return this.ceText(edit, 'p', this.fmt(bk, 'b', { font:'400 17px/28px var(--font-roboto)', color:'var(--content-neutral-primary)' }), bk, 'body');
+      case 'paragraph': return this.ceText(edit, 'p', this.fmt(bk, 'b', { font:'400 17px/28px var(--font-roboto)', color:'var(--content-neutral-primary)', whiteSpace:'pre-wrap' }), bk, 'body');
       case 'heading': return this.ceText(edit, 'div', this.fmt(bk, 'h', this.headingStyle(bk.hstyle||'section')), bk, 'text');
       case 'columns': return h('div', { style:{ display:'grid', gridTemplateColumns:`repeat(${(bk.cols||[]).length||2},1fr)`, gap:'28px' } }, (bk.cols||[]).map((c,i)=>h('p', { key:c.id||i, style:{ font:'400 15px/25px var(--font-roboto)', color:'var(--content-neutral-primary)', margin:0 } }, c.body)));
       case 'table': return this.viewTable(bk);
@@ -3165,7 +3503,7 @@ class Component extends DCLogic {
       case 'tabs': return this.viewTabs(bk);
       case 'timeline': return this.viewTimeline(bk);
       case 'itimeline': return this.viewITimeline(bk, edit);
-      case 'chatsim': return this.viewChatSim(bk, edit);
+      case 'chatsim': case 'chatscored': return this.viewChatSim(bk, edit);
       case 'truefalse': return this.viewTruefalse(bk);
       case 'fillblank': return this.viewFillblank(bk);
       case 'matching': return this.viewMatching(bk);
@@ -3178,14 +3516,14 @@ class Component extends DCLogic {
     return this.h('div', { style:{ border:'1px solid var(--border-neutral-secondary)', borderRadius:'4px', overflow:'hidden', background:'#fff', boxShadow:'var(--shadow-xs)' } },
       this.h('div', { style:{ display:'flex', overflowX:'auto' } },
         bk.tabs.map((t,i)=>{ const on=i===act; return this.h('button', { key:t.id, onClick:()=>this.lset(bk.id,{tab:i}),
-          style:{ flex:'1 0 auto', minHeight:'64px', padding:'18px 24px', border:'none', borderRight: i<bk.tabs.length-1?'1px solid var(--border-neutral-secondary)':'none', borderBottom: on?'none':'1px solid var(--border-neutral-secondary)', background: on?'#fff':'var(--gray-50)', cursor:'pointer', font:'600 13px/18px var(--font-roboto)', letterSpacing:'.12em', textTransform:'uppercase', color: on?'var(--pink-600, #ff176b)':'var(--content-neutral-primary)', whiteSpace:'nowrap', transition:'background .15s, color .15s' },
+          style:{ flex:'1 0 auto', minHeight:'64px', padding:'18px 24px', border:'none', [this.rtl()?'borderLeft':'borderRight']: i<bk.tabs.length-1?'1px solid var(--border-neutral-secondary)':'none', borderBottom: on?'none':'1px solid var(--border-neutral-secondary)', background: on?'#fff':'var(--gray-50)', cursor:'pointer', font:'600 13px/18px var(--font-roboto)', letterSpacing:'.12em', textTransform:'uppercase', color: on?'var(--pink-600, #ff176b)':'var(--content-neutral-primary)', whiteSpace:'nowrap', transition:'background .15s, color .15s' },
           onMouseEnter:e=>{ if(!on) e.currentTarget.style.background='var(--gray-100)'; }, onMouseLeave:e=>{ if(!on) e.currentTarget.style.background='var(--gray-50)'; } }, t.label); })),
       this.h('div', { style:{ padding:'26px 26px 28px', animation:'lc-fade .2s' } },
         this.itemMediaView('tab-'+bk.id+'-'+(bk.tabs[act]||{}).id, bk.tabs[act]||{}),
         this.h('div', { style:{ font:'400 15.5px/25px var(--font-roboto)', color:'var(--content-neutral-primary)' } }, (bk.tabs[act]||{}).body)));
   }
   viewTimeline(bk){
-    return this.h('div', { style:{ paddingLeft:'4px' } },
+    return this.h('div', { style:{ [this.rtl()?'paddingRight':'paddingLeft']:'4px' } },
       bk.events.map((ev,i)=>this.h('div', { key:ev.id, style:{ display:'flex', gap:'18px' } },
         this.h('div', { style:{ display:'flex', flexDirection:'column', alignItems:'center' } },
           this.h('div', { style:{ width:'15px', height:'15px', flex:'none', borderRadius:'50%', background:'#fff', border:'3px solid var(--pink-600, #ff176b)', marginTop:'3px' } }),
@@ -3271,7 +3609,7 @@ class Component extends DCLogic {
     return this.h('div', { style:{ border:'1px solid var(--border-neutral-secondary)', borderRadius:'12px', overflow:'hidden', background:'#fff' } },
       this.h('table', { style:{ width:'100%', borderCollapse:'collapse' } },
         this.h('tbody', null, rows.map((r,ri)=>{ const head = bk.header!==false && ri===0;
-          return this.h('tr', { key:ri }, Array.from({length:nc}).map((_,ci)=>this.h(head?'th':'td', { key:ci, style:{ padding:'12px 16px', textAlign:'left', borderBottom: ri<rows.length-1?'1px solid var(--border-neutral-secondary)':'none', borderLeft: ci?'1px solid var(--border-neutral-secondary)':'none', background: head?'var(--gray-50)':'#fff', font:(head?'600 14px/20px var(--font-inter)':'400 14px/20px var(--font-roboto)'), color:'var(--content-neutral-primary)' } }, r[ci]||''))); }))));
+          return this.h('tr', { key:ri }, Array.from({length:nc}).map((_,ci)=>this.h(head?'th':'td', { key:ci, style:{ padding:'12px 16px', textAlign:'start', borderBottom: ri<rows.length-1?'1px solid var(--border-neutral-secondary)':'none', [this.rtl()?'borderRight':'borderLeft']: ci?'1px solid var(--border-neutral-secondary)':'none', background: head?'var(--gray-50)':'#fff', font:(head?'600 14px/20px var(--font-inter)':'400 14px/20px var(--font-roboto)'), color:'var(--content-neutral-primary)' } }, r[ci]||''))); }))));
   }
   viewChecklist(bk, edit){
     const done = this.lget(bk.id).done || {};
@@ -3290,7 +3628,7 @@ class Component extends DCLogic {
   }
   checklistRow(bk, it, last){
     const done = (this.lget(bk.id).done||{})[it.id];
-    return this.h('button', { key:it.id, onClick:(e)=>{ e.stopPropagation(); const d={...(this.lget(bk.id).done||{})}; d[it.id]=!d[it.id]; this.lset(bk.id,{done:d}); }, style:{ display:'flex', alignItems:'center', gap:'12px', padding:'11px 2px', background:'none', border:'none', borderBottom: last?'none':'1px solid var(--border-neutral-secondary)', cursor:'pointer', textAlign:'left', width:'100%' } },
+    return this.h('button', { key:it.id, onClick:(e)=>{ e.stopPropagation(); const d={...(this.lget(bk.id).done||{})}; d[it.id]=!d[it.id]; this.lset(bk.id,{done:d}); }, style:{ display:'flex', alignItems:'center', gap:'12px', padding:'11px 2px', background:'none', border:'none', borderBottom: last?'none':'1px solid var(--border-neutral-secondary)', cursor:'pointer', textAlign:'start', width:'100%' } },
       this.h('span', { style:{ width:'22px', height:'22px', flex:'none', borderRadius:'7px', display:'flex', alignItems:'center', justifyContent:'center', background: done?'var(--fill-success-bold)':'#fff', border:'1.5px solid '+(done?'var(--fill-success-bold)':'var(--border-neutral-primary)'), transition:'background .15s, border-color .15s' } }, done?this.ic('check',13,'#fff',3):null),
       this.h('span', { style:{ flex:1, font:'400 15px/21px var(--font-roboto)', color: done?'var(--content-neutral-tertiary)':'var(--content-neutral-primary)', textDecoration: done?'line-through':'none', transition:'color .15s' } }, it.text));
   }
@@ -3300,14 +3638,15 @@ class Component extends DCLogic {
     const doneN = all.filter(x=>(this.lget(x.bk.id).done||{})[x.it.id]).length;
     const title = cls.length===1 ? (cls[0].title||'Checklist') : 'Course checklist';
     const flip = ()=>this.setState(s=>({ clOpen: !s.clOpen }));
+    const rtl = this.rtl();
     return this.h(React.Fragment, null,
-      this.h('div', { style:{ position:'fixed', right:'22px', bottom:'22px', zIndex:55, transition:'transform .25s ease', transform: open?'translateX(-396px)':'none' } },
+      this.h('div', { style:{ position:'fixed', [rtl?'left':'right']:'22px', bottom:'22px', zIndex:55, transition:'transform .25s ease', transform: open?('translateX('+(rtl?'396px':'-396px')+')'):'none' } },
         this.h('button', { onClick:flip, style:{ display:'flex', alignItems:'center', gap:'10px', background:'#fff', border:'1px solid var(--border-neutral-primary)', borderRadius:'999px', padding:'10px 14px 10px 12px', cursor:'pointer', boxShadow:'var(--shadow-lg)' },
           onMouseEnter:e=>e.currentTarget.style.background='var(--gray-50)', onMouseLeave:e=>e.currentTarget.style.background='#fff' },
           this.h('span', { style:{ width:'26px', height:'26px', flex:'none', borderRadius:'50%', background:'var(--fill-brand-subtler)', display:'flex', alignItems:'center', justifyContent:'center' } }, this.ic('checklist',14,'var(--content-brand-text-bold)')),
           this.h('span', { style:{ font:'600 13px/1 var(--font-roboto)', color:'var(--content-neutral-primary)' } }, title),
           this.h('span', { style:{ font:'600 11px/1 var(--font-roboto)', color:'#fff', background:'var(--fill-brand-bold)', borderRadius:'999px', padding:'4px 8px', fontVariantNumeric:'tabular-nums' } }, doneN+'/'+all.length))),
-      this.h('aside', { style:{ position:'fixed', top:0, right:0, bottom:0, width:'384px', maxWidth:'92vw', zIndex:60, background:'#fff', borderLeft:'1px solid var(--border-neutral-secondary)', boxShadow:'var(--shadow-lg)', display:'flex', flexDirection:'column', transition:'transform .25s ease', transform: open?'none':'translateX(105%)' } },
+      this.h('aside', { style:{ position:'fixed', top:0, [rtl?'left':'right']:0, bottom:0, width:'384px', maxWidth:'92vw', zIndex:60, background:'#fff', [rtl?'borderRight':'borderLeft']:'1px solid var(--border-neutral-secondary)', boxShadow:'var(--shadow-lg)', display:'flex', flexDirection:'column', transition:'transform .25s ease', transform: open?'none':('translateX('+(rtl?'-105%':'105%')+')') } },
         this.h('div', { style:{ flex:'none', padding:'20px 22px 16px', borderBottom:'1px solid var(--border-neutral-secondary)' } },
           this.h('div', { style:{ display:'flex', alignItems:'center', justifyContent:'space-between' } },
             this.h('div', { style:{ font:'600 16px/22px var(--font-inter)', letterSpacing:'-.3px' } }, title),
@@ -3329,17 +3668,18 @@ class Component extends DCLogic {
     const V = { info:{ bg:'var(--fill-info-subtler)', bd:'var(--blue-200)', ic:'var(--content-info-icon)', tx:'var(--content-info-text-bold)', icon:'callout' },
       success:{ bg:'var(--fill-success-subtlest)', bd:'var(--lime-200)', ic:'var(--content-success-icon)', tx:'var(--content-success-text-bold)', icon:'check' },
       warning:{ bg:'var(--fill-warning-subtler)', bd:'var(--orange-200)', ic:'var(--content-warning-icon)', tx:'var(--content-warning-text-bold)', icon:'callout' },
-      ai:{ bg:'var(--fill-ai-subtler)', bd:'var(--violet-200)', ic:'var(--content-ai-icon)', tx:'var(--content-ai-text-bold)', icon:'sparks' } }[bk.variant] || {};
-    return this.h('div', { style:{ display:'flex', gap:'14px', padding:'18px 20px', background:V.bg, border:'1px solid '+V.bd, borderRadius:'14px' } },
+      ai:{ bg:'var(--fill-ai-subtler)', bd:'var(--violet-200)', ic:'var(--content-ai-icon)', tx:'var(--content-ai-text-bold)', icon:'sparks' },
+      note:{ bg:'var(--pink-100, #fff0f5)', bd:'var(--pink-300, #ff8fb8)', ic:'var(--pink-600, #ff176b)', tx:'var(--content-neutral-primary)', icon:'callout', bold:true } }[bk.variant] || {};
+    return this.h('div', { style:{ display:'flex', gap:'14px', padding:'18px 20px', background:V.bg, border:'1px solid '+V.bd, borderRadius:'14px', alignItems: bk.title?'flex-start':'center' } },
       this.ic(V.icon, 22, V.ic),
-      this.h('div', null, this.h('div',{style:{font:'600 15px/20px var(--font-inter)',color:V.tx,marginBottom:'4px'}}, bk.title), this.h('div',{style:{font:'400 15px/22px var(--font-roboto)',color:'var(--content-neutral-primary)'}}, bk.body)));
+      this.h('div', null, bk.title ? this.h('div',{style:{font:'600 15px/20px var(--font-inter)',color:V.tx,marginBottom:'4px'}}, bk.title) : null, this.h('div',{style:{font:(V.bold?'600':'400')+' 15px/23px var(--font-roboto)',color:'var(--content-neutral-primary)',whiteSpace:'pre-wrap'}}, bk.body)));
   }
   viewAccordion(bk){
     const st = this.lget(bk.id).open || {};
     return this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'10px' } },
       bk.items.map((it,i)=>{ const open=st[i];
-        return this.h('div', { key:i, style:{ background:'#fff', border:'1px solid var(--border-neutral-secondary)', borderLeft: open?'4px solid var(--pink-600, #ff176b)':'1px solid var(--border-neutral-secondary)', borderRadius:'4px', boxShadow:'var(--shadow-xs)', transition:'border-color .15s' } },
-        this.h('button', { onClick:()=>this.lset(bk.id,{ open:{ ...st, [i]:!open } }), style:{ width:'100%', display:'flex', alignItems:'center', gap:'14px', padding: open?'22px 22px 6px':'26px 22px', background:'transparent', border:'none', cursor:'pointer', textAlign:'left' } },
+        return this.h('div', { key:i, style:{ background:'#fff', border:'1px solid var(--border-neutral-secondary)', [this.rtl()?'borderRight':'borderLeft']: open?'4px solid var(--pink-600, #ff176b)':'1px solid var(--border-neutral-secondary)', borderRadius:'4px', boxShadow:'var(--shadow-xs)', transition:'border-color .15s' } },
+        this.h('button', { onClick:()=>this.lset(bk.id,{ open:{ ...st, [i]:!open } }), style:{ width:'100%', display:'flex', alignItems:'center', gap:'14px', padding: open?'22px 22px 6px':'26px 22px', background:'transparent', border:'none', cursor:'pointer', textAlign:'start' } },
           this.h('span', { style:{ flex:1, font:'600 18px/24px var(--font-inter)', letterSpacing:'-.2px', color:'var(--content-neutral-primary)' } }, it.title),
           open ? this.h('span', { style:{ width:'26px', height:'26px', flex:'none', display:'flex', alignItems:'center', justifyContent:'center', border:'1.5px solid var(--blue-500, #1d7afc)', borderRadius:'6px', color:'var(--blue-500, #1d7afc)' } }, this.h('span', { style:{ width:'12px', height:'2px', background:'currentColor', display:'block' } }))
                : this.h('span', { style:{ color:'var(--content-neutral-tertiary)' } }, this.ic('plus',20,'var(--content-neutral-tertiary)',1.6))),
@@ -3359,25 +3699,29 @@ class Component extends DCLogic {
   }
   viewChatSim(bk, edit){
     const msgs = bk.messages||[];
-    const picks = this.lget(bk.id).picks || {};
+    const graded = bk.type==='chatscored';
+    const st = this.lget(bk.id);
+    const picks = st.picks || {};
     const shown = edit ? msgs.length : Math.min(this.lget(bk.id).n==null ? 1 : this.lget(bk.id).n, msgs.length);
     const doneAll = shown >= msgs.length;
     const initials = (n)=>(n||'?').trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
     const bubble = (m, i)=>{
       const isB = m.from==='b';
+      const rtl = this.rtl();
       const name = isB ? (bk.personB||'B') : (bk.personA||'A');
       return this.h('div', { key:m.id||i, style:{ display:'flex', gap:'10px', flexDirection:isB?'row-reverse':'row', alignItems:'flex-end', animation:'lc-pop .25s ease' } },
         this.h('div', { title:name, style:{ width:'30px', height:'30px', flex:'none', borderRadius:'50%', background:isB?'var(--pink-600, #ff176b)':'var(--gray-300)', color:isB?'#fff':'var(--content-neutral-primary)', display:'flex', alignItems:'center', justifyContent:'center', font:'700 11px/1 var(--font-inter)' } }, initials(name)),
         this.h('div', { style:{ maxWidth:'72%' } },
-          this.h('div', { style:{ font:'500 11px/14px var(--font-roboto)', color:'var(--content-neutral-tertiary)', marginBottom:'3px', textAlign:isB?'right':'left' } }, name),
-          this.ceIn(edit, 'div', { padding:'11px 15px', borderRadius: isB?'16px 16px 4px 16px':'16px 16px 16px 4px', background: isB?'var(--pink-600, #ff176b)':'var(--gray-100)', color: isB?'#fff':'var(--content-neutral-primary)', font:'400 14.5px/21px var(--font-roboto)', whiteSpace:'pre-wrap', overflowWrap:'break-word' }, bk, 'messages', i, 'text', m.text)));
+          this.h('div', { style:{ font:'500 11px/14px var(--font-roboto)', color:'var(--content-neutral-tertiary)', marginBottom:'3px', textAlign:(isB!==rtl)?'right':'left' } }, name),
+          this.ceIn(edit, 'div', { padding:'11px 15px', borderRadius: isB?(rtl?'16px 16px 16px 4px':'16px 16px 4px 16px'):(rtl?'16px 16px 4px 16px':'16px 16px 16px 4px'), background: isB?'var(--pink-600, #ff176b)':'var(--gray-100)', color: isB?'#fff':'var(--content-neutral-primary)', font:'400 14.5px/21px var(--font-roboto)', whiteSpace:'pre-wrap', overflowWrap:'break-word' }, bk, 'messages', i, 'text', m.text)));
     };
     return this.h('div', { style:{ background:'#fff', border:'1px solid var(--border-neutral-secondary)', borderRadius:'4px', boxShadow:'var(--shadow-xs)', padding:'24px', maxWidth:'620px', margin:'0 auto' } },
       this.h('div', { style:{ display:'flex', alignItems:'center', gap:'9px', paddingBottom:'14px', marginBottom:'16px', borderBottom:'1px solid var(--border-neutral-secondary)' } },
         this.ic('chat', 18, 'var(--content-neutral-secondary)'),
         this.h('span', { style:{ font:'600 14px/18px var(--font-inter)', color:'var(--content-neutral-primary)' } }, (bk.personA||'A')+' & '+(bk.personB||'B')),
         this.h('div', { style:{ flex:1 } }),
-        (!edit && shown>1) ? this.h('button', { onClick:(e)=>{ e.stopPropagation(); this.lset(bk.id,{ n:1, picks:{} }); }, style:{ border:'none', background:'transparent', cursor:'pointer', font:'500 12px/1 var(--font-roboto)', color:'var(--content-neutral-tertiary)', padding:'4px' } }, 'Restart') : null),
+        graded ? this.h('span', { style:{ padding:'3px 9px', borderRadius:'999px', font:'500 11px/16px var(--font-roboto)', background: bk.graded!==false?'var(--fill-success-subtlest)':'var(--gray-100)', color: bk.graded!==false?'var(--content-success-text-bold)':'var(--content-neutral-tertiary)' } }, bk.graded!==false?'Graded':'Not graded') : null,
+        (!edit && !graded && shown>1) ? this.h('button', { onClick:(e)=>{ e.stopPropagation(); this.lset(bk.id,{ n:1, picks:{} }); }, style:{ border:'none', background:'transparent', cursor:'pointer', font:'500 12px/1 var(--font-roboto)', color:'var(--content-neutral-tertiary)', padding:'4px' } }, 'Restart') : null),
       (()=>{
         const out = []; let waiting = null;
         for(let i=0; i<msgs.length && i<shown; i++){
@@ -3395,7 +3739,7 @@ class Component extends DCLogic {
           if(op){
             out.push(bubble({ from:'b', text:op.text }, 'pk'+i));
             if(op.reply) out.push(this.h('div', { key:'rp'+i }, bubble({ from:'a', text:op.reply }, 'rb'+i),
-              this.h('div', { style:{ display:'flex', justifyContent:'flex-start', marginTop:'6px', paddingLeft:'40px' } },
+              this.h('div', { style:{ display:'flex', justifyContent:'flex-start', marginTop:'6px', [this.rtl()?'paddingRight':'paddingLeft']:'40px' } },
                 this.h('span', { style:{ display:'inline-flex', alignItems:'center', gap:'5px', font:'500 11px/16px var(--font-roboto)', padding:'2px 9px', borderRadius:'999px', background: op.good!==false?'var(--fill-success-subtlest)':'var(--fill-warning-subtler)', color: op.good!==false?'var(--content-success-text-bold)':'var(--content-warning-text-bold)' } }, this.ic(op.good!==false?'check':'callout', 11), op.good!==false?'Good choice':'Could be better'))));
           }
         }
@@ -3403,13 +3747,23 @@ class Component extends DCLogic {
           this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'14px' } }, out),
           waiting ? this.h('div', { style:{ marginTop:'16px', display:'flex', flexDirection:'column', gap:'8px', alignItems:'flex-end' } },
             this.h('div', { style:{ font:'500 11px/14px var(--font-roboto)', letterSpacing:'.05em', textTransform:'uppercase', color:'var(--content-neutral-tertiary)' } }, 'Choose your reply'),
-            (waiting.options||[]).map(o=>this.h('button', { key:o.id, onClick:(e)=>{ e.stopPropagation(); this.lset(bk.id,{ picks:{ ...picks, [waiting.id]:o.id } }); },
-              style:{ padding:'11px 15px', borderRadius:'16px 16px 4px 16px', border:'1.5px solid var(--pink-600, #ff176b)', background:'#fff', color:'var(--pink-600, #ff176b)', font:'400 14px/20px var(--font-roboto)', cursor:'pointer', textAlign:'left', maxWidth:'80%', transition:'background .15s' },
+            (waiting.options||[]).map(o=>this.h('button', { key:o.id, onClick:(e)=>{ e.stopPropagation(); const np={ ...picks, [waiting.id]:o.id }; const upd={ picks:np };
+              if(graded){ const qs=msgs.filter(x=>x.from==='q'); if(qs.length && qs.every(x=>np[x.id])){ const ok=qs.every(x=>{ const p=(x.options||[]).find(oo=>oo.id===np[x.id]); return p && p.good!==false; }); Object.assign(upd,{ submitted:true, result:ok, tries:this.bumpTries(bk) }); } }
+              this.lset(bk.id, upd); },
+              style:{ padding:'11px 15px', borderRadius:this.rtl()?'16px 16px 16px 4px':'16px 16px 4px 16px', border:'1.5px solid var(--pink-600, #ff176b)', background:'#fff', color:'var(--pink-600, #ff176b)', font:'400 14px/20px var(--font-roboto)', cursor:'pointer', textAlign:'start', maxWidth:'80%', transition:'background .15s' },
               onMouseEnter:e=>e.currentTarget.style.background='var(--pink-50, #fff0f5)', onMouseLeave:e=>e.currentTarget.style.background='#fff' }, o.text))) : null,
           (!edit && !doneAll && !waiting) ? this.h('div', { style:{ display:'flex', justifyContent:'center', marginTop:'18px' } },
             this.h('button', { onClick:(e)=>{ e.stopPropagation(); this.lset(bk.id,{ n:shown+1 }); },
               style:{ padding:'11px 24px', border:'none', borderRadius:'999px', background:'var(--pink-600, #ff176b)', color:'#fff', font:'600 13px/1 var(--font-roboto)', letterSpacing:'.06em', textTransform:'uppercase', cursor:'pointer' },
-              onMouseEnter:e=>e.currentTarget.style.background='var(--pink-700, #e41560)', onMouseLeave:e=>e.currentTarget.style.background='var(--pink-600, #ff176b)' }, 'Continue the conversation')) : null);
+              onMouseEnter:e=>e.currentTarget.style.background='var(--pink-700, #e41560)', onMouseLeave:e=>e.currentTarget.style.background='var(--pink-600, #ff176b)' }, 'Continue the conversation')) : null,
+          (!edit && graded && st.submitted && doneAll && !waiting) ? (()=>{
+            const qs = msgs.filter(x=>x.from==='q');
+            const good = qs.filter(x=>{ const p=(x.options||[]).find(oo=>oo.id===picks[x.id]); return p && p.good!==false; }).length;
+            return this.h('div', null,
+              this.h('div', { style:{ marginTop:'16px', display:'flex', alignItems:'center', gap:'8px', font:'500 12px/16px var(--font-roboto)', color:'var(--content-neutral-secondary)' } }, this.ic('quiz', 14, 'var(--content-neutral-secondary)'), good+' of '+qs.length+' good choices'),
+              this.feedbackBox(!!st.result, bk),
+              this.retryRow(bk, { n:1, picks:{} }));
+          })() : null);
       })());
   }
   viewITimeline(bk, edit){
@@ -3432,8 +3786,8 @@ class Component extends DCLogic {
         this.ceIn(edit, 'div', { font:'600 22px/29px var(--font-inter)', letterSpacing:'-.3px', color:'var(--content-neutral-primary)', marginBottom:'10px' }, bk, 'events', cur, 'title', ev.title),
         this.ceIn(edit, 'div', { font:'400 15.5px/25px var(--font-roboto)', color:'var(--content-neutral-secondary)' }, bk, 'events', cur, 'body', ev.body)),
       this.h('div', { style:{ display:'flex', justifyContent:'center', gap:'10px', marginTop:'22px' } },
-        this.h('button', { disabled:cur===0, onClick:(e)=>{ e.stopPropagation(); go(cur-1); }, style:{ width:'38px', height:'38px', borderRadius:'50%', border:'1px solid '+(cur===0?'var(--border-neutral-secondary)':'transparent'), background:cur===0?'#fff':'var(--pink-600, #ff176b)', color:cur===0?'var(--content-neutral-tertiary)':'#fff', display:'flex', alignItems:'center', justifyContent:'center', cursor:cur===0?'default':'pointer' } }, this.ic('chevLeft',18)),
-        this.h('button', { disabled:cur===evs.length-1, onClick:(e)=>{ e.stopPropagation(); go(cur+1); }, style:{ width:'38px', height:'38px', borderRadius:'50%', border:'1px solid '+(cur===evs.length-1?'var(--border-neutral-secondary)':'transparent'), background:cur===evs.length-1?'#fff':'var(--pink-600, #ff176b)', color:cur===evs.length-1?'var(--content-neutral-tertiary)':'#fff', display:'flex', alignItems:'center', justifyContent:'center', cursor:cur===evs.length-1?'default':'pointer' } }, this.ic('chevRight',18))));
+        this.h('button', { disabled:cur===0, onClick:(e)=>{ e.stopPropagation(); go(cur-1); }, style:{ width:'38px', height:'38px', borderRadius:'50%', border:'1px solid '+(cur===0?'var(--border-neutral-secondary)':'transparent'), background:cur===0?'#fff':'var(--pink-600, #ff176b)', color:cur===0?'var(--content-neutral-tertiary)':'#fff', display:'flex', alignItems:'center', justifyContent:'center', cursor:cur===0?'default':'pointer' } }, this.ic(this.rtl()?'chevRight':'chevLeft',18)),
+        this.h('button', { disabled:cur===evs.length-1, onClick:(e)=>{ e.stopPropagation(); go(cur+1); }, style:{ width:'38px', height:'38px', borderRadius:'50%', border:'1px solid '+(cur===evs.length-1?'var(--border-neutral-secondary)':'transparent'), background:cur===evs.length-1?'#fff':'var(--pink-600, #ff176b)', color:cur===evs.length-1?'var(--content-neutral-tertiary)':'#fff', display:'flex', alignItems:'center', justifyContent:'center', cursor:cur===evs.length-1?'default':'pointer' } }, this.ic(this.rtl()?'chevLeft':'chevRight',18))));
   }
   dividerNumber(bk){
     const it = this.curItem(); if(!it) return 1;
@@ -3477,7 +3831,7 @@ class Component extends DCLogic {
   }
   viewFlashcards(bk, edit){
     const flipped = this.lget(bk.id).flip || {};
-    const flipIcon = (color)=>this.h('div', { style:{ position:'absolute', top:'16px', right:'16px' } }, this.ic('flip', 18, color, 1.8));
+    const flipIcon = (color)=>this.h('div', { style:{ position:'absolute', top:'16px', [this.rtl()?'left':'right']:'16px' } }, this.ic('flip', 18, color, 1.8));
     return this.h('div', { style:{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(230px,300px))', justifyContent:'center', gap:'20px' } },
       bk.cards.map((c,i)=>{ const f=flipped[i];
         const fl=(c.front||'').length, bl=(c.back||'').length;
@@ -3500,11 +3854,11 @@ class Component extends DCLogic {
         return this.h('div', { key:i, onClick:()=>this.lset(bk.id,{ open:{ ...open, [i]:!o } }), style:{ perspective:'1200px', height:'190px', cursor:'pointer' } },
         this.h('div', { style:{ position:'relative', width:'100%', height:'100%', transition:'transform .55s', transformStyle:'preserve-3d', transform:o?'rotateY(180deg)':'none' } },
           this.h('div', { style:face({ opacity:o?0:1, transition:'opacity .25s' }) },
-            this.h('div', { style:{ position:'absolute', top:'14px', right:'14px' } }, this.ic('reveal', 17, 'var(--content-neutral-secondary)', 1.8)),
+            this.h('div', { style:{ position:'absolute', top:'14px', [this.rtl()?'left':'right']:'14px' } }, this.ic('reveal', 17, 'var(--content-neutral-secondary)', 1.8)),
             this.ceIn(edit, 'div', { font:((c.title||'').length>36?'400 18px/25px var(--font-inter)':'400 22px/29px var(--font-inter)'), color:'var(--content-neutral-primary)', overflowWrap:'break-word', width:'100%' }, bk, 'cards', i, 'title', c.title),
             this.h('div', { style:{ marginTop:'12px', font:'500 11px/1 var(--font-roboto)', letterSpacing:'.1em', textTransform:'uppercase', color:'var(--content-neutral-tertiary)' } }, 'Click to reveal')),
           this.h('div', { style:face({ opacity:o?1:0, transition:'opacity .25s', transform:'rotateY(180deg)' }) },
-            this.h('div', { style:{ position:'absolute', top:'14px', right:'14px' } }, this.ic('x', 17, 'var(--content-neutral-secondary)', 1.8)),
+            this.h('div', { style:{ position:'absolute', top:'14px', [this.rtl()?'left':'right']:'14px' } }, this.ic('x', 17, 'var(--content-neutral-secondary)', 1.8)),
             this.ceIn(edit, 'div', { font:(bl>160?'400 13px/19px var(--font-roboto)':'400 15px/22px var(--font-roboto)'), color:'var(--content-neutral-primary)', overflowWrap:'break-word', width:'100%', maxHeight:'138px', overflow:'auto' }, bk, 'cards', i, 'body', c.body)))); }));
   }
   viewCardGrid(bk){
@@ -3704,7 +4058,10 @@ class Component extends DCLogic {
   }
   itemMediaView(slotId, obj){
     const media = obj.media || (obj.img ? 'image' : 'none');
-    if(media==='image') return this.h('div', { style:{ height:'260px', borderRadius:'12px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)', marginBottom:'14px' } }, this.imageSlot(slotId, 'Image'));
+    if(media==='image'){
+      if(obj.imgSrc) return this.h('div', { style:{ borderRadius:'12px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)', marginBottom:'14px', lineHeight:0 } }, this.h('img', { src:obj.imgSrc, alt:'', style:{ width:'100%', height:'auto', maxHeight:'420px', objectFit:'contain', display:'block' } }));
+      return this.h('div', { style:{ height:'260px', borderRadius:'12px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)', marginBottom:'14px' } }, this.imageSlot(slotId, 'Image'));
+    }
     if(media==='video' && (obj.videoUrl||'').trim()) return this.h('div', { style:{ borderRadius:'12px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)', marginBottom:'14px' } }, this.renderVideo({ url:obj.videoUrl }, 280));
     if(media==='audio' && obj.audioSrc) return this.h('audio', { controls:true, src:obj.audioSrc, style:{ width:'100%', marginBottom:'14px', display:'block' } });
     return null;
@@ -3756,22 +4113,31 @@ class Component extends DCLogic {
       return this.h('div', null,
         this.h('div', { style:{ position:'relative', borderRadius:'16px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)' } },
           this.h('div', { style:{ height:'340px', background:'#fff' } }, im.media==='video' ? this.renderVideo({ url:im.videoUrl }, 340) : im.imgSrc ? this.h('img', { src:im.imgSrc, alt:im.caption||'', style:{ width:'100%', height:'100%', objectFit:'contain', display:'block' } }) : this.imageSlot('slot-'+bk.id+'-'+im.id, 'Image')),
-          n>1 ? nav('chevLeft', ()=>go(-1), 'left') : null,
-          n>1 ? nav('chevRight', ()=>go(1), 'right') : null),
+          n>1 ? nav('chevLeft', ()=>go(this.rtl()?1:-1), 'left') : null,
+          n>1 ? nav('chevRight', ()=>go(this.rtl()?-1:1), 'right') : null),
         im.caption ? this.h('div', { style:{ marginTop:'10px', font:'400 14px/20px var(--font-roboto)', color:'var(--content-neutral-secondary)', textAlign:'center' } }, im.caption) : null,
         n>1 ? this.h('div', { style:{ display:'flex', justifyContent:'center', gap:'7px', marginTop:'12px' } }, bk.images.map((_,i)=>this.h('button', { key:i, onClick:()=>this.lset(bk.id,{ slide:i }), style:{ width:i===cur?'22px':'8px', height:'8px', borderRadius:'999px', border:'none', cursor:'pointer', padding:0, background:i===cur?'var(--gray-1000)':'var(--gray-300)', transition:'width .2s, background .2s' } }))) : null);
     }
+    const ih = bk.imgH || 220;
     return this.h('div', { style:{ display:'grid', gridTemplateColumns:`repeat(${n===1?1:2},1fr)`, gap:'14px' } },
-      bk.images.map(im=>this.h('div', { key:im.id }, this.h('div',{style:{height:'220px',borderRadius:'14px',overflow:'hidden',border:'1px solid var(--border-neutral-secondary)',background:'#fff'}}, im.imgSrc && im.media!=='video' ? this.h('img', { src:im.imgSrc, alt:im.caption||'', style:{ width:'100%', height:'100%', objectFit:'contain', display:'block' } }) : im.media==='video' ? this.renderVideo({ url:im.videoUrl }, 220) : this.imageSlot('slot-'+bk.id+'-'+im.id,'Image')), im.caption?this.h('div',{style:{marginTop:'8px',font:'400 13px/18px var(--font-roboto)',color:'var(--content-neutral-tertiary)'}},im.caption):null)));
+      bk.images.map(im=>this.h('div', { key:im.id },
+        im.imgSrc && im.media!=='video'
+          ? this.h('div',{style:{borderRadius:'14px',overflow:'hidden',border:'1px solid var(--border-neutral-secondary)',background:'#fff',lineHeight:0}}, this.h('img', { src:im.imgSrc, alt:im.caption||'', style:{ width:'100%', height:'auto', maxHeight:ih+'px', objectFit:'cover', objectPosition:'top', display:'block' } }))
+          : this.h('div',{style:{height:ih+'px',borderRadius:'14px',overflow:'hidden',border:'1px solid var(--border-neutral-secondary)',background:'#fff'}}, im.media==='video' ? this.renderVideo({ url:im.videoUrl }, ih) : this.imageSlot('slot-'+bk.id+'-'+im.id,'Image')),
+        im.caption?this.h('div',{style:{marginTop:'8px',font:'400 13px/18px var(--font-roboto)',color:'var(--content-neutral-tertiary)'}},im.caption):null)));
   }
   viewLabeled(bk){
     const active = this.lget(bk.id).active;
-    return this.h('div', { style:{ position:'relative', borderRadius:'16px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)', minHeight:'340px' } },
-      this.h('div', { style:{ position:'absolute', inset:0 } }, this.imageSlot('slot-'+bk.id+'-bg','Background image')),
-      bk.markers.map((m,i)=>this.h('div', { key:m.id, style:{ position:'absolute', left:m.x+'%', top:m.y+'%', transform:'translate(-50%,-50%)', zIndex: active===m.id?5:2 } },
+    return this.h('div', { style:{ position:'relative' } },
+      this.h('div', { style:{ position:'relative', borderRadius:'16px', overflow:'hidden', border:'1px solid var(--border-neutral-secondary)', background:'#fff', lineHeight:0, minHeight: bk.imgSrc?undefined:'340px' } },
+        bk.imgSrc
+          ? this.h('img', { src:bk.imgSrc, alt:'', style:{ width:'100%', height:'auto', display:'block' } })
+          : this.h('div', { style:{ position:'absolute', inset:0 } }, this.imageSlot('slot-'+bk.id+'-bg','Background image'))),
+      bk.markers.map((m,i)=>{ const below = m.y <= 58;
+        return this.h('div', { key:m.id, style:{ position:'absolute', left:m.x+'%', top:m.y+'%', transform:'translate(-50%,-50%)', zIndex: active===m.id?6:2 } },
         this.h('button', { onClick:()=>this.lset(bk.id,{ active: active===m.id?null:m.id }), style:{ width:'34px', height:'34px', borderRadius:'50%', border:'none', background:'var(--gray-1000)', color:'#fff', font:'600 14px/1 var(--font-inter)', cursor:'pointer', boxShadow:'0 2px 8px rgba(0,0,0,.35), 0 0 0 4px rgba(255,255,255,.7)' } }, active===m.id?this.ic('x',16,'#fff'):(i+1)),
-        active===m.id?this.h('div', { style:{ position:'absolute', top:'42px', left:'50%', transform:'translateX(-50%)', width:'230px', maxWidth:'70vw', background:'#fff', borderRadius:'12px', boxShadow:'var(--shadow-lg)', padding:'14px 16px', animation:'lc-pop .18s', zIndex:6 } },
-          this.h('div',{style:{font:'600 15px/20px var(--font-inter)',marginBottom:'5px'}}, m.title), this.h('div',{style:{font:'400 14px/20px var(--font-roboto)',color:'var(--content-neutral-secondary)'}}, m.body)):null)));
+        active===m.id?this.h('div', { style:{ position:'absolute', ...(below?{ top:'42px' }:{ bottom:'42px' }), left:'50%', transform:'translateX(-50%)', width:'280px', maxWidth:'76vw', background:'#fff', borderRadius:'12px', boxShadow:'var(--shadow-lg)', padding:'14px 16px', animation:'lc-pop .18s', zIndex:7, lineHeight:'normal' } },
+          this.h('div',{style:{font:'600 15px/20px var(--font-inter)',marginBottom:'5px'}}, m.title), this.h('div',{style:{font:'400 14px/20px var(--font-roboto)',color:'var(--content-neutral-secondary)',whiteSpace:'pre-wrap'}}, m.body)):null); }));
   }
   viewSorting(bk){
     const place = this.lget(bk.id).place || {};
@@ -3808,7 +4174,7 @@ class Component extends DCLogic {
       this.h('div', { style:{ display:'flex', flexDirection:'column', gap:'10px' } }, bk.options.map(op=>{
         const on = !!op.correct;
         return this.h('button', { key:op.id, onClick:(e)=>{ e.stopPropagation(); setCorrect(op); }, title: multi?'Click to toggle correct':'Click to make this the correct answer',
-          style:{ display:'flex', alignItems:'center', gap:'12px', textAlign:'left', padding:'14px 16px', border:'1.5px solid '+(on?'var(--green-600)':'var(--border-neutral-primary)'), background: on?'var(--fill-success-subtlest)':'#fff', borderRadius:'11px', cursor:'pointer', font:'400 15px/20px var(--font-roboto)', color:'var(--content-neutral-primary)', transition:'all .15s' },
+          style:{ display:'flex', alignItems:'center', gap:'12px', textAlign:'start', padding:'14px 16px', border:'1.5px solid '+(on?'var(--green-600)':'var(--border-neutral-primary)'), background: on?'var(--fill-success-subtlest)':'#fff', borderRadius:'11px', cursor:'pointer', font:'400 15px/20px var(--font-roboto)', color:'var(--content-neutral-primary)', transition:'all .15s' },
           onMouseEnter:e=>{ if(!on) e.currentTarget.style.borderColor='var(--gray-400)'; }, onMouseLeave:e=>{ if(!on) e.currentTarget.style.borderColor='var(--border-neutral-primary)'; } },
           this.h('div', { style:{ width:'20px', height:'20px', flex:'none', borderRadius: multi?'5px':'50%', border:'2px solid '+(on?'var(--green-600)':'var(--border-neutral-primary)'), background:on?'var(--green-600)':'transparent', display:'flex', alignItems:'center', justifyContent:'center' } }, on?this.ic('check',13,'#fff'):null),
           this.h('span',{style:{flex:1}}, op.text),
@@ -3841,7 +4207,7 @@ class Component extends DCLogic {
         if(submitted){ if(op.correct){ bd='var(--green-600)'; bg='var(--fill-success-subtlest)'; mk=this.ic('check',18,'var(--content-success-icon)'); } else if(picked){ bd='var(--red-600)'; bg='var(--fill-danger-subtler)'; mk=this.ic('x',18,'var(--content-danger-icon)'); } }
         else if(picked){ bd='var(--pink-600, #ff176b)'; bg='var(--pink-50, #fff0f5)'; }
         const activeInd = picked || (submitted && op.correct);
-        return this.h('button', { key:op.id, disabled:submitted, onClick:()=>onPick(op), style:{ display:'flex', alignItems:'center', gap:'12px', textAlign:'left', padding:'14px 16px', border:'1.5px solid '+bd, background:bg, borderRadius:'11px', cursor:submitted?'default':'pointer', font:'400 15px/20px var(--font-roboto)', color:'var(--content-neutral-primary)', transition:'all .15s' } },
+        return this.h('button', { key:op.id, disabled:submitted, onClick:()=>onPick(op), style:{ display:'flex', alignItems:'center', gap:'12px', textAlign:'start', padding:'14px 16px', border:'1.5px solid '+bd, background:bg, borderRadius:'11px', cursor:submitted?'default':'pointer', font:'400 15px/20px var(--font-roboto)', color:'var(--content-neutral-primary)', transition:'all .15s' } },
           this.h('div', { style:{ width:'20px', height:'20px', flex:'none', borderRadius: multi?'5px':'50%', border:'2px solid '+(activeInd?bd:'var(--border-neutral-primary)'), background: picked&&!submitted?'var(--pink-600, #ff176b)':'transparent', display:'flex', alignItems:'center', justifyContent:'center' } }, picked&&!submitted?(multi?this.ic('check',13,'#fff'):this.h('div',{style:{width:'8px',height:'8px',borderRadius:'50%',background:'#fff'}})):null),
           this.h('span',{style:{flex:1}}, op.text), mk); })),
       submitted ? this.h('div', { style:{ marginTop:'16px', padding:'14px 16px', borderRadius:'11px', background: ok?'var(--fill-success-subtlest)':'var(--fill-warning-subtler)', display:'flex', gap:'10px', animation:'lc-pop .2s' } },
@@ -3892,6 +4258,9 @@ class Component extends DCLogic {
       case 'timeline': return `<section class="bk"><ol class="tl">${bk.events.map(ev=>`<li><span class="d">${e(ev.date)}</span><b>${e(ev.title)}</b><p>${e(ev.body)}</p></li>`).join('')}</ol></section>`;
       case 'itimeline': return `<section class="bk"><ol class="tl">${(bk.events||[]).map(ev=>`<li><span class="d">${e(ev.date)}</span><b>${e(ev.title)}</b><p>${e(ev.body)}</p></li>`).join('')}</ol></section>`;
       case 'chatsim': return `<section class="bk"><p class="muted">${e(bk.personA||'A')} &amp; ${e(bk.personB||'B')}</p>${(bk.messages||[]).map(m=> m.from==='q' ? `<p><i>Choose a reply:</i></p><ul>${(m.options||[]).map(o=>`<li>${e(o.text)}${o.reply?` &rarr; ${e(o.reply)}`:''}</li>`).join('')}</ul>` : `<p><b>${e(m.from==='b'?(bk.personB||'B'):(bk.personA||'A'))}:</b> ${e(m.text)}</p>`).join('')}</section>`;
+      case 'chatscored': { const g=bk.graded!==false?' data-graded="1"':''; const fc=e(bk.feedbackCorrect||'Well handled.'); const fw=e(bk.feedbackWrong||'Some replies could be better \u2014 try again.');
+        const body=(bk.messages||[]).map((m,i)=> m.from==='q' ? `<p class="qhint">Choose the best reply for ${e(bk.personB||'B')}:</p>${(m.options||[]).map(o=>`<label class="opt"><input type="radio" name="q_${bk.id}_${i}" data-c="${o.good!==false?1:0}"> ${e(o.text)}</label>`).join('')}` : `<p><b>${e(m.from==='b'?(bk.personB||'B'):(bk.personA||'A'))}:</b> ${e(m.text)}</p>`).join('');
+        return `<section class="bk"><div class="quiz" id="q_${bk.id}"${g} data-max="${+bk.maxAttempts||0}" data-fc="${fc}" data-fw="${fw}"><b>${e(bk.personA||'A')} &amp; ${e(bk.personB||'B')}</b>${body}<button type="button" class="qcheck" onclick="gradeChat('${bk.id}')">Check answers</button><p class="fb"></p></div></section>`; }
       case 'truefalse': { const g=bk.graded!==false?' data-graded="1"':''; const fc=e(bk.feedbackCorrect||'Correct.'); const fw=e(bk.feedbackWrong||'Not quite.'); const o=(v,l)=>`<label class="opt"><input type="radio" name="q_${bk.id}" data-c="${bk.answer===v?1:0}"> ${l}</label>`; return `<section class="bk"><div class="quiz" id="q_${bk.id}"${g} data-max="${+bk.maxAttempts||0}" data-fc="${fc}" data-fw="${fw}"><b>${e(bk.statement)}</b>${o(true,'True')}${o(false,'False')}<button type="button" class="qcheck" onclick="grade('${bk.id}')">Check answer</button><p class="fb"></p></div></section>`; }
       case 'fillblank': { const g=bk.graded!==false?' data-graded="1"':''; const fc=e(bk.feedbackCorrect||'Correct.'); const fw=e(bk.feedbackWrong||'Not quite.'); const parts=(bk.text||'').split('___'); let bi=0; const body=parts.map((seg,i)=> e(seg) + (i<parts.length-1?`<input class="blank" data-a="${e((bk.answers||[])[bi++]||'')}">`:'')).join(''); return `<section class="bk"><div class="quiz" id="q_${bk.id}"${g} data-max="${+bk.maxAttempts||0}" data-fc="${fc}" data-fw="${fw}"><p>${body}</p><button type="button" class="qcheck" onclick="gradeFill('${bk.id}')">Check answer</button><p class="fb"></p></div></section>`; }
       case 'matching': return `<section class="bk"><table class="match"><tbody>${bk.pairs.map(p=>`<tr><td><b>${e(p.left)}</b></td><td>${e(p.right)}</td></tr>`).join('')}</tbody></table></section>`;
@@ -3899,6 +4268,7 @@ class Component extends DCLogic {
       default: return '';
     }
   }
+  rtlExportCss(){ return '[dir=rtl] #nav{border-right:none;border-left:1px solid #e9e9e9}[dir=rtl] #nav button{text-align:right}[dir=rtl] blockquote{border-left:none;border-right:4px solid #ff176b;padding:4px 20px 4px 0}[dir=rtl] ol.process li{padding:0 48px 20px 0}[dir=rtl] ol.process li:before{left:auto;right:0}[dir=rtl] .cover,[dir=rtl] .cover .cbox,[dir=rtl] .cover .ctoc,[dir=rtl] .cover .ctoc button{text-align:right}[dir=rtl] span,[dir=rtl] .chip{unicode-bidi:plaintext}'; }
   buildIndexHtml(it,opts){
     opts=opts||this.state.exportOpts;
     const e=this.esc.bind(this);
@@ -3916,7 +4286,7 @@ class Component extends DCLogic {
     const cover = !coverOn ? '' : `<div id="cover" class="cover"><div class="cbox"><div class="ceyebrow">Course</div><h1>${e(it.title)}</h1>${it.description?`<p>${e(it.description)}</p>`:''}${toc}<button onclick="startCourse()">Start &rarr;</button></div></div>`;
     const exitBtn = opts.exitLink ? `<button class="exit" onclick="exitCourse()">Exit course</button>` : '';
     const extra = `.cover{position:fixed;inset:0;z-index:50;background:#f9f9f9;color:#1a1a1a;display:flex;align-items:center;justify-content:center;text-align:left;padding:24px}.cover .cbox{max-width:620px;width:100%;background:#fff;border:1px solid #e9e9e9;border-radius:16px;box-shadow:0 1px 3px rgba(26,26,26,.08);padding:44px 48px}.cover .ceyebrow{font:500 12px/1 Roboto;letter-spacing:.05em;text-transform:uppercase;color:#959595;margin-bottom:12px}.cover h1{color:#1a1a1a;font:600 36px/1.2 Inter,sans-serif;letter-spacing:-1px;margin:0 0 12px}.cover p{color:#6b6b6b;font-size:16px;line-height:1.5;margin:0 0 22px}.cover button{background:#1a1a1a;color:#fff;border:none;border-radius:8px;padding:12px 22px;font:500 14px Roboto;cursor:pointer}.foot{display:flex;gap:12px;align-items:center}.foot .exit{background:#fff;color:#535353;border:1px solid #d8d8d8;border-radius:8px;padding:11px 20px;font:500 14px Roboto;cursor:pointer}.cover .ctoc{list-style:none;padding:16px 0 6px;margin:16px 0 22px;border-top:1px solid #e9e9e9;text-align:left}.cover .ctoc li{counter-increment:t}.cover .ctoc button{background:transparent;border:none;color:#1a1a1a;font:400 14px/1.4 Roboto;cursor:pointer;padding:8px 10px;margin:0 -10px;border-radius:8px;display:flex;gap:12px;align-items:center;width:calc(100% + 20px);text-align:left}.cover .ctoc button:hover{background:#f4f4f4}.cover .ctoc{counter-reset:t}.cover .ctoc button:before{content:counter(t);width:22px;height:22px;flex:none;display:flex;align-items:center;justify-content:center;background:#f4f4f4;border-radius:6px;color:#6b6b6b;font:600 12px Inter,sans-serif}`;
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${e(it.title)}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet"><style>${css}${extra}</style></head><body>${cover}<div class="wrap">${nav}<main>${lessons}<div class="foot"><button onclick="next(+document.querySelector('.lesson:not([hidden])').dataset.i)">Continue &rarr;</button>${exitBtn}</div></main></div>`+'<'+S+'>'+js+';function startAt(i){startCourse();go(i)}'+'</'+S+'></body></html>';
+    return `<!DOCTYPE html><html lang="${it.rtl?'he':'en'}"${it.rtl?' dir="rtl"':''}><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${e(it.title)}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet"><style>${css}${extra}${it.rtl?this.rtlExportCss():''}</style></head><body>${cover}<div class="wrap">${nav}<main>${lessons}<div class="foot"><button onclick="next(+document.querySelector('.lesson:not([hidden])').dataset.i)">Continue &rarr;</button>${exitBtn}</div></main></div>`+'<'+S+'>'+js+';function startAt(i){startCourse();go(i)}'+'</'+S+'></body></html>';
   }
   buildPathIndexHtml(it, opts){
     opts=opts||this.state.exportOpts;
@@ -3976,10 +4346,11 @@ function attemptsOk(q){var max=+q.dataset.max||0;if(!max)return true;return +(q.
 function noteAttempt(q,ok){var max=+q.dataset.max||0;if(!max)return;var tr=+(q.dataset.tries||0)+1;q.dataset.tries=tr;var fb=q.querySelector('.fb');var lock=ok||tr>=max;if(lock){[].forEach.call(q.querySelectorAll('input'),function(i){i.disabled=true});var b=q.querySelector('.qcheck');if(b){b.disabled=true;b.style.opacity=.5;b.style.cursor='default'}}if(!ok){fb.textContent=(fb.textContent||'')+(tr>=max?' No attempts left.':' Attempt '+tr+' of '+max+'.')}}
 function grade(id){var q=document.getElementById('q_'+id);if(!attemptsOk(q))return;var ins=[].slice.call(q.querySelectorAll('input'));var any=ins.some(function(x){return x.checked});if(!any)return;var ok=ins.every(function(x){return (x.dataset.c==='1')===x.checked});q.dataset.res=ok?'1':'0';var fb=q.querySelector('.fb');fb.textContent=ok?q.dataset.fc:q.dataset.fw;fb.className='fb '+(ok?'good':'bad');noteAttempt(q,ok)}
 function gradeFill(id){var q=document.getElementById('q_'+id);if(!attemptsOk(q))return;var bs=[].slice.call(q.querySelectorAll('.blank'));var ok=bs.every(function(b){return b.value.trim().toLowerCase()===String(b.dataset.a||'').trim().toLowerCase()});q.dataset.res=ok?'1':'0';var fb=q.querySelector('.fb');fb.textContent=ok?q.dataset.fc:q.dataset.fw;fb.className='fb '+(ok?'good':'bad');noteAttempt(q,ok)}
+function gradeChat(id){var q=document.getElementById('q_'+id);if(!attemptsOk(q))return;var ins=[].slice.call(q.querySelectorAll('input'));var gs={};ins.forEach(function(x){(gs[x.name]=gs[x.name]||[]).push(x)});var names=Object.keys(gs);if(!names.every(function(n){return gs[n].some(function(x){return x.checked})}))return;var ok=names.every(function(n){return gs[n].some(function(x){return x.checked&&x.dataset.c==='1'})});q.dataset.res=ok?'1':'0';var fb=q.querySelector('.fb');fb.textContent=ok?q.dataset.fc:q.dataset.fw;fb.className='fb '+(ok?'good':'bad');noteAttempt(q,ok)}
 showMap();report();
 window.addEventListener('unload',function(){setV(S4?'cmi.session_time':'cmi.core.session_time',stime());commit();term()});`;
     const S='scr'+'ipt';
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${e(it.title)}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet"><style>${css}</style></head><body><div class="wrapc">${gateHtml}${mapHtml}${coursesHtml}</div>`+'<'+S+'>'+js+'</'+S+'></body></html>';
+    return `<!DOCTYPE html><html lang="${it.rtl?'he':'en'}"${it.rtl?' dir="rtl"':''}><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${e(it.title)}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet"><style>${css}${it.rtl?this.rtlExportCss():''}</style></head><body><div class="wrapc">${gateHtml}${mapHtml}${coursesHtml}</div>`+'<'+S+'>'+js+'</'+S+'></body></html>';
   }
   renderPathExportModal(){
     const it = this.curItem(); if(!it) return null;
